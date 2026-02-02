@@ -1,0 +1,698 @@
+# main.py (Bản Nâng Cấp v5.0 - Fix Logic Báo cáo & Tính năng Giao việc)
+import os
+import asyncio
+import requests # Giữ lại để quote URL, nhưng không dùng để request
+import aiohttp # Thư viện request bất đồng bộ
+import json
+import logging # <<< THÊM VÀO
+from datetime import datetime, timedelta, time
+
+# --- CẤU HÌNH LOGGING ---
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler("bot_activity.log"), # Ghi log ra file
+        logging.StreamHandler() # Hiển thị log trên console
+    ]
+)
+logger = logging.getLogger(__name__)
+# -------------------------
+from dotenv import load_dotenv
+from telegram import Update
+from telegram.constants import ParseMode
+from telegram.helpers import escape_markdown
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.jobstores.base import JobLookupError
+import google.generativeai as genai
+
+# --- CẤU HÌNH ---
+load_dotenv()
+TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
+ONEOFFICE_TOKEN = os.getenv("ONEOFFICE_TOKEN")
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+MY_CHAT_ID = os.getenv("MY_CHAT_ID")
+genai.configure(api_key=GOOGLE_API_KEY)
+gemini_model = genai.GenerativeModel('gemini-2.0-flash')
+ONEOFFICE_LINK = "https://innojsc.1office.vn/work"
+STATUS_MAP = {"COMPLETED": "Hoàn thành", "CANCEL": "Hủy", "PAUSE": "Tạm dừng"}
+DEFAULT_ASSIGNEE = "Tạ Hoàng Nam"
+
+# --- CÁC HÀM GIAO TIẾP VỚI 1OFFICE (Sử dụng AIOHTTP) ---
+async def get_tasks_data(filters_override=None):
+    """Lấy dữ liệu công việc từ 1Office bất đồng bộ."""
+    default_filters = {"assign_ids": DEFAULT_ASSIGNEE, "status": "DOING"}
+    final_filters = filters_override if filters_override else default_filters
+    # Không cần quote thủ công nữa
+    filters_json_string = json.dumps([final_filters])
+    base_url = "https://innojsc.1office.vn/api/work/normal/gets"
+    # Tạo một dictionary chứa các tham số
+    params = {
+        "access_token": ONEOFFICE_TOKEN,
+        "filters": filters_json_string
+    }
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(base_url, params=params) as response:
+                response.raise_for_status() # Tự động báo lỗi cho các status 4xx, 5xx
+                return await response.json(content_type=None)
+    # <<< XỬ LÝ LỖI CHI TIẾT >>>
+    except aiohttp.ClientError as e:
+        # Lỗi liên quan đến kết nối mạng (không thể kết nối, timeout, DNS, v.v.)
+        logger.error(f"Lỗi mạng trong get_tasks_data: {e}")
+        return None
+    except json.JSONDecodeError as e:
+        # Lỗi khi API trả về một chuỗi không phải là JSON hợp lệ
+        logger.error(f"Lỗi giải mã JSON trong get_tasks_data: {e}")
+        return None
+    except Exception as e:
+        # Bắt các lỗi không lường trước khác
+        logger.critical(f"Lỗi không xác định trong get_tasks_data: {e}", exc_info=True)
+        return None
+
+async def create_and_start_task(title, end_plan, assignee_name=DEFAULT_ASSIGNEE):
+    """Quy trình 2 bước: Tạo và kích hoạt công việc, với xử lý lỗi chi tiết."""
+    base_url = "https://innojsc.1office.vn/api/work/normal"
+    params = {"access_token": ONEOFFICE_TOKEN}
+    
+    insert_payload = {
+        'title': title, 
+        'assign_ids': assignee_name, 
+        'owner_ids': DEFAULT_ASSIGNEE,
+        'end_plan': end_plan
+    }
+    
+    try:
+        async with aiohttp.ClientSession() as session:
+            # Bước 1: Tạo công việc mới
+            async with session.post(f"{base_url}/insert", params=params, data=insert_payload) as response:
+                response.raise_for_status()
+                resp_json = await response.json(content_type=None)
+                if resp_json.get("error"):
+                    logger.error(f"API 1Office báo lỗi khi tạo việc: {resp_json.get('message')}")
+                    return None, resp_json.get("message", "Lỗi không xác định từ 1Office.")
+                
+                new_task_id = resp_json.get("newPost", {}).get("ID")
+                if not new_task_id:
+                    logger.error(f"Không lấy được ID công việc mới. Phản hồi: {resp_json}")
+                    return None, "Không lấy được ID của công việc mới tạo."
+
+            # Bước 2: Kích hoạt công việc vừa tạo
+            update_payload = {'ID': new_task_id, 'status': 'Đang thực hiện', 'start_plan': datetime.now().strftime('%d/%m/%Y')}
+            async with session.post(f"{base_url}/update", params=params, data=update_payload) as update_res:
+                update_res.raise_for_status()
+                update_json = await update_res.json(content_type=None)
+                if not update_json.get("error"):
+                    logger.info(f"Đã tạo và kích hoạt thành công công việc ID: {new_task_id}")
+                    return new_task_id, None
+                else:
+                    logger.warning(f"Đã tạo việc {new_task_id} nhưng không kích hoạt được: {update_json.get('message')}")
+                    return new_task_id, "Đã tạo nhưng chưa kích hoạt được."
+
+    except aiohttp.ClientError as e:
+        logger.error(f"Lỗi mạng trong create_and_start_task: {e}")
+        return None, "Lỗi kết nối mạng khi tạo việc."
+    except json.JSONDecodeError as e:
+        logger.error(f"Lỗi giải mã JSON trong create_and_start_task: {e}")
+        return None, "Hệ thống 1Office đã trả về dữ liệu không hợp lệ."
+    except Exception as e:
+        logger.critical(f"Lỗi không xác định trong create_and_start_task: {e}", exc_info=True)
+        return None, "Đã có lỗi hệ thống khi tôi cố gắng tạo việc cho bạn."
+
+async def update_task(task_id, payload):
+    """Hàm cập nhật công việc tổng quát, với xử lý lỗi chi tiết."""
+    base_url = "https://innojsc.1office.vn/api/work/normal/update"
+    params = {"access_token": ONEOFFICE_TOKEN}
+    payload['ID'] = task_id
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.post(base_url, params=params, data=payload) as response:
+                response.raise_for_status()
+                resp_json = await response.json(content_type=None)
+                if not resp_json.get("error"):
+                    logger.info(f"Cập nhật thành công task {task_id} với payload: {payload}")
+                    return True
+                else:
+                    logger.error(f"API 1Office báo lỗi khi cập nhật task {task_id}: {resp_json.get('message')}")
+                    return False
+    except aiohttp.ClientError as e:
+        logger.error(f"Lỗi mạng khi cập nhật task {task_id}: {e}")
+        return False
+    except Exception as e:
+        logger.critical(f"Lỗi không xác định khi cập nhật task {task_id}: {e}", exc_info=True)
+        return False
+
+async def batch_update_tasks(task_updates: list):
+    """
+    Thực thi nhiều lệnh cập nhật công việc một cách đồng thời (song song).
+    `task_updates` là một danh sách các tuple, mỗi tuple chứa (task_id, payload).
+    """
+    # Tạo một danh sách các coroutine (các hàm async chưa được thực thi)
+    coroutines = [update_task(task_id, payload) for task_id, payload in task_updates]
+    
+    # asyncio.gather sẽ chạy tất cả các coroutine song song và đợi chúng hoàn thành.
+    # return_exceptions=True là rất quan trọng: nó đảm bảo rằng nếu một tác vụ thất bại,
+    # các tác vụ khác vẫn tiếp tục chạy thay vì làm sập toàn bộ batch.
+    results = await asyncio.gather(*coroutines, return_exceptions=True)
+    return results
+
+def format_tasks_message(data, title="Các công việc hiện tại của bạn:"):
+    """Định dạng dữ liệu công việc thành tin nhắn đẹp."""
+    if not data or data.get("total_item", 0) == 0:
+        return f"🎉 Tuyệt vời! {title.split(':')[0]} không có công việc nào khớp."
+    message = f"*{escape_markdown(title, version=2)}*\n\n"
+    tasks = data.get("data", [])
+    tasks.sort(key=lambda t: (
+        "Quá hạn" not in t.get('deadline_list', ''),
+        "Còn 0 ngày" not in t.get('deadline_list', ''),
+        t.get('end_plan', '9999-99-99')
+    ))
+    for task in tasks:
+        task_title = escape_markdown(task['title'].strip(), version=2)
+        end_plan = escape_markdown(task.get('end_plan', 'N/A'), version=2)
+        task_id = str(task['ID'])
+        deadline_info = task.get('deadline_list', '')
+        emoji = "🔴" if "Quá hạn" in deadline_info else ("🟠" if "Còn 0 ngày" in deadline_info else "🟢")
+        message += f"{emoji} *{task_title}*\n  _Hạn chót: {end_plan}_ \\| _{escape_markdown(deadline_info, version=2)}_\n  `ID: {task_id}`\n\n"
+    message += f"\\-\\-\\-\n[🔗 Truy cập 1Office để quản lý chi tiết]({ONEOFFICE_LINK})"
+    return message
+
+# --- "BỘ NÃO" GEMINI ĐÃ NÂNG CẤP ---
+async def ask_gemini_for_intent(user_message, tasks_data, last_task_id=None):
+    """Tầng 1: Phân loại ý định, hỗ trợ đa ý định, ngữ cảnh và các tính năng mở rộng."""
+    today = datetime.now()
+    priority_context = ""
+    if last_task_id:
+        last_task_info = next((task for task in tasks_data if task['ID'] == last_task_id), None)
+        priority_context = f"""### NGỮ CẢNH ƯU TIÊN ###
+Người dùng vừa tương tác với công việc: ID {last_task_id} - "{last_task_info['title'] if last_task_info else 'Không rõ'}". Hãy ưu tiên nó nếu họ nói "việc đó"."""
+    prompt = f"""
+    Bạn là một AI điều phối thông minh. Phân tích tin nhắn để xác định một hoặc NHIỀU hành động.
+    Hôm nay là {today.strftime('%d/%m/%Y')}.
+    {priority_context}
+    DANH SÁCH CÔNG VIỆC ĐANG LÀM: {json.dumps(tasks_data, indent=2, ensure_ascii=False)}
+    TIN NHẮN: "{user_message}"
+    Phân tích và trả về JSON theo định dạng: {{{{ "actions": [{{ "intent": "...", "details": {{...}} }}] }}}}.
+    Các loại intent và details:
+    1.  Hỏi công việc: {{{{ "intent": "get_tasks", "details": {{}} }}}}
+    2.  Hỏi công việc ưu tiên: {{{{ "intent": "get_prioritized_tasks", "details": {{"sort_by": "deadline_asc"}} }}}} (vd: "việc nào gấp nhất?")
+    3.  Tóm tắt/Báo cáo công việc: {{{{ "intent": "get_summary", "details": {{"period": "this_week"}} }}}} (vd: "tuần này xong mấy việc?")
+    4.  Cập nhật trạng thái: {{{{ "intent": "update_status", "details": {{"tasks": [{{"task_id": "[ID]", "new_status": "[STATUS_ID]"}}]}} }}}} (STATUS_ID: COMPLETED, CANCEL, PAUSE)
+    5.  Đặt lại deadline (ngày cụ thể): {{{{ "intent": "set_deadline", "details": {{"task_id": "[ID]", "new_end_plan": "dd/mm/YYYY"}} }}}}
+    6.  Gia hạn deadline (thêm thời gian): {{{{ "intent": "extend_deadline", "details": {{"task_id": "[ID]", "duration": {{"days": 3}}}} }}}}
+    7.  Tạo công việc: {{{{ "intent": "create_task", "details": {{"tasks": [{{"title": "tên", "end_plan": null, "assignee": "Lê Thúy Anh hoặc null"}}]}} }}}}
+    8.  Làm rõ việc tạo mới: {{{{ "intent": "clarify_creation", "details": {{...}} }}}}
+    9.  Không rõ: {{{{ "intent": "unknown", "details": {{}} }}}}
+    Quy tắc quan trọng:
+    - Phân biệt rõ "set_deadline" (đặt một ngày cụ thể như 'sang ngày mai') và "extend_deadline" (cộng thêm thời gian vào deadline CŨ như 'thêm 2 ngày').
+    - Với "set_deadline", hãy tính toán ngày cuối cùng dựa trên ngày hôm nay. Ví dụ: nếu hôm nay là 08/08/2025, "ngày mai" là "09/08/2025".
+    - Với "create_task", nếu không có deadline, trả về "end_plan": null. Nếu không có người thực hiện, trả về "assignee": null.
+    - "task_id": "LAST_CREATED" được dùng khi hành động trên việc vừa tạo trong cùng câu lệnh.
+    - "ngày mai"={(today + timedelta(days=1)).strftime('%d/%m/%Y')}, "ngày kia"={(today + timedelta(days=2)).strftime('%d/%m/%Y')}.
+    - Nếu không thể xác định, trả về actions rỗng.
+    """
+    response_text = "" # Khởi tạo để dùng trong khối except
+    try:
+        response = await gemini_model.generate_content_async(prompt)
+        response_text = response.text
+        cleaned_response = response_text.strip().replace('```json', '').replace('```', '').strip()
+        return json.loads(cleaned_response)
+    # <<< XỬ LÝ LỖI CHI TIẾT >>>
+    except json.JSONDecodeError as e:
+        logger.error(f"Lỗi giải mã JSON từ Gemini (Intent): {e}. Phản hồi nhận được: {response_text}")
+        return {"actions": [{"intent": "unknown", "details": {}}]}
+    except Exception as e:
+        # Các lỗi khác từ thư viện của Google (ví dụ: bị rate limit, lỗi xác thực, v.v.)
+        logger.critical(f"Lỗi không xác định từ Gemini (Intent): {e}", exc_info=True)
+        return {"actions": [{"intent": "unknown", "details": {}}]}
+
+async def ask_gemini_to_parse_date(user_message):
+    """
+    Phân tích thông điệp người dùng để lấy ra ngày tháng với prompt chi tiết hơn,
+    xử lý ngày tương đối, thứ trong tuần và "X ngày nữa".
+    """
+    today = datetime.now()
+    # Tính toán sẵn các ngày trong tuần tới để làm ví dụ cho AI
+    next_week_monday = today + timedelta(days=-today.weekday(), weeks=1)
+    prompt = f"""
+Bạn là một trợ lý chuyên gia phân tích ngày tháng. Nhiệm vụ của bạn là đọc một chuỗi văn bản từ người dùng và trả về một ngày duy nhất ở định dạng "dd/mm/YYYY".
+### THÔNG TIN NGỮ CẢNH
+- Hôm nay là: *{today.strftime('%A, %d/%m/%Y')}* (Tức là Thứ {today.weekday() + 2 if today.weekday() < 6 else 'Chủ Nhật'})
+### QUY TẮC VÀ VÍ DỤ
+1.  **Ngày tương đối đơn giản:**
+    - "hôm nay" -> {today.strftime('%d/%m/%Y')}
+    - "ngày mai" -> {(today + timedelta(days=1)).strftime('%d/%m/%Y')}
+    - "ngày kia" -> {(today + timedelta(days=2)).strftime('%d/%m/%Y')}
+2.  **Thứ trong tuần này:** Nếu người dùng nói một thứ trong tuần mà ngày đó chưa trôi qua, hãy tính cho tuần hiện tại.
+    - Ví dụ: Nếu hôm nay là Thứ 2, "thứ 6" có nghĩa là thứ 6 của tuần này.
+3.  **Thứ trong tuần sau:** Nếu người dùng nói "thứ X tuần sau" hoặc thứ đó đã trôi qua trong tuần này, hãy tính cho tuần kế tiếp.
+    - Ví dụ: Nếu hôm nay là Thứ 6, "thứ 3" sẽ được hiểu là thứ 3 của tuần sau.
+    - Các ngày của tuần sau được tính như sau:
+        - "thứ 2 tuần sau" -> {next_week_monday.strftime('%d/%m/%Y')}
+        - "thứ 3 tuần sau" -> {(next_week_monday + timedelta(days=1)).strftime('%d/%m/%Y')}
+        - "thứ 6 tuần sau" -> {(next_week_monday + timedelta(days=4)).strftime('%d/%m/%Y')}
+4.  **<<< QUY TẮC MỚI >>> Khoảng thời gian tương đối (số ngày):**
+    - Nếu người dùng nói "X ngày nữa" hoặc "sau X ngày", hãy lấy ngày hôm nay cộng thêm X ngày.
+    - Ví dụ: "3 ngày nữa" -> {(today + timedelta(days=3)).strftime('%d/%m/%Y')}
+    - Ví dụ: "sau 10 ngày" -> {(today + timedelta(days=10)).strftime('%d/%m/%Y')}
+### YÊU CẦU
+Dựa vào các quy tắc trên, hãy phân tích câu của người dùng và **chỉ trả về ngày tháng ở định dạng "dd/mm/YYYY"**. Nếu không thể xác định, hãy trả về chữ "null".
+**Câu của người dùng:** "{user_message}"
+"""
+    try:
+        response = await gemini_model.generate_content_async(prompt)
+        cleaned_response = response.text.strip().replace('```json', '').replace('```', '').replace('"', '').strip()
+        return cleaned_response if cleaned_response != "null" else None
+    except Exception as e:
+        print(f"Lỗi Gemini (Parse Date): {e}")
+        return None
+
+async def ask_gemini_for_related_task_suggestion(task_title: str):
+    prompt = f"""
+    Bạn là một trợ lý quản lý dự án. Người dùng vừa tạo công việc có tiêu đề: "{task_title}".
+    Dựa vào tiêu đề này, hãy gợi ý một công việc phụ hoặc công việc kế tiếp hợp lý.
+    Ví dụ: "Thiết kế banner" -> "In ấn banner". "Viết kịch bản video" -> "Quay video theo kịch bản".
+    Chỉ trả về JSON: {{{{ "suggestion": "Tên công việc được gợi ý" }}}} hoặc {{{{ "suggestion": null }}}}.
+    """
+    try:
+        response = await gemini_model.generate_content_async(prompt)
+        cleaned_response = response.text.strip().replace('```json', '').replace('```', '').strip()
+        return json.loads(cleaned_response)
+    except Exception:
+        return {"suggestion": None}
+
+# --- CÁC HÀM TIỆN ÍCH ---
+def validate_task_id(task_id_to_check: int, all_tasks: list) -> bool:
+    """Kiểm tra xem một task_id có tồn tại trong danh sách công việc không."""
+    if not all_tasks:
+        return False
+    return any(task['ID'] == task_id_to_check for task in all_tasks)
+
+def get_date_range_for_period(period: str):
+    today = datetime.now()
+    if period == "today": return today, today
+    if period == "this_week":
+        start_date = today - timedelta(days=today.weekday())
+        return start_date, start_date + timedelta(days=6)
+    if period == "this_month":
+        start_date = today.replace(day=1)
+        next_month = start_date.replace(day=28) + timedelta(days=4)
+        return start_date, next_month - timedelta(days=next_month.day)
+    return None, None
+
+# --- CÁC HÀM XỬ LÝ LUỒNG (FLOW) ---
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("Xin chào! Tôi là trợ lý ảo v5.0. Tôi đã sẵn sàng. Gõ /help để xem lệnh.")
+
+async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    help_text = """*Các lệnh bạn có thể dùng:*
+`/start` - Khởi động lại bot
+`/tasks` - Xem các công việc đang làm
+`/help` - Xem tin nhắn này
+`/set_reminders HH:MM HH:MM...` - Đặt lịch nhắc nhở cá nhân
+`/clear_reminders` - Xóa lịch nhắc nhở cá nhân
+... và nhiều câu lệnh tự nhiên khác!"""
+    await update.message.reply_text(escape_markdown(help_text, version=2), parse_mode=ParseMode.MARKDOWN_V2)
+
+async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user_message = update.message.text
+    if 'clarification_needed' in context.user_data or ('pending_tasks_queue' in context.user_data and context.user_data['pending_tasks_queue']):
+        if 'clarification_needed' in context.user_data: await handle_clarification_response(update, context)
+        else: await fill_task_details_flow(update, context)
+        return
+    tasks_raw_data = await get_tasks_data()
+    last_task_id = context.user_data.get('last_interaction_task_id')
+    response_data = await ask_gemini_for_intent(user_message, tasks_raw_data.get("data", []) if tasks_raw_data else [], last_task_id)
+    actions = response_data.get("actions", [])
+    if not actions:
+        await update.message.reply_text("Xin lỗi, tôi chưa hiểu ý bạn lắm.")
+        return
+    last_created_id_in_loop = None
+    for action in actions:
+        intent = action.get("intent")
+        details = action.get("details", {})
+        if intent in ["update_status", "extend_deadline", "set_deadline"]:
+            tasks_to_process = details.get("tasks", []) if intent == "update_status" else [details]
+            for task in tasks_to_process:
+                if task.get("task_id") == "LAST_CREATED":
+                    if last_created_id_in_loop: task["task_id"] = last_created_id_in_loop
+                    else: await update.message.reply_text("Lỗi: Không tìm thấy 'công việc vừa tạo'."); continue
+        if intent == "get_tasks": await get_prioritized_tasks_flow(update, context)
+        elif intent == "get_prioritized_tasks": await get_prioritized_tasks_flow(update, context)
+        elif intent == "get_summary": await get_summary_flow(update, context, details)
+        elif intent == "update_status": await update_status_flow(update, context, details)
+        elif intent == "set_deadline": await set_deadline_flow(update, context, details)
+        elif intent == "extend_deadline": await extend_deadline_flow(update, context, details)
+        elif intent == "create_task":
+            newly_created_ids, created_tasks = await create_task_flow(update, context, details)
+            if newly_created_ids:
+                last_created_id_in_loop = newly_created_ids[-1]
+                context.user_data['last_interaction_task_id'] = last_created_id_in_loop
+                if created_tasks:
+                    last_created_title = created_tasks[-1].get('title')
+                    suggestion_data = await ask_gemini_for_related_task_suggestion(last_created_title)
+                    if suggestion_data and suggestion_data.get("suggestion"):
+                        await update.message.reply_text(f"💡 *Gợi ý:* Bạn có muốn tạo thêm việc: '{suggestion_data.get('suggestion')}' không?")
+        elif intent == "clarify_creation": await clarify_creation_flow(update, context, details)
+        elif intent == "unknown": await update.message.reply_text("Xin lỗi, tôi chưa hiểu ý bạn lắm.")
+
+async def create_task_flow(update: Update, context: ContextTypes.DEFAULT_TYPE, details: dict):
+    tasks_to_create = details.get("tasks", [])
+    if not tasks_to_create:
+        await update.message.reply_text("Tôi không phân tích được việc bạn muốn tạo.")
+        return [], []
+    tasks_with_deadline, tasks_without_deadline = [], []
+    for task in tasks_to_create:
+        title = task.get("title", "").strip() # <<< SANITIZE: Làm sạch title
+        end_plan = task.get("end_plan")
+        # <<< XÁC THỰC >>>
+        if not title: continue # Bỏ qua nếu không có tiêu đề
+        if end_plan:
+            try:
+                datetime.strptime(end_plan, '%d/%m/%Y') # Xác thực định dạng ngày
+                tasks_with_deadline.append(task)
+            except (ValueError, TypeError):
+                # Nếu ngày sai định dạng, coi như không có deadline
+                task['end_plan'] = None
+                tasks_without_deadline.append(task)
+        else:
+            tasks_without_deadline.append(task)
+    created_tasks_messages, newly_created_ids, created_tasks_info = [], [], []
+    for task in tasks_with_deadline:
+        assignee = task.get("assignee") or DEFAULT_ASSIGNEE
+        new_id, error = await create_and_start_task(task['title'], task['end_plan'], assignee)
+        if new_id:
+            title, end_plan = escape_markdown(task['title'], version=2), escape_markdown(task['end_plan'], version=2)
+            created_tasks_messages.append(f"🔹 *{title}*\n  _Hạn chót: {end_plan}_\n  `(ID: {new_id})`")
+            newly_created_ids.append(new_id)
+            created_tasks_info.append(task)
+    if created_tasks_messages: await update.message.reply_text(f"✅ OK, tôi đã tạo và bắt đầu {len(created_tasks_messages)} công việc:\n\n" + "\n\n".join(created_tasks_messages), parse_mode=ParseMode.MARKDOWN_V2)
+    if tasks_without_deadline:
+        context.user_data['pending_tasks_queue'] = tasks_without_deadline
+        await update.message.reply_text(f"Chắc chắn rồi. Công việc '{tasks_without_deadline[0]['title']}' cần hoàn thành trước khi nào vậy bạn?")
+    return newly_created_ids, created_tasks_info
+
+async def get_prioritized_tasks_flow(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("Đang kiểm tra và sắp xếp các công việc của bạn...")
+    tasks_data = await get_tasks_data()
+    # <<< THÔNG BÁO LỖI THÂN THIỆN >>>
+    if tasks_data is None:
+        await update.message.reply_text("Rất tiếc, tôi không thể kết nối đến hệ thống 1Office lúc này. Bạn vui lòng thử lại sau nhé. 🛠️")
+        return # Dừng hàm tại đây
+    message_text = format_tasks_message(tasks_data, title="Đây là các công việc được sắp xếp theo độ ưu tiên:")
+    await update.message.reply_text(message_text, parse_mode=ParseMode.MARKDOWN_V2)
+
+async def set_deadline_flow(update: Update, context: ContextTypes.DEFAULT_TYPE, details: dict):
+    task_id_raw = details.get("task_id")
+    new_end_plan_raw = details.get("new_end_plan")
+    # 1. Xác thực (Validate)
+    if not task_id_raw or not new_end_plan_raw:
+        await update.message.reply_text("Tôi chưa rõ bạn muốn đặt lại deadline cho việc nào hoặc vào ngày nào.")
+        return
+    try:
+        # Đảm bảo task_id là một số nguyên
+        task_id = int(task_id_raw)
+        # Đảm bảo new_end_plan đúng định dạng dd/mm/YYYY
+        datetime.strptime(new_end_plan_raw, '%d/%m/%Y')
+    except (ValueError, TypeError):
+        await update.message.reply_text("Thông tin không hợp lệ. ID công việc hoặc định dạng ngày tháng có vẻ không đúng.")
+        return
+    tasks_data = await get_tasks_data()
+    if not tasks_data:
+        # Thông báo lỗi này đã được thêm vào get_prioritized_tasks_flow, 
+        # nhưng thêm ở đây cũng tốt để đảm bảo an toàn.
+        await update.message.reply_text("Không thể lấy danh sách công việc để xác nhận.")
+        return
+
+    all_tasks = tasks_data.get("data", [])
+    # <<< KIỂM TRA SỰ TỒN TẠI CỦA TASK ID >>>
+    if not validate_task_id(task_id, all_tasks):
+        await update.message.reply_text(f"Rất tiếc, tôi không tìm thấy công việc nào có ID là {task_id}. Bạn có thể dùng lệnh /tasks để kiểm tra lại nhé.")
+        return
+    # <<< KẾT THÚC KIỂM TRA >>>
+    task_title = next((task['title'] for task in all_tasks if task['ID'] == task_id), "công việc đó")
+    if await update_task(task_id, {'end_plan': new_end_plan_raw}):
+        escaped_title = escape_markdown(task_title, version=2)
+        escaped_date = escape_markdown(new_end_plan_raw, version=2)
+        await update.message.reply_text(f"✅ OK, tôi đã đặt lại deadline cho '{escaped_title}' thành *{escaped_date}*\\.", parse_mode=ParseMode.MARKDOWN_V2)
+        context.user_data['last_interaction_task_id'] = task_id
+    else:
+        await update.message.reply_text(f"Rất tiếc, có lỗi khi cập nhật deadline cho ID {task_id}\\.")
+
+async def extend_deadline_flow(update: Update, context: ContextTypes.DEFAULT_TYPE, details: dict):
+    """Xử lý gia hạn deadline, có kiểm tra sự tồn tại của ID."""
+    task_id_raw = details.get("task_id")
+    duration = details.get("duration", {})
+    days_to_add_raw = duration.get("days")
+
+    # 1. Xác thực kiểu dữ liệu
+    if not task_id_raw or not days_to_add_raw:
+        await update.message.reply_text("Tôi chưa rõ bạn muốn gia hạn việc nào và trong bao lâu.")
+        return
+
+    try:
+        task_id = int(task_id_raw)
+        days_to_add = int(days_to_add_raw)
+        if days_to_add <= 0:
+            await update.message.reply_text("Số ngày gia hạn phải là một số dương nhé.")
+            return
+    except (ValueError, TypeError):
+        await update.message.reply_text("Thông tin không hợp lệ. ID công việc hoặc số ngày gia hạn có vẻ không đúng.")
+        return
+
+    # 2. Lấy danh sách công việc để kiểm tra
+    tasks_data = await get_tasks_data()
+    if not tasks_data:
+        await update.message.reply_text("Rất tiếc, tôi không thể lấy danh sách công việc để kiểm tra.")
+        return
+    
+    all_tasks = tasks_data.get("data", [])
+
+    # 3. <<< KIỂM TRA SỰ TỒN TẠI CỦA TASK ID >>>
+    if not validate_task_id(task_id, all_tasks):
+        await update.message.reply_text(f"Rất tiếc, tôi không tìm thấy công việc nào có ID là {task_id}. Bạn có thể dùng lệnh /tasks để kiểm tra lại nhé.")
+        return
+
+    # 4. Tiến hành gia hạn nếu ID hợp lệ
+    task_info = next((task for task in all_tasks if task['ID'] == task_id), None)
+    if not task_info.get('end_plan'):
+        await update.message.reply_text(f"Công việc '{task_info['title']}' không có deadline cũ để gia hạn.")
+        return
+
+    try:
+        old_deadline = datetime.strptime(task_info['end_plan'], '%d/%m/%Y')
+        new_deadline_str = (old_deadline + timedelta(days=days_to_add)).strftime('%d/%m/%Y')
+        
+        if await update_task(task_id, {'end_plan': new_deadline_str}):
+            task_title = escape_markdown(task_info['title'], version=2)
+            await update.message.reply_text(f"✅ OK, tôi đã gia hạn cho '{task_title}' thêm {days_to_add} ngày, deadline mới là *{escape_markdown(new_deadline_str, version=2)}*\\.", parse_mode=ParseMode.MARKDOWN_V2)
+            context.user_data['last_interaction_task_id'] = task_id
+        else:
+            await update.message.reply_text(f"Rất tiếc, có lỗi khi cập nhật deadline cho ID {task_id}\\.")
+    except ValueError:
+        await update.message.reply_text("Lỗi đọc định dạng ngày tháng của deadline cũ.")
+
+async def get_summary_flow(update: Update, context: ContextTypes.DEFAULT_TYPE, details: dict):
+    """Tạo báo cáo tóm tắt công việc, tách biệt việc hoàn thành và việc còn lại."""
+    period = details.get("period", "this_week")
+    start_date, end_date = get_date_range_for_period(period)
+    if not start_date: await update.message.reply_text("Tôi chưa hiểu khoảng thời gian bạn muốn báo cáo."); return
+    period_text = {"today": "hôm nay", "this_week": "tuần này", "this_month": "tháng này"}.get(period)
+    await update.message.reply_text(f"Đang tổng hợp báo cáo cho {period_text} (từ {start_date.strftime('%d/%m')} đến {end_date.strftime('%d/%m')})...")
+    # Lấy việc đã hoàn thành trong tuần (dựa vào ngày kết thúc thực tế)
+    completed_filters = {
+        "assign_ids": DEFAULT_ASSIGNEE, "status": "Hoàn thành",
+        "end_from": start_date.strftime('%d/%m/%Y'), "end_to": end_date.strftime('%d/%m/%Y')
+    }
+    completed_tasks_data = await get_tasks_data(filters_override=completed_filters)
+    completed_tasks = completed_tasks_data.get("data", []) if completed_tasks_data else []
+    # Lấy việc còn lại trong tuần (dựa vào deadline dự kiến)
+    remaining_filters = {
+        "assign_ids": DEFAULT_ASSIGNEE, "status": "DOING",
+        "end_plan_from": start_date.strftime('%d/%m/%Y'), "end_plan_to": end_date.strftime('%d/%m/%Y')
+    }
+    remaining_tasks_data = await get_tasks_data(filters_override=remaining_filters)
+    remaining_tasks = remaining_tasks_data.get("data", []) if remaining_tasks_data else []
+    # Tạo báo cáo tổng hợp
+    summary_message = f"📊 *Báo cáo hiệu suất {period_text}:*\n\n"
+    summary_message += f"✅ Bạn đã hoàn thành tổng cộng *{len(completed_tasks)}* công việc\\.\n"
+    summary_message += f"⏳ Bạn còn lại *{len(remaining_tasks)}* công việc cần làm trong tuần\\.\n\n"
+    if completed_tasks:
+        summary_message += "*Chi tiết các công việc đã hoàn thành:*\n"
+        for task in completed_tasks: summary_message += f"\\- {escape_markdown(task['title'], version=2)}\n"
+    if remaining_tasks:
+        summary_message += "\n*Chi tiết các công việc còn lại:*\n"
+        for task in remaining_tasks: summary_message += f"\\- {escape_markdown(task['title'], version=2)}\n"
+    await update.message.reply_text(summary_message, parse_mode=ParseMode.MARKDOWN_V2)
+
+async def update_status_flow(update: Update, context: ContextTypes.DEFAULT_TYPE, details: dict):
+    """Cập nhật trạng thái cho nhiều công việc bằng batching, có kiểm tra sự tồn tại của từng ID."""
+    tasks_to_update_raw = details.get("tasks", [])
+    if not tasks_to_update_raw: 
+        await update.message.reply_text("Tôi không tìm thấy công việc nào khớp\\.")
+        return
+    
+    # Lấy danh sách công việc một lần duy nhất để kiểm tra
+    tasks_data = await get_tasks_data()
+    if not tasks_data:
+        await update.message.reply_text("Rất tiếc, tôi không thể lấy danh sách công việc để kiểm tra.")
+        return
+    all_tasks = tasks_data.get("data", [])
+    
+    # --- CHUẨN BỊ BATCH ---
+    tasks_to_batch = [] # Danh sách các công việc hợp lệ để chạy batch
+    failed_validation_ids = [] # Danh sách các ID không qua được bước xác thực
+
+    for task_info in tasks_to_update_raw:
+        task_id_raw = task_info.get("task_id")
+        new_status_key = task_info.get("new_status")
+
+        # 1. Xác thực kiểu dữ liệu
+        try:
+            if not task_id_raw or not new_status_key: continue
+            task_id = int(task_id_raw)
+            api_status_value = STATUS_MAP.get(new_status_key)
+            if not api_status_value:
+                failed_validation_ids.append(f"ID {task_id} (trạng thái '{new_status_key}' không hợp lệ)")
+                continue
+        except (ValueError, TypeError):
+            failed_validation_ids.append(f"ID '{task_id_raw}' không hợp lệ")
+            continue
+
+        # 2. Xác thực sự tồn tại của ID
+        if not validate_task_id(task_id, all_tasks):
+            failed_validation_ids.append(f"ID {task_id} (không tồn tại)")
+            continue
+
+        # Nếu mọi thứ hợp lệ, thêm vào danh sách để chạy batch
+        payload = {'status': api_status_value}
+        tasks_to_batch.append((task_id, payload))
+    
+    # --- THỰC THI BATCH VÀ XỬ LÝ KẾT QUẢ ---
+    updated_tasks = {}
+    api_error_ids = []
+
+    if tasks_to_batch:
+        logger.info(f"Bắt đầu chạy batch cập nhật cho {len(tasks_to_batch)} công việc.")
+        batch_results = await batch_update_tasks(tasks_to_batch)
+        
+        # Dùng zip để lặp qua cả tác vụ gốc và kết quả của nó
+        for task, result in zip(tasks_to_batch, batch_results):
+            task_id, payload = task
+            
+            if isinstance(result, Exception) or result is False:
+                # Nếu kết quả là một Exception hoặc False -> tác vụ thất bại ở API
+                api_error_ids.append(str(task_id))
+                logger.error(f"Lỗi API khi batch update ID {task_id}: {result}")
+            else:
+                # Tác vụ thành công
+                status_value = payload['status']
+                title = next((t['title'] for t in all_tasks if t['ID'] == task_id), f"ID {task_id}")
+                if status_value not in updated_tasks: updated_tasks[status_value] = []
+                updated_tasks[status_value].append(f"'{title}'")
+                context.user_data['last_interaction_task_id'] = task_id
+
+    # --- XÂY DỰNG VÀ GỬI PHẢN HỒI ---
+    response_parts = []
+    if updated_tasks:
+        for status, titles in updated_tasks.items(): 
+            response_parts.append(f"✅ Đã chuyển {len(titles)} cv sang *{status}*: {escape_markdown(', '.join(titles), version=2)}")
+    
+    # Gộp tất cả các lỗi (lỗi xác thực và lỗi API) vào một chỗ
+    all_failed_ids = failed_validation_ids + api_error_ids
+    if all_failed_ids: 
+        response_parts.append(f"🔴 Một số cập nhật thất bại: {escape_markdown(', '.join(all_failed_ids), version=2)}")
+    
+    if response_parts: 
+        await update.message.reply_text("\n\n".join(response_parts), parse_mode=ParseMode.MARKDOWN_V2)
+    elif not tasks_to_batch:
+        # Trường hợp không có tác vụ nào qua được vòng xác thực
+        await update.message.reply_text("Rất tiếc, không có công việc nào hợp lệ để cập nhật.")
+
+async def fill_task_details_flow(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user_answer = update.message.text
+    pending_queue = context.user_data['pending_tasks_queue']
+    current_task = pending_queue.pop(0)
+    title = current_task['title']
+    assignee = current_task.get('assignee') # Lấy assignee từ hàng đợi nếu có
+    end_plan = await ask_gemini_to_parse_date(user_answer)
+    if end_plan:
+        newly_created_ids, _ = await create_task_flow(update, context, {"tasks": [{'title': title, 'end_plan': end_plan, 'assignee': assignee}]})
+        if newly_created_ids: context.user_data['last_interaction_task_id'] = newly_created_ids[-1]
+    else:
+        await update.message.reply_text("Tôi chưa hiểu ngày. Vui lòng thử lại (vd: 'thứ 6 tuần sau', '25/12').")
+        pending_queue.insert(0, current_task)
+    if pending_queue: await update.message.reply_text(f"Tiếp theo, deadline cho '{pending_queue[0]['title']}' là khi nào?")
+    else: context.user_data.pop('pending_tasks_queue', None)
+
+async def clarify_creation_flow(update: Update, context: ContextTypes.DEFAULT_TYPE, details: dict):
+    context.user_data['clarification_needed'] = details
+    existing_task = details.get("existing_task", {})
+    await update.message.reply_text(f"Tôi thấy có việc rất giống là:\n🔹 *{escape_markdown(existing_task.get('title', ''), version=2)}* `(ID: {existing_task.get('ID')})`\n\nBạn muốn **cập nhật** hay **tạo mới**?", parse_mode=ParseMode.MARKDOWN_V2)
+
+async def handle_clarification_response(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user_answer = update.message.text.lower()
+    clarification_data = context.user_data.pop('clarification_needed', None)
+    if not clarification_data: return
+    if "mới" in user_answer:
+        await create_task_flow(update, context, {"tasks": [clarification_data.get("new_task_info", {})]})
+    elif "cập nhật" in user_answer or "cũ" in user_answer:
+        await update.message.reply_text("Đã hiểu. Bạn muốn cập nhật việc đó ntn? (vd: 'gia hạn 2 ngày', 'xong rồi')")
+        context.user_data['last_interaction_task_id'] = clarification_data.get("existing_task", {}).get("ID")
+    else:
+        await update.message.reply_text("Vui lòng cho biết bạn muốn 'cập nhật' hay 'tạo mới' nhé.")
+        context.user_data['clarification_needed'] = clarification_data
+
+async def generic_reminder(context: ContextTypes.DEFAULT_TYPE):
+    chat_id = context.job.chat_id
+    tasks_data = await get_tasks_data()
+    overload_warning = ""
+    if tasks_data and tasks_data.get("data"):
+        overdue_count = sum(1 for t in tasks_data["data"] if "Quá hạn" in t.get('deadline_list', ''))
+        due_today_count = sum(1 for t in tasks_data["data"] if "Còn 0 ngày" in t.get('deadline_list', ''))
+        if overdue_count + due_today_count >= 3:
+            overload_warning = f"\n\n*Cảnh báo:* Bạn có {overdue_count + due_today_count} công việc quá hạn hoặc đến hạn hôm nay. Hãy tập trung xử lý nhé!"
+    message_text = format_tasks_message(tasks_data, title="🔔 Nhắc nhở công việc của bạn:")
+    question = "\n\nBạn có cần tôi hỗ trợ gì không?"
+    await context.bot.send_message(chat_id=chat_id, text=message_text + overload_warning + question, parse_mode=ParseMode.MARKDOWN_V2)
+
+async def set_reminders_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    chat_id = update.effective_chat.id
+    try:
+        times_str = context.args
+        if not times_str: await update.message.reply_text("Sử dụng: /set_reminders HH:MM HH:MM ..."); return
+        reminder_times = [datetime.strptime(t, '%H:%M').time() for t in times_str]
+        context.user_data['reminder_times'] = [t.strftime('%H:%M') for t in reminder_times]
+        scheduler = context.application.job_queue
+        for job in scheduler.get_jobs_by_name(f"reminder_{chat_id}"): job.schedule_removal()
+        for i, t in enumerate(reminder_times):
+            scheduler.run_daily(generic_reminder, time=t, days=tuple(range(5)), chat_id=chat_id, name=f"reminder_{chat_id}", job_kwargs={'misfire_grace_time': 3600})
+        await update.message.reply_text(f"✅ Đã đặt lịch nhắc nhở vào các giờ: {', '.join(context.user_data['reminder_times'])} hàng ngày từ Thứ 2-6.")
+    except (ValueError, IndexError): await update.message.reply_text("Định dạng thời gian không hợp lệ. Vui lòng dùng HH:MM.")
+
+async def clear_reminders_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    chat_id = update.effective_chat.id
+    scheduler = context.application.job_queue
+    jobs_removed = sum(1 for job in scheduler.get_jobs_by_name(f"reminder_{chat_id}") if job.schedule_removal())
+    if 'reminder_times' in context.user_data: del context.user_data['reminder_times']
+    if jobs_removed > 0: await update.message.reply_text("✅ Đã xóa tất cả lịch nhắc nhở cá nhân của bạn.")
+    else: await update.message.reply_text("Bạn không có lịch nhắc nhở nào để xóa.")
+
+async def main():
+    application = Application.builder().token(TELEGRAM_TOKEN).build()
+    application.add_handler(CommandHandler('start', start))
+    application.add_handler(CommandHandler('help', help_command))
+    application.add_handler(CommandHandler('tasks', get_prioritized_tasks_flow))
+    application.add_handler(CommandHandler('set_reminders', set_reminders_command))
+    application.add_handler(CommandHandler('clear_reminders', clear_reminders_command))
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+    print("Bot đang khởi động...")
+    async with application:
+        await application.initialize()
+        await application.start()
+        await application.updater.start_polling()
+        print("Bot đã chạy với bộ não điều phối v4.5! Sẵn sàng nhận lệnh.")
+        await asyncio.Event().wait()
+if __name__ == '__main__':
+    asyncio.run(main())

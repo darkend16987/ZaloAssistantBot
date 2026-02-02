@@ -1,0 +1,29 @@
+# ============================================
+# ZaloAssistant Backend - Requirements
+# Cleaned and optimized for Docker deployment
+# ============================================
+
+# --- Core Web Framework ---
+quart>=0.20.0
+
+# --- HTTP Clients ---
+aiohttp>=3.9.0
+httpx>=0.27.0
+aiofiles>=24.1.0
+
+# --- Scheduling ---
+apscheduler>=3.10.0
+
+# --- Database ---
+tinydb>=4.8.0
+
+# --- Configuration Management ---
+pydantic>=2.5.0
+pydantic-settings>=2.1.0
+python-dotenv>=1.0.0
+
+# --- Google AI (Gemini) ---
+google-generativeai>=0.8.0
+
+# --- Logging & Utilities ---
+colorama>=0.4.6
