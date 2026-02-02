@@ -1,0 +1,43 @@
+services:
+  backend:
+    build:
+      # Chỉ định rõ ràng thư mục build context
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./backend/.env
+    volumes:
+      # Đồng bộ code từ máy thật vào container để dev cho tiện
+      - ./backend:/app
+    # ✅ Lệnh khởi động tường minh, tránh phụ thuộc vào CMD trong Dockerfile
+    command: python main_api.py
+    networks:
+      - zalo-net
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      # ✅ Mở cổng cho frontend (thường là 3000 cho React/Vue/...)
+      - "3000:3000"
+    depends_on:
+      - backend
+    volumes:
+      # Đồng bộ code frontend
+      - ./frontend:/app
+      # Giữ lại node_modules trong container, không bị ghi đè bởi máy chủ
+      - /app/node_modules
+    # ✅ Thay thế bằng lệnh chạy trực tiếp file index.js
+    command: node index.js
+    networks:
+      - zalo-net
+      
+# ✅ Định nghĩa một mạng riêng cho các service giao tiếp với nhau
+networks:
+  zalo-net:
+    driver: bridge
