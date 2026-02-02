@@ -26,6 +26,9 @@ class Settings(BaseSettings):
     LOG_LEVEL: str = "INFO"
     SESSION_TIMEOUT_SECONDS: int = 7200
 
+    # --- MCP Agent Settings ---
+    USE_MCP_AGENT: bool = True  # Set to True to use new MCP agent, False for legacy
+
     # Pydantic V2 Config
     model_config = SettingsConfigDict(
         env_file=".env",

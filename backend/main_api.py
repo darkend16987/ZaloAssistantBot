@@ -4,6 +4,7 @@ from quart import Quart
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from app.core.logging import logger
+from app.core.settings import settings
 from app.api.endpoints import api_bp
 from app.services import scheduler_tasks
 
@@ -15,6 +16,14 @@ async def startup():
     """Initialize resources."""
     app.aiohttp_session = aiohttp.ClientSession()
     logger.info("AIOHTTP ClientSession created.")
+
+    # Bootstrap MCP system if enabled
+    if settings.USE_MCP_AGENT:
+        logger.info("MCP Agent mode enabled, bootstrapping...")
+        from app.mcp.bootstrap import bootstrap_mcp
+        await bootstrap_mcp()
+    else:
+        logger.info("Using legacy task_flows mode")
 
     scheduler = AsyncIOScheduler(timezone="Asia/Ho_Chi_Minh")
     
@@ -57,6 +66,11 @@ async def startup():
 @app.after_serving
 async def shutdown():
     """Cleanup resources."""
+    # Shutdown MCP if enabled
+    if settings.USE_MCP_AGENT:
+        from app.mcp.bootstrap import shutdown_mcp
+        await shutdown_mcp()
+
     if hasattr(app, 'scheduler') and app.scheduler.running:
         app.scheduler.shutdown()
         logger.info("Scheduler shutdown.")
