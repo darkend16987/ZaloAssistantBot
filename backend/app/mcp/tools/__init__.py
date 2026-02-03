@@ -15,6 +15,7 @@ from app.mcp.tools.task_tools import (
     SetDeadlineTool,
     ExtendDeadlineTool,
     RenameTaskTool,
+    CreateAndCompleteTaskTool,
 )
 from app.mcp.tools.birthday_tools import GetBirthdaysTool
 
@@ -33,6 +34,7 @@ def register_all_tools():
     tool_registry.register(SetDeadlineTool())
     tool_registry.register(ExtendDeadlineTool())
     tool_registry.register(RenameTaskTool())
+    tool_registry.register(CreateAndCompleteTaskTool())
 
     # Birthday tools
     tool_registry.register(GetBirthdaysTool())
@@ -48,6 +50,7 @@ __all__ = [
     'SetDeadlineTool',
     'ExtendDeadlineTool',
     'RenameTaskTool',
+    'CreateAndCompleteTaskTool',
     'GetBirthdaysTool',
     'register_all_tools',
 ]

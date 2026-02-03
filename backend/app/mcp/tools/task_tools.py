@@ -374,6 +374,9 @@ Sử dụng khi người dùng nói: "hoàn thành task", "done task", "tạm d�
         **kwargs
     ) -> ToolResult:
         try:
+            # IMPORTANT: Gemini may return float (162523.0), convert to int
+            task_id = int(task_id)
+
             provider = get_oneoffice_provider()
 
             # Verify task exists
@@ -449,6 +452,9 @@ Sử dụng khi người dùng nói: "đổi deadline", "set deadline", "chuyể
         **kwargs
     ) -> ToolResult:
         try:
+            # IMPORTANT: Gemini may return float, convert to int
+            task_id = int(task_id)
+
             provider = get_oneoffice_provider()
 
             # Verify task exists
@@ -523,6 +529,10 @@ Sử dụng khi người dùng nói: "gia hạn", "thêm 3 ngày", "lùi deadlin
         **kwargs
     ) -> ToolResult:
         try:
+            # IMPORTANT: Gemini may return float, convert to int
+            task_id = int(task_id)
+            days = int(days)
+
             provider = get_oneoffice_provider()
 
             # Get current task info
@@ -615,6 +625,9 @@ Sử dụng khi người dùng nói: "đổi tên task", "rename task", "sửa t
         **kwargs
     ) -> ToolResult:
         try:
+            # IMPORTANT: Gemini may return float, convert to int
+            task_id = int(task_id)
+
             provider = get_oneoffice_provider()
 
             # Verify task exists
@@ -643,4 +656,97 @@ Sử dụng khi người dùng nói: "đổi tên task", "rename task", "sửa t
 
         except Exception as e:
             logger.error(f"RenameTaskTool error: {e}", exc_info=True)
+            return ToolResult(success=False, error=str(e))
+
+
+class CreateAndCompleteTaskTool(BaseTool):
+    """Tool để tạo công việc mới và đánh dấu hoàn thành ngay"""
+
+    @property
+    def name(self) -> str:
+        return "create_and_complete_task"
+
+    @property
+    def description(self) -> str:
+        return """Tạo công việc mới VÀ đánh dấu hoàn thành ngay lập tức.
+
+QUAN TRỌNG: Sử dụng tool này khi người dùng nói:
+- "tạo VÀ hoàn thành task..."
+- "tạo việc... xong rồi"
+- "thêm task... đã done"
+- Bất kỳ yêu cầu nào kết hợp TẠO + HOÀN THÀNH trong cùng một câu
+
+KHÔNG sử dụng tool này khi chỉ tạo task bình thường (dùng create_task thay thế)."""
+
+    @property
+    def parameters(self) -> List[ToolParameter]:
+        return [
+            ToolParameter(
+                name="title",
+                type=ParameterType.STRING,
+                description="Tên/tiêu đề công việc",
+                required=True
+            ),
+            ToolParameter(
+                name="end_plan",
+                type=ParameterType.STRING,
+                description="Deadline công việc (định dạng dd/mm/YYYY). Nếu user nói 'hôm nay' thì dùng ngày hôm nay.",
+                required=True
+            ),
+            ToolParameter(
+                name="time_end_plan",
+                type=ParameterType.STRING,
+                description="Giờ deadline (định dạng HH:MM), optional",
+                required=False
+            )
+        ]
+
+    @property
+    def category(self) -> str:
+        return "tasks"
+
+    async def execute(
+        self,
+        title: str,
+        end_plan: str,
+        time_end_plan: Optional[str] = None,
+        **kwargs
+    ) -> ToolResult:
+        try:
+            provider = get_oneoffice_provider()
+
+            # Step 1: Create task
+            new_id, error = await provider.create_task(
+                title=title,
+                end_plan=end_plan,
+                time_end_plan=time_end_plan
+            )
+
+            if error or not new_id:
+                return ToolResult(
+                    success=False,
+                    error=f"Lỗi khi tạo task: {error}"
+                )
+
+            # Step 2: Mark as completed
+            success = await provider.update_task_status(int(new_id), "COMPLETED")
+
+            if not success:
+                # Task created but not completed
+                return ToolResult(
+                    success=True,
+                    data=f"✅ Đã tạo công việc '{title}' (ID: {new_id}) nhưng không thể đánh dấu hoàn thành.",
+                    metadata={"new_task_id": new_id, "completed": False}
+                )
+
+            message = f"✅ Đã tạo VÀ hoàn thành công việc:\n\n🔹 *{title}*\n  _Hạn chót: {end_plan}_\n  `(ID: {new_id})` ✔️ Đã hoàn thành"
+
+            return ToolResult(
+                success=True,
+                data=message,
+                metadata={"new_task_id": new_id, "completed": True, "title": title}
+            )
+
+        except Exception as e:
+            logger.error(f"CreateAndCompleteTaskTool error: {e}", exc_info=True)
             return ToolResult(success=False, error=str(e))

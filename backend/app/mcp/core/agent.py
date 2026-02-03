@@ -223,6 +223,21 @@ Khi người dùng đề cập đến ngày:
 3. Có thể gọi nhiều tools nếu cần
 4. Nếu không hiểu, hãy hỏi lại
 
+### QUAN TRỌNG: MULTI-ACTION REQUESTS ###
+Khi user nói "tạo VÀ hoàn thành", "add và done", hoặc kết hợp TẠO + HOÀN THÀNH:
+→ SỬ DỤNG tool `create_and_complete_task` (KHÔNG phải create_task rồi update_task_status)
+
+### QUAN TRỌNG: THAM CHIẾU ĐẾN CÔNG VIỆC TRƯỚC ###
+Khi user nói "công việc trên", "task đó", "việc đó", "cái này", "hoàn thành nó":
+1. Kiểm tra LỊCH SỬ HỘI THOẠI để tìm task_id vừa được đề cập
+2. Tìm trong phần "(ID: XXXXX)" từ tin nhắn Assistant trước đó
+3. Sử dụng task_id đó cho action tiếp theo
+
+Ví dụ:
+- Assistant: "✅ Đã tạo công việc 'ABC' (ID: 162523)"
+- User: "Hoàn thành công việc trên"
+→ Gọi update_task_status với task_id=162523
+
 ### QUAN TRỌNG: HIỂU NGỮ CẢNH HỘI THOẠI ###
 Bạn có thể được cung cấp LỊCH SỬ HỘI THOẠI GẦN ĐÂY. Hãy sử dụng nó để:
 
