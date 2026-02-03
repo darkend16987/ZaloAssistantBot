@@ -25,7 +25,10 @@ from app.mcp.core.provider_registry import ProviderRegistry, provider_registry
 from app.mcp.core.base_tool import ToolResult
 from app.mcp.prompts.prompt_manager import PromptManager, prompt_manager
 from app.core.settings import settings
-from app.core.sessions import get_session, update_session
+from app.core.sessions import (
+    get_session, update_session,
+    add_to_conversation_history, get_conversation_history
+)
 from app.core.logging import logger
 
 
@@ -40,12 +43,14 @@ class AgentContext:
         session_data: Session data từ TinyDB
         tasks_context: Danh sách tasks hiện có (cho context)
         last_task_ids: IDs của tasks từ interaction trước
+        conversation_history: Lịch sử hội thoại gần đây
     """
     user_id: str
     user_message: str
     session_data: Dict[str, Any] = field(default_factory=dict)
     tasks_context: List[Dict] = field(default_factory=list)
     last_task_ids: List[int] = field(default_factory=list)
+    conversation_history: List[Dict] = field(default_factory=list)
     metadata: Dict[str, Any] = field(default_factory=dict)
 
 
@@ -218,6 +223,23 @@ Khi người dùng đề cập đến ngày:
 3. Có thể gọi nhiều tools nếu cần
 4. Nếu không hiểu, hãy hỏi lại
 
+### QUAN TRỌNG: HIỂU NGỮ CẢNH HỘI THOẠI ###
+Bạn có thể được cung cấp LỊCH SỬ HỘI THOẠI GẦN ĐÂY. Hãy sử dụng nó để:
+
+1. **Nhận biết câu trả lời tiếp nối**: Nếu tin nhắn trước của bạn là MỘT CÂU HỎI, và tin nhắn hiện tại của user là câu trả lời ngắn → đây là TRẢ LỜI CHO CÂU HỎI ĐÓ, không phải yêu cầu mới.
+
+   Ví dụ:
+   - Assistant: "Deadline cho task này là khi nào?"
+   - User: "hôm nay" → Đây là TRẢ LỜI deadline = hôm nay, KHÔNG phải yêu cầu xem task hôm nay
+
+2. **Khi user trả lời câu hỏi clarification**:
+   - Hãy tiếp tục thực hiện hành động ban đầu với thông tin mới
+   - Ví dụ: Nếu đang tạo task và hỏi deadline, khi user trả lời → tạo task với deadline đó
+
+3. **Phân biệt yêu cầu mới vs câu trả lời**:
+   - Yêu cầu mới: "tạo task ABC", "cho tôi xem danh sách", "sinh nhật tuần này"
+   - Câu trả lời: "hôm nay", "ngày mai", "thứ 6", "oke", "được"
+
 ### LƯU Ý ###
 - Trả lời ngắn gọn, thân thiện
 - Đảm bảo chuyển đổi ngày tháng chính xác theo quy tắc
@@ -252,17 +274,42 @@ Khi người dùng đề cập đến ngày:
         # Build system prompt
         system_prompt = self._build_system_prompt(context)
 
+        # Build conversation messages including history
+        messages = [system_prompt]
+
+        # Add conversation history for context continuity
+        if context.conversation_history:
+            messages.append("\n### LỊCH SỬ HỘI THOẠI GẦN ĐÂY ###")
+            for msg in context.conversation_history[-6:]:  # Last 3 turns (6 messages)
+                role = "User" if msg['role'] == 'user' else "Assistant"
+                # Truncate long messages in history
+                content = msg['content'][:500] + "..." if len(msg['content']) > 500 else msg['content']
+                messages.append(f"{role}: {content}")
+            messages.append("### KẾT THÚC LỊCH SỬ ###\n")
+
+        # Add current user message
+        messages.append(f"User: {message}")
+
         try:
             # Call Gemini with function calling
             response = await self._model.generate_content_async(
-                [system_prompt, f"User: {message}"],
+                messages,
                 generation_config=genai.GenerationConfig(
                     temperature=0.2,  # Lower for more consistent tool calls
                 )
             )
 
-            # Process response
-            return await self._process_gemini_response(response, context)
+            # Process response and save to history
+            agent_response = await self._process_gemini_response(response, context)
+
+            # Save conversation turn to history
+            add_to_conversation_history(
+                user_id=context.user_id,
+                user_message=message,
+                assistant_response=agent_response.message
+            )
+
+            return agent_response
 
         except Exception as e:
             logger.error(f"Agent error: {e}", exc_info=True)
@@ -276,9 +323,12 @@ Khi người dùng đề cập đến ngày:
         user_id: str,
         message: str
     ) -> AgentContext:
-        """Build agent context with session and tasks data"""
+        """Build agent context with session, tasks data, and conversation history"""
         # Get session
         session_data = get_session(user_id)
+
+        # Get conversation history
+        conversation_history = get_conversation_history(user_id)
 
         # Get tasks for context
         tasks_context = []
@@ -293,7 +343,8 @@ Khi người dùng đề cập đến ngày:
             user_message=message,
             session_data=session_data,
             tasks_context=tasks_context,
-            last_task_ids=session_data.get('last_interaction_task_ids', [])
+            last_task_ids=session_data.get('last_interaction_task_ids', []),
+            conversation_history=conversation_history
         )
 
     async def _process_gemini_response(
