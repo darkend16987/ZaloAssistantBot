@@ -241,6 +241,57 @@ Sử dụng khi người dùng hỏi: "báo cáo tuần", "công việc tuần n
             return ToolResult(success=False, error=str(e))
 
 
+class GetOverallReportTool(BaseTool):
+    """Tool để lấy báo cáo tổng hợp tất cả công việc"""
+
+    @property
+    def name(self) -> str:
+        return "get_overall_report"
+
+    @property
+    def description(self) -> str:
+        return """Lấy báo cáo tổng hợp TẤT CẢ công việc, bao gồm cả đã hoàn thành và đã hủy.
+Sử dụng khi người dùng hỏi: "báo cáo tổng", "tất cả công việc", "overall report", "toàn bộ việc"."""
+
+    @property
+    def parameters(self) -> List[ToolParameter]:
+        return []
+
+    @property
+    def category(self) -> str:
+        return "tasks"
+
+    async def execute(self, **kwargs) -> ToolResult:
+        try:
+            provider = get_oneoffice_provider()
+
+            # Get ALL tasks including completed and cancelled
+            tasks_data = await provider.get_tasks(include_all_statuses=True)
+
+            if tasks_data is None:
+                return ToolResult(
+                    success=False,
+                    error="Không thể kết nối đến hệ thống 1Office"
+                )
+
+            formatted = provider.format_tasks_for_display(
+                tasks_data,
+                title="📋 Báo cáo tổng hợp tất cả công việc:"
+            )
+
+            task_ids = [t['ID'] for t in tasks_data.get('data', [])]
+
+            return ToolResult(
+                success=True,
+                data=formatted,
+                metadata={"task_ids": task_ids, "total": tasks_data.get('total_item', 0)}
+            )
+
+        except Exception as e:
+            logger.error(f"GetOverallReportTool error: {e}", exc_info=True)
+            return ToolResult(success=False, error=str(e))
+
+
 class CreateTaskTool(BaseTool):
     """Tool để tạo công việc mới"""
 

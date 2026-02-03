@@ -10,6 +10,7 @@ from app.mcp.tools.task_tools import (
     GetTasksByStatusTool,
     GetDailyReportTool,
     GetWeeklyReportTool,
+    GetOverallReportTool,
     CreateTaskTool,
     UpdateTaskStatusTool,
     SetDeadlineTool,
@@ -29,6 +30,7 @@ def register_all_tools():
     tool_registry.register(GetTasksByStatusTool())
     tool_registry.register(GetDailyReportTool())
     tool_registry.register(GetWeeklyReportTool())
+    tool_registry.register(GetOverallReportTool())
     tool_registry.register(CreateTaskTool())
     tool_registry.register(UpdateTaskStatusTool())
     tool_registry.register(SetDeadlineTool())
@@ -45,6 +47,7 @@ __all__ = [
     'GetTasksByStatusTool',
     'GetDailyReportTool',
     'GetWeeklyReportTool',
+    'GetOverallReportTool',
     'CreateTaskTool',
     'UpdateTaskStatusTool',
     'SetDeadlineTool',
