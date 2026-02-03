@@ -179,6 +179,10 @@ class AgentOrchestrator:
         next_monday = this_monday + timedelta(weeks=1)
         next_sunday = next_monday + timedelta(days=6)
 
+        # Calculate week after next (tuần sau nữa)
+        week_after_next_monday = this_monday + timedelta(weeks=2)
+        week_after_next_sunday = week_after_next_monday + timedelta(days=6)
+
         # Calculate specific weekdays for this week and next week
         # weekday(): Monday=0, Tuesday=1, ..., Sunday=6
         # Vietnamese: Thứ 2=Monday, Thứ 3=Tuesday, ..., Chủ nhật=Sunday
@@ -239,6 +243,11 @@ Người dùng vừa tương tác với các công việc sau. Nếu họ nói '
 - "thứ 2 tuần sau" = {get_weekday_date(next_monday, 2)}
 - "thứ 5 tuần sau" = {get_weekday_date(next_monday, 5)}
 - "thứ 6 tuần sau" = {get_weekday_date(next_monday, 6)}
+
+**TUẦN SAU NỮA** ({week_after_next_monday.strftime('%d/%m/%Y')} - {week_after_next_sunday.strftime('%d/%m/%Y')}):
+- "thứ 2 tuần sau nữa" = {get_weekday_date(week_after_next_monday, 2)}
+- "thứ 4 tuần sau nữa" = {get_weekday_date(week_after_next_monday, 4)}
+- "thứ 6 tuần sau nữa" = {get_weekday_date(week_after_next_monday, 6)}
 
 **Quy tắc khi user chỉ nói "thứ X" (không nói rõ tuần):**
 - Nếu thứ đó CHƯA QUA trong tuần này → tính cho TUẦN NÀY
