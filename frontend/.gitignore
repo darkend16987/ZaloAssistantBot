@@ -1,0 +1,11 @@
+# Runtime data files
+active_threads.json
+
+# Node modules (if any)
+node_modules/
+
+# Logs
+*.log
+
+# Environment
+.env
