@@ -427,31 +427,22 @@ Sử dụng khi người dùng nói: "hoàn thành task", "done task", "tạm d�
         try:
             # IMPORTANT: Gemini may return float (162523.0), convert to int
             task_id = int(task_id)
-            logger.info(f"UpdateTaskStatusTool: Looking for task_id={task_id} (type={type(task_id).__name__})")
+            logger.info(f"UpdateTaskStatusTool: Updating task_id={task_id} to status={new_status}")
 
             provider = get_oneoffice_provider()
 
-            # Verify task exists
-            tasks_data = await provider.get_tasks(include_all_statuses=True)
+            # Try to get task info for friendly message (optional)
+            task_title = f'ID {task_id}'
+            try:
+                tasks_data = await provider.get_tasks(include_all_statuses=True)
+                if tasks_data:
+                    task_info = provider.get_task_by_id(tasks_data, task_id)
+                    if task_info:
+                        task_title = task_info.get('title', task_title)
+            except Exception as e:
+                logger.warning(f"Could not fetch task info: {e}")
 
-            # Debug logging
-            if tasks_data:
-                task_ids_in_data = [t.get('ID') for t in tasks_data.get('data', [])]
-                logger.info(f"UpdateTaskStatusTool: Found {len(task_ids_in_data)} tasks. IDs: {task_ids_in_data[:10]}...")
-                logger.info(f"UpdateTaskStatusTool: ID types: {[type(tid).__name__ for tid in task_ids_in_data[:3]]}")
-            else:
-                logger.error("UpdateTaskStatusTool: tasks_data is None or empty!")
-
-            if not tasks_data or not provider.validate_task_id(tasks_data, task_id):
-                logger.error(f"UpdateTaskStatusTool: Validation FAILED for task_id={task_id}")
-                return ToolResult(
-                    success=False,
-                    error=f"Không tìm thấy công việc có ID {task_id}"
-                )
-
-            task_info = provider.get_task_by_id(tasks_data, task_id)
-            task_title = task_info.get('title', f'ID {task_id}') if task_info else f'ID {task_id}'
-
+            # Directly try to update - API will return error if task doesn't exist
             success = await provider.update_task_status(task_id, new_status)
 
             if not success:
@@ -516,20 +507,22 @@ Sử dụng khi người dùng nói: "đổi deadline", "set deadline", "chuyể
         try:
             # IMPORTANT: Gemini may return float, convert to int
             task_id = int(task_id)
+            logger.info(f"SetDeadlineTool: Setting deadline for task_id={task_id} to {new_deadline}")
 
             provider = get_oneoffice_provider()
 
-            # Verify task exists
-            tasks_data = await provider.get_tasks(include_all_statuses=True)
-            if not tasks_data or not provider.validate_task_id(tasks_data, task_id):
-                return ToolResult(
-                    success=False,
-                    error=f"Không tìm thấy công việc có ID {task_id}"
-                )
+            # Try to get task info for friendly message (optional)
+            task_title = f'ID {task_id}'
+            try:
+                tasks_data = await provider.get_tasks(include_all_statuses=True)
+                if tasks_data:
+                    task_info = provider.get_task_by_id(tasks_data, task_id)
+                    if task_info:
+                        task_title = task_info.get('title', task_title)
+            except Exception as e:
+                logger.warning(f"Could not fetch task info: {e}")
 
-            task_info = provider.get_task_by_id(tasks_data, task_id)
-            task_title = task_info.get('title', f'ID {task_id}') if task_info else f'ID {task_id}'
-
+            # Directly try to update
             success = await provider.update_task(task_id, end_plan=new_deadline)
 
             if not success:
@@ -594,22 +587,28 @@ Sử dụng khi người dùng nói: "gia hạn", "thêm 3 ngày", "lùi deadlin
             # IMPORTANT: Gemini may return float, convert to int
             task_id = int(task_id)
             days = int(days)
+            logger.info(f"ExtendDeadlineTool: Extending task_id={task_id} by {days} days")
 
             provider = get_oneoffice_provider()
 
-            # Get current task info
+            # Get current task info (needed to calculate new deadline)
             tasks_data = await provider.get_tasks(include_all_statuses=True)
             if not tasks_data:
                 return ToolResult(
                     success=False,
-                    error="Không thể kết nối đến hệ thống"
+                    error="Không thể kết nối đến hệ thống 1Office"
                 )
+
+            # Log for debugging
+            task_ids_in_data = [t.get('ID') for t in tasks_data.get('data', [])]
+            logger.info(f"ExtendDeadlineTool: Available task IDs: {task_ids_in_data[:15]}...")
 
             task_info = provider.get_task_by_id(tasks_data, task_id)
             if not task_info:
+                logger.error(f"ExtendDeadlineTool: Task {task_id} not found in {len(task_ids_in_data)} tasks")
                 return ToolResult(
                     success=False,
-                    error=f"Không tìm thấy công việc có ID {task_id}"
+                    error=f"Không tìm thấy công việc có ID {task_id}. Hãy kiểm tra lại ID."
                 )
 
             current_deadline = task_info.get('end_plan')
@@ -689,17 +688,11 @@ Sử dụng khi người dùng nói: "đổi tên task", "rename task", "sửa t
         try:
             # IMPORTANT: Gemini may return float, convert to int
             task_id = int(task_id)
+            logger.info(f"RenameTaskTool: Renaming task_id={task_id} to '{new_title}'")
 
             provider = get_oneoffice_provider()
 
-            # Verify task exists
-            tasks_data = await provider.get_tasks(include_all_statuses=True)
-            if not tasks_data or not provider.validate_task_id(tasks_data, task_id):
-                return ToolResult(
-                    success=False,
-                    error=f"Không tìm thấy công việc có ID {task_id}"
-                )
-
+            # Directly try to update - API will return error if task doesn't exist
             success = await provider.update_task(task_id, title=new_title)
 
             if not success:
