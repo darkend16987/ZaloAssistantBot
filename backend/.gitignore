@@ -3,3 +3,12 @@ __pycache__/
 *.pyc
 config.py
 .env
+
+# Session and state files (runtime data, not code)
+sessions.json
+data/
+*.db
+
+# Logs
+logs/
+*.log

@@ -30,8 +30,18 @@ class GetBirthdaysTool(BaseTool):
 
     @property
     def description(self) -> str:
-        return """Lấy danh sách sinh nhật của nhân viên trong tuần này hoặc tuần sau.
-Sử dụng khi người dùng hỏi: "sinh nhật tuần này", "ai sinh nhật tuần sau", "birthday"."""
+        return """Lấy danh sách sinh nhật của nhân viên.
+
+QUAN TRỌNG - Cách chọn tham số week:
+- Nếu user nói "tuần này", "this week", "week này" → week="this"
+- Nếu user nói "tuần sau", "tuần tới", "next week" → week="next"
+- Nếu user chỉ hỏi "sinh nhật" không rõ tuần nào → week="this" (mặc định tuần hiện tại)
+
+Ví dụ mapping:
+- "Ai sinh nhật tuần này?" → week="this"
+- "sinh nhật trong tuần này" → week="this"
+- "Cho tôi danh sách sinh nhật tuần sau" → week="next"
+- "Sinh nhật" (không rõ) → week="this" """
 
     @property
     def parameters(self) -> List[ToolParameter]:
@@ -39,9 +49,8 @@ Sử dụng khi người dùng hỏi: "sinh nhật tuần này", "ai sinh nhật
             ToolParameter(
                 name="week",
                 type=ParameterType.STRING,
-                description="Tuần cần xem: 'this' (tuần này) hoặc 'next' (tuần sau)",
-                required=False,
-                default="next",
+                description="BẮT BUỘC chọn: 'this' nếu user hỏi tuần này/hiện tại hoặc không rõ, 'next' CHỈ khi user nói rõ tuần sau/tuần tới",
+                required=True,  # Bắt buộc để LLM phải suy nghĩ và chọn
                 enum=["this", "next"]
             )
         ]
@@ -52,7 +61,7 @@ Sử dụng khi người dùng hỏi: "sinh nhật tuần này", "ai sinh nhật
 
     async def execute(
         self,
-        week: str = "next",
+        week: str = "this",  # Default changed to "this"
         **kwargs
     ) -> ToolResult:
         try:
