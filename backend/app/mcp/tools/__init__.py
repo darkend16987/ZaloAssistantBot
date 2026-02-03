@@ -10,11 +10,13 @@ from app.mcp.tools.task_tools import (
     GetTasksByStatusTool,
     GetDailyReportTool,
     GetWeeklyReportTool,
+    GetOverallReportTool,
     CreateTaskTool,
     UpdateTaskStatusTool,
     SetDeadlineTool,
     ExtendDeadlineTool,
     RenameTaskTool,
+    CreateAndCompleteTaskTool,
 )
 from app.mcp.tools.birthday_tools import GetBirthdaysTool
 
@@ -28,11 +30,13 @@ def register_all_tools():
     tool_registry.register(GetTasksByStatusTool())
     tool_registry.register(GetDailyReportTool())
     tool_registry.register(GetWeeklyReportTool())
+    tool_registry.register(GetOverallReportTool())
     tool_registry.register(CreateTaskTool())
     tool_registry.register(UpdateTaskStatusTool())
     tool_registry.register(SetDeadlineTool())
     tool_registry.register(ExtendDeadlineTool())
     tool_registry.register(RenameTaskTool())
+    tool_registry.register(CreateAndCompleteTaskTool())
 
     # Birthday tools
     tool_registry.register(GetBirthdaysTool())
@@ -43,11 +47,13 @@ __all__ = [
     'GetTasksByStatusTool',
     'GetDailyReportTool',
     'GetWeeklyReportTool',
+    'GetOverallReportTool',
     'CreateTaskTool',
     'UpdateTaskStatusTool',
     'SetDeadlineTool',
     'ExtendDeadlineTool',
     'RenameTaskTool',
+    'CreateAndCompleteTaskTool',
     'GetBirthdaysTool',
     'register_all_tools',
 ]
