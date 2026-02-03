@@ -170,7 +170,24 @@ class AgentOrchestrator:
         """Build system prompt with context"""
         today = datetime.now()
         tomorrow = today + timedelta(days=1)
-        next_monday = today + timedelta(days=-today.weekday(), weeks=1)
+
+        # Calculate this week (Monday to Sunday)
+        this_monday = today - timedelta(days=today.weekday())
+        this_sunday = this_monday + timedelta(days=6)
+
+        # Calculate next week
+        next_monday = this_monday + timedelta(weeks=1)
+        next_sunday = next_monday + timedelta(days=6)
+
+        # Calculate specific weekdays for this week and next week
+        # weekday(): Monday=0, Tuesday=1, ..., Sunday=6
+        # Vietnamese: Thứ 2=Monday, Thứ 3=Tuesday, ..., Chủ nhật=Sunday
+        def get_weekday_date(week_start: datetime, vn_weekday: int) -> str:
+            """vn_weekday: 2=Thứ 2 (Monday), 3=Thứ 3 (Tuesday), ..., 7=Thứ 7 (Saturday), 8/CN=Chủ nhật"""
+            if vn_weekday == 8:  # Chủ nhật
+                return (week_start + timedelta(days=6)).strftime('%d/%m/%Y')
+            else:  # Thứ 2-7 (Monday-Saturday)
+                return (week_start + timedelta(days=vn_weekday - 2)).strftime('%d/%m/%Y')
 
         # Priority context from last interaction
         priority_context = ""
@@ -201,16 +218,31 @@ Người dùng vừa tương tác với các công việc sau. Nếu họ nói '
         return f"""Bạn là trợ lý AI thông minh giúp quản lý công việc và thông tin.
 
 ### THÔNG TIN NGỮ CẢNH ###
-- Hôm nay là: {today.strftime('%A, %d/%m/%Y')}
+- Hôm nay là: {today.strftime('%A, %d/%m/%Y')} (Thứ {today.weekday() + 2 if today.weekday() < 6 else 'CN'})
 - User ID: {context.user_id}
 
 ### QUY TẮC PHÂN TÍCH NGÀY THÁNG ###
-Khi người dùng đề cập đến ngày:
-1. "hôm nay" = {today.strftime('%d/%m/%Y')}
-2. "ngày mai" = {tomorrow.strftime('%d/%m/%Y')}
-3. "thứ X tuần sau" = tuần bắt đầu từ {next_monday.strftime('%d/%m/%Y')}
-4. Nếu người dùng nói thứ trong tuần và thứ đó chưa qua, tính cho tuần này
-5. Nếu thứ đó đã qua, tính cho tuần sau
+**Ngày cụ thể:**
+- "hôm nay" = {today.strftime('%d/%m/%Y')}
+- "ngày mai" = {tomorrow.strftime('%d/%m/%Y')}
+
+**TUẦN NÀY** ({this_monday.strftime('%d/%m/%Y')} - {this_sunday.strftime('%d/%m/%Y')}):
+- "thứ 2 tuần này" = {get_weekday_date(this_monday, 2)}
+- "thứ 3 tuần này" = {get_weekday_date(this_monday, 3)}
+- "thứ 4 tuần này" = {get_weekday_date(this_monday, 4)}
+- "thứ 5 tuần này" = {get_weekday_date(this_monday, 5)}
+- "thứ 6 tuần này" = {get_weekday_date(this_monday, 6)}
+- "thứ 7 tuần này" = {get_weekday_date(this_monday, 7)}
+- "chủ nhật tuần này" = {get_weekday_date(this_monday, 8)}
+
+**TUẦN SAU** ({next_monday.strftime('%d/%m/%Y')} - {next_sunday.strftime('%d/%m/%Y')}):
+- "thứ 2 tuần sau" = {get_weekday_date(next_monday, 2)}
+- "thứ 5 tuần sau" = {get_weekday_date(next_monday, 5)}
+- "thứ 6 tuần sau" = {get_weekday_date(next_monday, 6)}
+
+**Quy tắc khi user chỉ nói "thứ X" (không nói rõ tuần):**
+- Nếu thứ đó CHƯA QUA trong tuần này → tính cho TUẦN NÀY
+- Nếu thứ đó ĐÃ QUA → tính cho TUẦN SAU
 
 {priority_context}
 

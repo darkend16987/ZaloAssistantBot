@@ -219,7 +219,7 @@ class BirthdayProvider(BaseProvider):
     def get_combined_birthday_message(
         self,
         birthday_data: Dict[str, Any],
-        week: str = "next"
+        week: str = "this"  # Changed default to "this"
     ) -> str:
         """
         Get combined birthday list and public announcement.
