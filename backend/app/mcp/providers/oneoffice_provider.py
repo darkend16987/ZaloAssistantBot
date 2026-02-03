@@ -350,16 +350,28 @@ class OneOfficeProvider(BaseProvider):
     def get_task_by_id(self, tasks_data: Dict, task_id: int) -> Optional[Dict]:
         """Get a specific task by ID from tasks data"""
         if not tasks_data:
+            logger.warning(f"get_task_by_id: tasks_data is None/empty")
             return None
         # Convert task_id to int for comparison (API may return string or int)
         task_id_int = int(task_id)
-        for task in tasks_data.get("data", []):
+        logger.info(f"get_task_by_id: Looking for task_id_int={task_id_int}")
+
+        data_list = tasks_data.get("data", [])
+        logger.info(f"get_task_by_id: data_list has {len(data_list)} tasks")
+
+        for task in data_list:
             # Compare as int to handle both string and int IDs from API
             try:
-                if int(task.get("ID", 0)) == task_id_int:
+                raw_id = task.get("ID", 0)
+                task_id_from_api = int(raw_id)
+                if task_id_from_api == task_id_int:
+                    logger.info(f"get_task_by_id: FOUND task! raw_id={raw_id}, converted={task_id_from_api}")
                     return task
-            except (ValueError, TypeError):
+            except (ValueError, TypeError) as e:
+                logger.warning(f"get_task_by_id: Error converting ID {task.get('ID')}: {e}")
                 continue
+
+        logger.warning(f"get_task_by_id: NOT FOUND task_id={task_id_int} in {len(data_list)} tasks")
         return None
 
     def validate_task_id(self, tasks_data: Dict, task_id: int) -> bool:

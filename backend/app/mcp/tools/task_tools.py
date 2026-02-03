@@ -427,12 +427,23 @@ Sử dụng khi người dùng nói: "hoàn thành task", "done task", "tạm d�
         try:
             # IMPORTANT: Gemini may return float (162523.0), convert to int
             task_id = int(task_id)
+            logger.info(f"UpdateTaskStatusTool: Looking for task_id={task_id} (type={type(task_id).__name__})")
 
             provider = get_oneoffice_provider()
 
             # Verify task exists
             tasks_data = await provider.get_tasks(include_all_statuses=True)
+
+            # Debug logging
+            if tasks_data:
+                task_ids_in_data = [t.get('ID') for t in tasks_data.get('data', [])]
+                logger.info(f"UpdateTaskStatusTool: Found {len(task_ids_in_data)} tasks. IDs: {task_ids_in_data[:10]}...")
+                logger.info(f"UpdateTaskStatusTool: ID types: {[type(tid).__name__ for tid in task_ids_in_data[:3]]}")
+            else:
+                logger.error("UpdateTaskStatusTool: tasks_data is None or empty!")
+
             if not tasks_data or not provider.validate_task_id(tasks_data, task_id):
+                logger.error(f"UpdateTaskStatusTool: Validation FAILED for task_id={task_id}")
                 return ToolResult(
                     success=False,
                     error=f"Không tìm thấy công việc có ID {task_id}"
