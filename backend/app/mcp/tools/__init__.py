@@ -19,6 +19,7 @@ from app.mcp.tools.task_tools import (
     CreateAndCompleteTaskTool,
 )
 from app.mcp.tools.birthday_tools import GetBirthdaysTool
+from app.mcp.tools.knowledge_tools import SearchRegulationsTool, ListRegulationsTool
 
 
 def register_all_tools():
@@ -41,6 +42,10 @@ def register_all_tools():
     # Birthday tools
     tool_registry.register(GetBirthdaysTool())
 
+    # Knowledge tools
+    tool_registry.register(SearchRegulationsTool())
+    tool_registry.register(ListRegulationsTool())
+
 
 __all__ = [
     'GetTasksTool',
@@ -55,5 +60,7 @@ __all__ = [
     'RenameTaskTool',
     'CreateAndCompleteTaskTool',
     'GetBirthdaysTool',
+    'SearchRegulationsTool',
+    'ListRegulationsTool',
     'register_all_tools',
 ]

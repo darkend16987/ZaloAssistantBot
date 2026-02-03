@@ -1,0 +1,101 @@
+{
+  "name": "company_regulations",
+  "description": "Các quy định, quy chế, nội quy của Công ty CP Inno",
+  "version": "1.0.0",
+  "last_updated": "2025-04-01",
+  "documents": [
+    {
+      "id": "noi_quy_lao_dong",
+      "file": "noi_quy_lao_dong.md",
+      "title": "Nội quy lao động",
+      "description": "Quy định về thời gian làm việc, nghỉ phép, kỷ luật lao động",
+      "keywords": [
+        "nội quy", "lao động", "thời gian làm việc", "giờ làm việc",
+        "nghỉ phép", "phép năm", "nghỉ lễ", "nghỉ tết",
+        "nghỉ ốm", "thai sản", "kỷ luật", "sa thải",
+        "tác phong", "trang phục", "bảo mật", "bảo vệ tài sản",
+        "đi muộn", "về sớm", "chấm công"
+      ],
+      "sections": [
+        {"id": "thoi_gian_lam_viec", "title": "Thời gian làm việc", "articles": [4, 5, 6]},
+        {"id": "nghi_phep", "title": "Nghỉ phép", "articles": [7, 8, 9, 10]},
+        {"id": "nghi_viec", "title": "Nghỉ việc/Chấm dứt HĐLĐ", "articles": [11]},
+        {"id": "tac_phong", "title": "Tác phong làm việc", "articles": [14, 15]},
+        {"id": "nghia_vu", "title": "Nghĩa vụ NLĐ", "articles": [18, 19, 20]},
+        {"id": "ky_luat", "title": "Kỷ luật lao động", "articles": [21, 22, 23, 24, 25, 26, 27, 28]}
+      ],
+      "effective_date": "2025-04-01"
+    },
+    {
+      "id": "quy_che_du_lich",
+      "file": "quy_che_du_lich.md",
+      "title": "Quy chế tổ chức du lịch hàng năm",
+      "description": "Quy định về kinh phí hỗ trợ du lịch, điều kiện và thủ tục",
+      "keywords": [
+        "du lịch", "nghỉ mát", "hỗ trợ du lịch", "kinh phí du lịch",
+        "đi chơi", "team building", "hoạt động nhóm",
+        "hóa đơn du lịch", "chứng từ du lịch"
+      ],
+      "sections": [
+        {"id": "thanh_vien", "title": "Thành viên nhóm du lịch", "articles": [3.1]},
+        {"id": "kinh_phi", "title": "Kinh phí hỗ trợ", "articles": [3.2, 3.3]},
+        {"id": "ngay_nghi", "title": "Số ngày nghỉ du lịch", "articles": [3.4]},
+        {"id": "thanh_toan", "title": "Thanh toán", "articles": [3.5]},
+        {"id": "chung_tu", "title": "Chứng từ", "articles": ["phụ lục"]}
+      ],
+      "effective_date": "2023-01-01"
+    },
+    {
+      "id": "quy_cho_vay",
+      "file": "quy_cho_vay.md",
+      "title": "Quy định về quỹ hỗ trợ cho vay ngắn hạn",
+      "description": "Quy định về việc vay tiền từ quỹ hỗ trợ của công ty",
+      "keywords": [
+        "cho vay", "vay tiền", "vay ngắn hạn", "quỹ hỗ trợ",
+        "mượn tiền", "ứng lương", "hạn mức vay", "lãi suất"
+      ],
+      "sections": [
+        {"id": "gia_tri_quy", "title": "Giá trị quỹ", "articles": [1]},
+        {"id": "quy_dinh_vay", "title": "Quy định vay", "articles": [2]},
+        {"id": "thu_tuc_vay", "title": "Thủ tục vay", "articles": [3]}
+      ],
+      "effective_date": "2024-01-01"
+    },
+    {
+      "id": "dinh_muc_chi",
+      "file": "dinh_muc_chi.md",
+      "title": "Quy định định mức một số khoản chi",
+      "description": "Định mức chi văn phòng phẩm, công tác phí, phúc lợi",
+      "keywords": [
+        "định mức chi", "công tác phí", "phúc lợi", "hỗ trợ",
+        "văn phòng phẩm", "máy tính", "thiết bị", "tiếp khách",
+        "xe ô tô", "taxi", "máy bay", "khách sạn",
+        "kết hôn", "sinh con", "ốm đau", "hiếu", "lễ tết",
+        "8/3", "20/10", "1/6", "trung thu", "sinh nhật",
+        "bóng đá", "cầu lông", "gửi xe", "chứng chỉ hành nghề"
+      ],
+      "sections": [
+        {"id": "van_phong_pham", "title": "Văn phòng phẩm", "articles": [3]},
+        {"id": "may_tinh", "title": "Máy tính, thiết bị IT", "articles": [4, 5]},
+        {"id": "dich_vu", "title": "Chi phí dịch vụ", "articles": [6, 7, 8]},
+        {"id": "cong_tac", "title": "Công tác phí", "articles": [9, 10, 11, 12, 13]},
+        {"id": "phuc_loi", "title": "Phúc lợi", "articles": [14]}
+      ],
+      "effective_date": "2024-01-01"
+    }
+  ],
+  "query_mappings": {
+    "giờ làm việc": ["noi_quy_lao_dong#thoi_gian_lam_viec"],
+    "nghỉ phép": ["noi_quy_lao_dong#nghi_phep"],
+    "phép năm": ["noi_quy_lao_dong#nghi_phep"],
+    "du lịch": ["quy_che_du_lich"],
+    "vay tiền": ["quy_cho_vay"],
+    "công tác phí": ["dinh_muc_chi#cong_tac"],
+    "phúc lợi": ["dinh_muc_chi#phuc_loi"],
+    "kết hôn": ["noi_quy_lao_dong#nghi_phep", "dinh_muc_chi#phuc_loi"],
+    "sinh con": ["noi_quy_lao_dong#nghi_phep", "dinh_muc_chi#phuc_loi"],
+    "thai sản": ["noi_quy_lao_dong#nghi_phep"],
+    "kỷ luật": ["noi_quy_lao_dong#ky_luat"],
+    "sa thải": ["noi_quy_lao_dong#ky_luat"]
+  }
+}
