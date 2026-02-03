@@ -110,7 +110,7 @@ class BirthdayProvider(BaseProvider):
 
     async def get_birthdays(
         self,
-        week: str = "next"
+        week: str = "this"  # Changed default to "this"
     ) -> Optional[Dict[str, Any]]:
         """
         Lấy danh sách sinh nhật.
@@ -156,7 +156,8 @@ class BirthdayProvider(BaseProvider):
         if not employees:
             return f"Không có ai sinh nhật trong {week_label.lower()}."
 
-        week_range = birthday_data.get('nextWeekRange', {})
+        # Get week range - try both possible keys from Apps Script response
+        week_range = birthday_data.get('weekRange') or birthday_data.get('thisWeekRange') or birthday_data.get('nextWeekRange', {})
         start = week_range.get('start', '')
         end = week_range.get('end', '')
 
@@ -218,7 +219,7 @@ class BirthdayProvider(BaseProvider):
     def get_combined_birthday_message(
         self,
         birthday_data: Dict[str, Any],
-        week: str = "next"
+        week: str = "this"  # Changed default to "this"
     ) -> str:
         """
         Get combined birthday list and public announcement.

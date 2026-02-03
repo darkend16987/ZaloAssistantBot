@@ -195,26 +195,59 @@ class GetWeeklyReportTool(BaseTool):
 
     @property
     def description(self) -> str:
-        return """Lấy báo cáo công việc từ đầu tuần đến hiện tại.
-Sử dụng khi người dùng hỏi: "báo cáo tuần", "công việc tuần này", "weekly report"."""
+        return """Lấy báo cáo công việc theo tuần.
+
+QUAN TRỌNG - Cách chọn tham số week:
+- Nếu user nói "tuần này", "this week", "week này" → week="this"
+- Nếu user nói "tuần sau", "tuần tới", "next week" → week="next"
+- Nếu user chỉ hỏi "báo cáo tuần" không rõ tuần nào → week="this" (mặc định tuần hiện tại)
+
+Ví dụ:
+- "công việc tuần này" → week="this"
+- "báo cáo tuần sau" → week="next"
+- "báo cáo tuần" → week="this" """
 
     @property
     def parameters(self) -> List[ToolParameter]:
-        return []
+        return [
+            ToolParameter(
+                name="week",
+                type=ParameterType.STRING,
+                description="Chọn 'this' cho tuần hiện tại (mặc định), 'next' CHỈ khi user nói rõ tuần sau/tuần tới",
+                required=False,
+                enum=["this", "next"]
+            )
+        ]
 
     @property
     def category(self) -> str:
         return "tasks"
 
-    async def execute(self, **kwargs) -> ToolResult:
+    async def execute(self, week: str = "this", **kwargs) -> ToolResult:
         try:
             provider = get_oneoffice_provider()
-            start_of_week = datetime.now() - timedelta(days=datetime.now().weekday())
+            today = datetime.now()
+
+            # Calculate week start based on parameter
+            if week == "next":
+                # Next week: start from next Monday
+                days_until_next_monday = 7 - today.weekday()
+                start_of_week = today + timedelta(days=days_until_next_monday)
+                end_of_week = start_of_week + timedelta(days=6)
+                week_label = "TUẦN SAU"
+            else:
+                # This week: start from this Monday
+                start_of_week = today - timedelta(days=today.weekday())
+                end_of_week = start_of_week + timedelta(days=6)
+                week_label = "TUẦN NÀY"
+
             start_str = start_of_week.strftime('%d/%m/%Y')
+            end_str = end_of_week.strftime('%d/%m/%Y')
 
             tasks_data = await provider.get_tasks(
                 status=["DOING", "PENDING", "COMPLETED"],
-                date_from=start_str
+                date_from=start_str,
+                date_to=end_str
             )
 
             if tasks_data is None:
@@ -225,7 +258,7 @@ Sử dụng khi người dùng hỏi: "báo cáo tuần", "công việc tuần n
 
             formatted = provider.format_tasks_for_display(
                 tasks_data,
-                title=f"📊 Báo cáo công việc từ đầu tuần ({start_str}):"
+                title=f"📊 Báo cáo công việc {week_label} ({start_str} - {end_str}):"
             )
 
             task_ids = [t['ID'] for t in tasks_data.get('data', [])]
@@ -233,7 +266,7 @@ Sử dụng khi người dùng hỏi: "báo cáo tuần", "công việc tuần n
             return ToolResult(
                 success=True,
                 data=formatted,
-                metadata={"task_ids": task_ids, "week_start": start_str}
+                metadata={"task_ids": task_ids, "week_start": start_str, "week_end": end_str, "week": week}
             )
 
         except Exception as e:
