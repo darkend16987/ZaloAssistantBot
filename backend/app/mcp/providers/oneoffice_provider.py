@@ -351,9 +351,15 @@ class OneOfficeProvider(BaseProvider):
         """Get a specific task by ID from tasks data"""
         if not tasks_data:
             return None
+        # Convert task_id to int for comparison (API may return string or int)
+        task_id_int = int(task_id)
         for task in tasks_data.get("data", []):
-            if task.get("ID") == task_id:
-                return task
+            # Compare as int to handle both string and int IDs from API
+            try:
+                if int(task.get("ID", 0)) == task_id_int:
+                    return task
+            except (ValueError, TypeError):
+                continue
         return None
 
     def validate_task_id(self, tasks_data: Dict, task_id: int) -> bool:
