@@ -90,7 +90,8 @@ Chúc các bạn có một ngày sinh nhật thật nhiều niềm vui và tuổ
 ]
 
 # State file for tracking last used template
-BIRTHDAY_STATE_FILE = "data/birthday_state.json"
+# Use same path as legacy birthday_templates.py for consistency
+BIRTHDAY_STATE_FILE = "backend/data/birthday_state.json"
 
 
 def _load_last_template_index() -> int:
