@@ -344,12 +344,20 @@ class BirthdayProvider(BaseProvider):
             valid_job_statuses = ["Đang làm việc", "Nghỉ thai sản"]
             employees = []
             
+            for person in all_raw_employees:
+                # Get job_status
+                job_status = person.get("job_status", "")
+
                 # Parse birthday_now (dd/MM/yyyy format)
                 birthday_str = person.get("birthday_now", "")
                 
                 # Check status
                 is_valid_status = job_status in valid_job_statuses
                 
+                # DEBUG: Log specific people to check their data
+                if any(x in person.get("name", "") for x in ["Hà Công Ngoan", "Nguyễn Quang Huy", "Bùi Thị Vân"]):
+                    logger.info(f"DEBUG PERSON: {person.get('code')} - {person.get('name')} - Status: '{job_status}' - BirthdayNow: '{birthday_str}'")
+
                 if not birthday_str:
                     continue
 
