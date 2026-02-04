@@ -277,12 +277,22 @@ class BirthdayProvider(BaseProvider):
             api_filters = [{"job_status": ["WORKING", "LEAVING", "LEAVE_SICK"]}]
             params = {
                 "access_token": self._access_token,
-                "filters": json.dumps(api_filters),
+                # Use separators to remove spaces from JSON (avoid URL encoding issues)
+                "filters": json.dumps(api_filters, separators=(',', ':')),
                 "limit": 1000
             }
 
             session = await self.get_http_session()
             async with session.get(self.API_BASE_URL, params=params) as response:
+                # Check content type before parsing
+                content_type = response.headers.get('Content-Type', '')
+                if 'application/json' not in content_type:
+                    # API returned HTML instead of JSON - log the response for debugging
+                    html_content = await response.text()
+                    logger.error(f"Birthday API returned HTML instead of JSON. Content-Type: {content_type}")
+                    logger.error(f"HTML response (first 500 chars): {html_content[:500]}")
+                    return {"error": f"API returned HTML instead of JSON. Check token/permissions."}
+
                 response.raise_for_status()
                 api_data = await response.json()
 
