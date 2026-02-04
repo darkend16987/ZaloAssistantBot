@@ -279,46 +279,77 @@ class BirthdayProvider(BaseProvider):
             api_filters = [{"job_status": ["WORKING", "LEAVING"]}]
             filters_json = json.dumps(api_filters, separators=(',', ':'))
             
-            params = {
-                "access_token": self._access_token,
-                "filters": filters_json,
-                "limit": 1000
-            }
-            
             headers = {
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
             }
 
+            all_raw_employees = []
+            page = 1
+            limit = 50
+            has_more = True
+            
             session = await self.get_http_session()
-            async with session.get(self.API_BASE_URL, params=params, headers=headers) as response:
-                response.raise_for_status()
-                
+            
+            logger.info(f"Starting to fetch birthdays with pagination. Limit={limit}")
+
+            while has_more:
+                params = {
+                    "access_token": self._access_token,
+                    "filters": filters_json,
+                    "limit": limit,
+                    "page": page
+                }
+
                 try:
-                    api_data = await response.json()
+                    async with session.get(self.API_BASE_URL, params=params, headers=headers) as response:
+                        response.raise_for_status()
+                        
+                        # Bypass Content-Type check
+                        api_data = await response.json(content_type=None)
+                        
+                        if api_data.get("error") == True:
+                            logger.error(f"API Error at page {page}: {api_data.get('message')}")
+                            # If error on first page, return error. If later, maybe partial result?
+                            # Let's break and use what we have, or return error.
+                            if page == 1:
+                                return {"error": api_data.get("message", "API error")}
+                            has_more = False
+                            continue
+
+                        data_list = api_data.get("data", [])
+                        if not isinstance(data_list, list):
+                            logger.warning(f"API returned 'data' as {type(data_list)} at page {page}, expected list.")
+                            data_list = []
+                        
+                        count = len(data_list)
+                        logger.info(f"Page {page}: Fetched {count} records")
+                        
+                        all_raw_employees.extend(data_list)
+                        
+                        if count < limit:
+                            has_more = False
+                        else:
+                            page += 1
+                            import asyncio
+                            await asyncio.sleep(0.2) # Rate limiting
+                            
                 except Exception as e:
-                    # If JSON decode fails, log the response text to see the error page
-                    text_content = await response.text()
-                    logger.error(f"Failed to decode JSON from Birthday API. Response Status: {response.status}")
-                    logger.error(f"Response Content (first 500 chars): {text_content[:500]}")
-                    return {"error": f"API returned non-JSON response (Status {response.status}). See logs for details."}
+                    logger.error(f"Error fetching page {page}: {e}")
+                    if page == 1:
+                         # Try to get error text if possible
+                         return {"error": f"Failed to fetch data: {str(e)}"}
+                    has_more = False
 
-                if api_data.get("error") == True:
-                    return {"error": api_data.get("message", "API error")}
+            logger.info(f"Finished fetching. Total raw records: {len(all_raw_employees)}")
 
-                # Filter and transform on client-side
-                # Valid job statuses: WORKING='Đang làm việc', LEAVING='Nghỉ thai sản'
-                valid_job_statuses = ["Đang làm việc", "Nghỉ thai sản"]
-                employees = []
-                
-                # Check if data is list or dict (API structure variation)
-                data_list = api_data.get("data", [])
-                if not isinstance(data_list, list):
-                    logger.warning(f"API returned 'data' as {type(data_list)}, expected list.")
-                    data_list = []
-                    
-                for person in data_list:
-                    # Skip if not a valid working status
-                    job_status = person.get("job_status", "")
+            # Filter and transform on client-side
+            # Valid job statuses: WORKING='Đang làm việc', LEAVING='Nghỉ thai sản'
+            valid_job_statuses = ["Đang làm việc", "Nghỉ thai sản"]
+            employees = []
+            
+            for person in all_raw_employees:
+                # Skip if not a valid working status
+                job_status = person.get("job_status", "")
                     if job_status not in valid_job_statuses:
                         continue
 
