@@ -202,15 +202,23 @@ class BirthdayProvider(BaseProvider):
         return "birthday"
 
     async def initialize(self) -> None:
-        """Initialize provider with 1Office token"""
-        # Reuse the same token as OneOffice provider
-        self._access_token = settings.ONEOFFICE_TOKEN.get_secret_value() if settings.ONEOFFICE_TOKEN else None
+        """Initialize provider with 1Office Personnel token"""
+        # Use ONEOFFICE_PERSONNEL_TOKEN for personnel API (different from work API token)
+        # Fall back to ONEOFFICE_TOKEN if personnel token not set
+        personnel_token = settings.ONEOFFICE_PERSONNEL_TOKEN.get_secret_value() if settings.ONEOFFICE_PERSONNEL_TOKEN else ""
+        if personnel_token:
+            self._access_token = personnel_token
+            logger.info("Birthday provider using ONEOFFICE_PERSONNEL_TOKEN")
+        else:
+            self._access_token = settings.ONEOFFICE_TOKEN.get_secret_value() if settings.ONEOFFICE_TOKEN else None
+            logger.info("Birthday provider using ONEOFFICE_TOKEN (fallback)")
+
         self._http_session = aiohttp.ClientSession(
             timeout=aiohttp.ClientTimeout(total=self.config.timeout)
         )
 
         if not self._access_token:
-            logger.warning("ONEOFFICE_TOKEN not configured for Birthday provider")
+            logger.warning("No token configured for Birthday provider")
             self._status = ProviderStatus.UNAVAILABLE
         else:
             self._status = ProviderStatus.HEALTHY
@@ -263,9 +271,14 @@ class BirthdayProvider(BaseProvider):
             # Calculate week range
             start_date, end_date = _get_week_range(week)
 
-            # Fetch ALL employees (no server-side filter - 1Office API filter is complex)
+            # Filter by job_status to only get active employees
+            # API filter format: filters=[{"job_status": ["WORKING", "LEAVING", "LEAVE_SICK"]}]
+            # WORKING = 'Đang làm việc', LEAVING = 'Nghỉ thai sản', LEAVE_SICK = 'Nghỉ ốm đau'
+            api_filters = [{"job_status": ["WORKING", "LEAVING", "LEAVE_SICK"]}]
             params = {
-                "access_token": self._access_token
+                "access_token": self._access_token,
+                "filters": json.dumps(api_filters),
+                "limit": 1000
             }
 
             session = await self.get_http_session()
@@ -277,11 +290,13 @@ class BirthdayProvider(BaseProvider):
                     return {"error": api_data.get("message", "API error")}
 
                 # Filter and transform on client-side
+                # Valid job statuses: WORKING='Đang làm việc', LEAVING='Nghỉ thai sản', LEAVE_SICK='Nghỉ ốm đau'
+                valid_job_statuses = ["Đang làm việc", "Nghỉ thai sản", "Nghỉ ốm đau"]
                 employees = []
                 for person in api_data.get("data", []):
-                    # Skip if not "Đang làm việc"
+                    # Skip if not a valid working status
                     job_status = person.get("job_status", "")
-                    if job_status != "Đang làm việc":
+                    if job_status not in valid_job_statuses:
                         continue
 
                     # Parse birthday_now (dd/MM/yyyy format)

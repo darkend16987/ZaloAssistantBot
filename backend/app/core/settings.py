@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     """
     # --- Sensitive Data ---
     ONEOFFICE_TOKEN: SecretStr
+    ONEOFFICE_PERSONNEL_TOKEN: SecretStr = SecretStr("")  # Token for personnel API (birthday)
     GOOGLE_API_KEY: SecretStr
 
     # --- Zalo / Reminder Config ---
