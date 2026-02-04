@@ -274,40 +274,33 @@ class BirthdayProvider(BaseProvider):
             # Filter by job_status to only get active employees
             # API filter format: filters=[{"job_status": ["WORKING", "LEAVING"]}]
             # WORKING = 'Đang làm việc', LEAVING = 'Nghỉ thai sản'
-            # Note: Build URL manually to avoid double URL-encoding of filters
-            # The 1Office API seems to be very strict or non-standard regarding URL encoding of the 'filters' param.
-            # It expects raw brackets/braces/quotes in the query string.
+            # Note: We use compact JSON (no spaces) to avoid '+' or '%20' in the URL which might confuse the API.
+            # We let aiohttp handle the standard URL encoding (e.g. [ -> %5B).
             api_filters = [{"job_status": ["WORKING", "LEAVING"]}]
-            filters_json = json.dumps(api_filters, separators=(',', ':'))  # Compact JSON
+            filters_json = json.dumps(api_filters, separators=(',', ':'))
             
-            # We need to ensure the filters_json is passed EXACTLY as is, without strict URL encoding of special chars.
-            # aiohttp/yarl usually encodes everything. We will manually construct the query string
-            # and pass encoded=True to yarl.URL to verify if we can slip it through.
-            # However, yarl might still validate.
+            params = {
+                "access_token": self._access_token,
+                "filters": filters_json,
+                "limit": 1000
+            }
             
-            # Use yarl to safely encode other parts if needed, but here we trust the token is safe.
-            # strict=False might be needed if yarl rejects the characters.
-            from yarl import URL
-            
-            base_url = URL(self.API_BASE_URL)
-            # We manually build the query string to keep filters 'raw'
-            query_string = f"access_token={self._access_token}&filters={filters_json}&limit=1000"
-            
-            # Construct URL with raw query string. 
-            # CAUTION: This assumes the server (and intermediate proxies) can handle "raw" chars in query.
-            # If yarl.URL(..., encoded=True) fails validation, this might raise ValueError.
-            # But typically for 'encoded=True', it expects %XX, but might allow others?
-            # Actually, let's try to be clever: we only want to NOT encode specific chars.
-            # But simplest path to 'match' the user's manual request is to form the string and say "it's encoded".
-            full_url_str = f"{self.API_BASE_URL}?{query_string}"
-            url = URL(full_url_str, encoded=True)
-            
-            logger.info(f"Birthday API Request URL: {url}")
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+            }
 
             session = await self.get_http_session()
-            async with session.get(url) as response:
+            async with session.get(self.API_BASE_URL, params=params, headers=headers) as response:
                 response.raise_for_status()
-                api_data = await response.json()
+                
+                try:
+                    api_data = await response.json()
+                except Exception as e:
+                    # If JSON decode fails, log the response text to see the error page
+                    text_content = await response.text()
+                    logger.error(f"Failed to decode JSON from Birthday API. Response Status: {response.status}")
+                    logger.error(f"Response Content (first 500 chars): {text_content[:500]}")
+                    return {"error": f"API returned non-JSON response (Status {response.status}). See logs for details."}
 
                 if api_data.get("error") == True:
                     return {"error": api_data.get("message", "API error")}
@@ -316,7 +309,14 @@ class BirthdayProvider(BaseProvider):
                 # Valid job statuses: WORKING='Đang làm việc', LEAVING='Nghỉ thai sản'
                 valid_job_statuses = ["Đang làm việc", "Nghỉ thai sản"]
                 employees = []
-                for person in api_data.get("data", []):
+                
+                # Check if data is list or dict (API structure variation)
+                data_list = api_data.get("data", [])
+                if not isinstance(data_list, list):
+                    logger.warning(f"API returned 'data' as {type(data_list)}, expected list.")
+                    data_list = []
+                    
+                for person in data_list:
                     # Skip if not a valid working status
                     job_status = person.get("job_status", "")
                     if job_status not in valid_job_statuses:
