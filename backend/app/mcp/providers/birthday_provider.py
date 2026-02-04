@@ -274,10 +274,8 @@ class BirthdayProvider(BaseProvider):
             # Filter by job_status to only get active employees
             # API filter format: filters=[{"job_status": ["WORKING", "LEAVING"]}]
             # WORKING = 'Đang làm việc', LEAVING = 'Nghỉ thai sản'
-            # Note: We use compact JSON (no spaces) to avoid '+' or '%20' in the URL which might confuse the API.
-            # We let aiohttp handle the standard URL encoding (e.g. [ -> %5B).
-            api_filters = [{"job_status": ["WORKING", "LEAVING"]}]
-            filters_json = json.dumps(api_filters, separators=(',', ':'))
+            # Note: We fetch ALL employees without server-side filters to ensure we don't miss anyone.
+            # Filtering will be done entirely on the client side.
             
             headers = {
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
@@ -290,12 +288,11 @@ class BirthdayProvider(BaseProvider):
             
             session = await self.get_http_session()
             
-            logger.info(f"Starting to fetch birthdays with pagination. Limit={limit}")
+            logger.info(f"Starting to fetch ALL birthdays (no filters). Limit={limit}")
 
             while has_more:
                 params = {
                     "access_token": self._access_token,
-                    "filters": filters_json,
                     "limit": limit,
                     "page": page
                 }
@@ -347,14 +344,12 @@ class BirthdayProvider(BaseProvider):
             valid_job_statuses = ["Đang làm việc", "Nghỉ thai sản"]
             employees = []
             
-            for person in all_raw_employees:
-                # Skip if not a valid working status
-                job_status = person.get("job_status", "")
-                if job_status not in valid_job_statuses:
-                    continue
-
                 # Parse birthday_now (dd/MM/yyyy format)
                 birthday_str = person.get("birthday_now", "")
+                
+                # Check status
+                is_valid_status = job_status in valid_job_statuses
+                
                 if not birthday_str:
                     continue
 
@@ -364,8 +359,15 @@ class BirthdayProvider(BaseProvider):
                     continue
 
                 # Check if birthday is within week range
-                # Compare only month and day (birthday_now already has current year)
-                if not (start_date.date() <= birthday_date.date() <= end_date.date()):
+                is_in_week = (start_date.date() <= birthday_date.date() <= end_date.date())
+                
+                if is_in_week and not is_valid_status:
+                     logger.warning(f"Skipped {person.get('name')} ({job_status}) - Birthday {birthday_str} is in week, but status invalid.")
+
+                if not is_valid_status:
+                    continue
+                
+                if not is_in_week:
                     continue
 
                 day_of_week = WEEKDAY_NAMES.get(birthday_date.weekday(), "")
