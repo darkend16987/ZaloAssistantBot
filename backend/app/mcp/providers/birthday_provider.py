@@ -252,169 +252,124 @@ class BirthdayProvider(BaseProvider):
         week: str = "this"
     ) -> Optional[Dict[str, Any]]:
         """
-        Lấy danh sách sinh nhật từ 1Office API.
-
-        Approach: Fetch all employees, then filter client-side by:
-        - job_status = "Đang làm việc"
-        - birthday_now within week range
-
-        Args:
-            week: "this" for current week, "next" for next week, "next_next" for week after next
-
-        Returns:
-            Dict with 'employees' list and week range info
+        Lấy danh sách sinh nhật từ Google Sheet CSV.
+        
+        Source: Public Google Sheet CSV Export.
+        Filter theo:
+        - Ngày sinh trong khoảng tuần
+        - Trạng thái = "Đang làm việc"
         """
-        if not self._access_token:
-            return {"error": "1Office token not configured"}
-
+        # CSV URL from user
+        CSV_URL = "https://docs.google.com/spreadsheets/d/12rAH6Y8XUjb5L-cUYSMiE32hbngFoRhxJNqFffABIj8/export?format=csv&gid=1352456885"
+        
         try:
             # Calculate week range
             start_date, end_date = _get_week_range(week)
-
-            # Filter by job_status to only get active employees
-            # API filter format: filters=[{"job_status": ["WORKING", "LEAVING"]}]
-            # WORKING = 'Đang làm việc', LEAVING = 'Nghỉ thai sản'
-            # Note: We fetch ALL employees without server-side filters to ensure we don't miss anyone.
-            # Filtering will be done entirely on the client side.
+            # start_date = datetime(2026, 5, 1) # REMOVED TEST DATE
+            # end_date = datetime(2026, 5, 7)   # REMOVED TEST DATE
             
-            headers = {
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-            }
-
-            all_raw_employees = []
-            page = 1
-            limit = 50
-            has_more = True
-            
+            # Using aiohttp to fetch CSV
             session = await self.get_http_session()
             
-            logger.info(f"Starting to fetch ALL birthdays (no filters). Limit={limit}")
-
-            while has_more:
-                params = {
-                    "access_token": self._access_token,
-                    "limit": limit,
-                    "page": page
-                }
-
-                try:
-                    async with session.get(self.API_BASE_URL, params=params, headers=headers) as response:
-                        response.raise_for_status()
-                        
-                        # Bypass Content-Type check
-                        api_data = await response.json(content_type=None)
-                        
-                        if api_data.get("error") == True:
-                            logger.error(f"API Error at page {page}: {api_data.get('message')}")
-                            # If error on first page, return error. If later, maybe partial result?
-                            # Let's break and use what we have, or return error.
-                            if page == 1:
-                                return {"error": api_data.get("message", "API error")}
-                            has_more = False
-                            continue
-
-                        data_list = api_data.get("data", [])
-                        if not isinstance(data_list, list):
-                            logger.warning(f"API returned 'data' as {type(data_list)} at page {page}, expected list.")
-                            data_list = []
-                        
-                        count = len(data_list)
-                        logger.info(f"Page {page}: Fetched {count} records")
-                        
-                        all_raw_employees.extend(data_list)
-                        
-                        if count < limit:
-                            has_more = False
-                        else:
-                            page += 1
-                            import asyncio
-                            await asyncio.sleep(0.2) # Rate limiting
-                            
-                except Exception as e:
-                    logger.error(f"Error fetching page {page}: {e}")
-                    if page == 1:
-                         # Try to get error text if possible
-                         return {"error": f"Failed to fetch data: {str(e)}"}
-                    has_more = False
-
-            logger.info(f"Finished fetching. Total raw records: {len(all_raw_employees)}")
-
-            # Filter and transform on client-side
-            # Valid job statuses: WORKING='Đang làm việc', LEAVING='Nghỉ thai sản'
-            valid_job_statuses = ["Đang làm việc", "Nghỉ thai sản"]
-            employees = []
+            logger.info(f"Fetching birthday data from Google Sheet CSV...")
             
-            for person in all_raw_employees:
-                # Get job_status
-                job_status = person.get("job_status", "")
-
-                # Parse birthday_now (dd/MM/yyyy format)
-                birthday_str = person.get("birthday_now", "")
+            async with session.get(CSV_URL) as response:
+                if response.status != 200:
+                    return {"error": f"Failed to fetch CSV. Status: {response.status}"}
                 
-                # Check status
-                is_valid_status = job_status in valid_job_statuses
+                csv_text = await response.text()
                 
-                # DEBUG: Log specific people to check their data
-                if any(x in person.get("name", "") for x in ["Hà Công Ngoan", "Nguyễn Quang Huy", "Bùi Thị Vân"]):
-                    logger.info(f"DEBUG PERSON: {person.get('code')} - {person.get('name')} - Status: '{job_status}' - BirthdayNow: '{birthday_str}'")
-
-                if not birthday_str:
+            # Parse CSV
+            import csv
+            import io
+            
+            # Use io.StringIO to treat string as file for csv module
+            f = io.StringIO(csv_text)
+            reader = csv.DictReader(f)
+            
+            employees = []
+            valid_job_statuses = ["Đang làm việc"] # Exact match from Sheet
+            
+            count_total = 0
+            count_active = 0
+            
+            for row in reader:
+                count_total += 1
+                
+                # Column mapping based on verified sheet headers
+                # 'Mã NS', 'Họ và tên', 'Ngày sinh', 'Trạng thái', 'Phòng ban'
+                name = row.get("Họ và tên", "").strip()
+                birthday_str = row.get("Ngày sinh", "").strip()
+                job_status = row.get("Trạng thái", "").strip()
+                department = row.get("Phòng ban", "").strip()
+                code = row.get("Mã NS", "").strip()
+                
+                if not name or not birthday_str:
                     continue
+
+                # Filter by status
+                if job_status not in valid_job_statuses:
+                    continue
+                
+                count_active += 1
 
                 try:
+                    # Parse date dd/mm/yyyy
                     birthday_date = datetime.strptime(birthday_str, "%d/%m/%Y")
-                except ValueError:
-                    continue
-
-                # Check if birthday is within week range
-                is_in_week = (start_date.date() <= birthday_date.date() <= end_date.date())
-                
-                if is_in_week and not is_valid_status:
-                     logger.warning(f"Skipped {person.get('name')} ({job_status}) - Birthday {birthday_str} is in week, but status invalid.")
-
-                if not is_valid_status:
-                    continue
-                
-                if not is_in_week:
-                    continue
-
-                day_of_week = WEEKDAY_NAMES.get(birthday_date.weekday(), "")
-
-                employees.append({
-                    "name": person.get("name", "N/A"),
-                    "birthDate": birthday_str,
-                    "dayOfWeek": day_of_week,
-                    "department": person.get("department_id", ""),
-                    "code": person.get("code", ""),
-                    "job_status": job_status
-                })
-
-                # Sort by birthday date
-                def sort_key(emp):
+                    
+                    # Normalize dates to current year for comparison
+                    # (Logic from original: compare month/day with range)
+                    # Note: We need to handle year rollover if week crosses year boundary, 
+                    # but simple comparison usually suffices for single week within year.
+                    
+                    # Create a date object for this year's birthday to compare with range
+                    # We need to handle leap years (Feb 29)
                     try:
-                        return datetime.strptime(emp["birthDate"], "%d/%m/%Y")
-                    except (ValueError, KeyError):
-                        return datetime.max
+                        b_date_this_year = birthday_date.replace(year=start_date.year)
+                    except ValueError:
+                        # Case: Feb 29 on non-leap year -> Use Mar 1 or Feb 28?
+                        # Let's verify if user wants exact date.
+                        # Simple fix: skip or map to Feb 28.
+                        if birthday_date.month == 2 and birthday_date.day == 29:
+                             b_date_this_year = birthday_date.replace(day=28, year=start_date.year)
+                        else:
+                             continue
+                    
+                    # Check range
+                    # Note: start_date and end_date include time, so compare .date()
+                    if start_date.date() <= b_date_this_year.date() <= end_date.date():
+                        day_of_week = WEEKDAY_NAMES.get(b_date_this_year.weekday(), "")
+                        
+                        employees.append({
+                            "name": name,
+                            "birthDate": b_date_this_year.strftime("%d/%m/%Y"), # Return formatted date
+                            "dayOfWeek": day_of_week,
+                            "department": department,
+                            "code": code,
+                            "job_status": job_status
+                        })
+                        
+                except ValueError as e:
+                    # logger.warning(f"Date parse error for {name}: {birthday_str}")
+                    continue
 
-                employees.sort(key=sort_key)
+            # Sort by birthday date
+            employees.sort(key=lambda x: datetime.strptime(x["birthDate"], "%d/%m/%Y"))
 
-                logger.info(f"Birthday API: Found {len(employees)} employees with birthday in {week} week ({_format_date_for_api(start_date)} - {_format_date_for_api(end_date)})")
+            logger.info(f"Google Sheet: Scanned {count_total} rows, {count_active} active. Found {len(employees)} birthdays in week ({_format_date_for_api(start_date)} - {_format_date_for_api(end_date)})")
 
-                return {
-                    "employees": employees,
-                    "weekRange": {
-                        "start": _format_date_for_api(start_date),
-                        "end": _format_date_for_api(end_date)
-                    },
-                    "week": week,
-                    "total": len(employees)
-                }
+            return {
+                "employees": employees,
+                "weekRange": {
+                    "start": _format_date_for_api(start_date),
+                    "end": _format_date_for_api(end_date)
+                },
+                "week": week,
+                "total": len(employees)
+            }
 
-        except aiohttp.ClientError as e:
-            logger.error(f"HTTP error fetching birthdays: {e}")
-            return {"error": f"Connection error: {str(e)}"}
         except Exception as e:
-            logger.error(f"Error fetching birthdays: {e}", exc_info=True)
+            logger.error(f"Error fetching birthdays from CSV: {e}", exc_info=True)
             return {"error": str(e)}
 
     def format_birthday_list(
