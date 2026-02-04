@@ -88,8 +88,8 @@ VÍ DỤ:
             if document_type:
                 filters = {"doc_id": document_type}
 
-            # Get retrieval result - only top 2 most relevant chunks
-            result = await provider.retrieve(query, top_k=2, filters=filters)
+            # Get retrieval result - INCREASED to top 3 for better context
+            result = await provider.retrieve(query, top_k=3, filters=filters)
 
             if not result.chunks:
                 return ToolResult(
@@ -98,21 +98,44 @@ VÍ DỤ:
                     metadata={"found": False, "query": query}
                 )
 
-            # Build concise response with only relevant content
-            # Limit each chunk to ~1500 chars to keep total response manageable
-            MAX_CHUNK_LENGTH = 1500
-            response_parts = []
+            # Build context for LLM
+            context_parts = []
+            for i, chunk in enumerate(result.chunks, 1):
+                context_parts.append(f"--- ĐOẠN {i} (Nguồn: {chunk.source}) ---\n{chunk.content}")
+            
+            full_context = "\n\n".join(context_parts)
 
-            for i, chunk in enumerate(result.chunks[:2], 1):
-                content = chunk.content
-                if len(content) > MAX_CHUNK_LENGTH:
-                    content = content[:MAX_CHUNK_LENGTH] + "..."
+            # Call Gemini to synthesize answer
+            try:
+                from app.services.gemini import gemini_model
+                
+                prompt = f"""
+Bạn là trợ lý AI nội bộ của công ty. Nhiệm vụ của bạn là trả lời câu hỏi của nhân viên dựa trên các quy định được cung cấp dưới đây.
 
-                response_parts.append(f"**[{chunk.source}]**\n{content}")
+### THÔNG TIN QUY ĐỊNH (CONTEXT) ###
+{full_context}
 
-            context = "\n\n---\n\n".join(response_parts)
+### CÂU HỎI CỦA NHÂN VIÊN ###
+"{query}"
 
-            # Build response with sources
+### YÊU CẦU TRẢ LỜI ###
+1.  **Trả lời trực tiếp**: Đi thẳng vào vấn đề, không vòng vo.
+2.  **Dựa vào Context**: Chỉ sử dụng thông tin có trong Context trên. Nếu Context không đủ để trả lời, hãy nói rõ là "Thông tin này chưa được quy định rõ trong tài liệu tìm thấy".
+3.  **Trích dẫn nguồn**: Cuối câu trả lời, hãy ghi rõ nguồn (ví dụ: Theo Điều X - Quy chế Y).
+4.  **Văn phong**: Chuyên nghiệp, thân thiện, súc tích. Dùng định dạng Markdown (bold, list) để dễ đọc.
+
+HÃY TRẢ LỜI NGAY DƯỚI ĐÂY:
+"""
+                # Call Gemini
+                response = await gemini_model.generate_content_async(prompt)
+                final_answer = response.text.strip()
+                
+            except Exception as llm_error:
+                logger.error(f"Error calling Gemini for synthesis: {llm_error}")
+                # Fallback to raw chunks if LLM fails
+                final_answer = "### Thông tin tìm thấy:\n\n" + full_context
+
+            # Build response metadata
             sources = list(set(
                 c.metadata.get("doc_id", "unknown")
                 for c in result.chunks
@@ -120,13 +143,14 @@ VÍ DỤ:
 
             return ToolResult(
                 success=True,
-                data=context,
+                data=final_answer,
                 metadata={
                     "found": True,
                     "query": query,
                     "sources": sources,
                     "chunk_count": len(result.chunks),
-                    "total_found": result.total_found
+                    "total_found": result.total_found,
+                    "synthesized": True
                 }
             )
 
