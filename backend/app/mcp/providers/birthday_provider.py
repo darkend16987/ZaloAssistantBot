@@ -246,6 +246,10 @@ class BirthdayProvider(BaseProvider):
         """
         Lấy danh sách sinh nhật từ 1Office API.
 
+        Approach: Fetch all employees, then filter client-side by:
+        - job_status = "Đang làm việc"
+        - birthday_now within week range
+
         Args:
             week: "this" for current week, "next" for next week, "next_next" for week after next
 
@@ -259,21 +263,9 @@ class BirthdayProvider(BaseProvider):
             # Calculate week range
             start_date, end_date = _get_week_range(week)
 
-            # Build filter for 1Office API
-            # Filter: birthday_now in range AND job_status = "Đang làm việc"
-            sfilter = {
-                "ors": [[
-                    {"f": "birthday_now", "o": "date_after", "p": _format_date_for_api(start_date - timedelta(days=1))},
-                    {"f": "birthday_now", "o": "date_before", "p": _format_date_for_api(end_date + timedelta(days=1))}
-                ]],
-                "ands": [
-                    {"f": "job_status", "o": "is", "p": "Đang làm việc"}
-                ]
-            }
-
+            # Fetch ALL employees (no server-side filter - 1Office API filter is complex)
             params = {
-                "access_token": self._access_token,
-                "@sfilter": json.dumps(sfilter)
+                "access_token": self._access_token
             }
 
             session = await self.get_http_session()
@@ -281,22 +273,33 @@ class BirthdayProvider(BaseProvider):
                 response.raise_for_status()
                 api_data = await response.json()
 
-                if api_data.get("error"):
+                if api_data.get("error") == True:
                     return {"error": api_data.get("message", "API error")}
 
-                # Transform API response to our format
+                # Filter and transform on client-side
                 employees = []
                 for person in api_data.get("data", []):
+                    # Skip if not "Đang làm việc"
+                    job_status = person.get("job_status", "")
+                    if job_status != "Đang làm việc":
+                        continue
+
                     # Parse birthday_now (dd/MM/yyyy format)
                     birthday_str = person.get("birthday_now", "")
-                    day_of_week = ""
+                    if not birthday_str:
+                        continue
 
-                    if birthday_str:
-                        try:
-                            birthday_date = datetime.strptime(birthday_str, "%d/%m/%Y")
-                            day_of_week = WEEKDAY_NAMES.get(birthday_date.weekday(), "")
-                        except ValueError:
-                            pass
+                    try:
+                        birthday_date = datetime.strptime(birthday_str, "%d/%m/%Y")
+                    except ValueError:
+                        continue
+
+                    # Check if birthday is within week range
+                    # Compare only month and day (birthday_now already has current year)
+                    if not (start_date.date() <= birthday_date.date() <= end_date.date()):
+                        continue
+
+                    day_of_week = WEEKDAY_NAMES.get(birthday_date.weekday(), "")
 
                     employees.append({
                         "name": person.get("name", "N/A"),
@@ -304,7 +307,7 @@ class BirthdayProvider(BaseProvider):
                         "dayOfWeek": day_of_week,
                         "department": person.get("department_id", ""),
                         "code": person.get("code", ""),
-                        "job_status": person.get("job_status", "")
+                        "job_status": job_status
                     })
 
                 # Sort by birthday date
@@ -315,6 +318,8 @@ class BirthdayProvider(BaseProvider):
                         return datetime.max
 
                 employees.sort(key=sort_key)
+
+                logger.info(f"Birthday API: Found {len(employees)} employees with birthday in {week} week ({_format_date_for_api(start_date)} - {_format_date_for_api(end_date)})")
 
                 return {
                     "employees": employees,
