@@ -8,7 +8,7 @@ from app.core.settings import settings
 from app.core.logging import logger
 from app.services import oneoffice, zalo
 from app.services.task_flows import format_tasks_message
-from app.services.birthday_templates import format_public_birthday_message
+# from app.services.birthday_templates import format_public_birthday_message
 
 # We need a shared session or create new ones.
 # Since these are async tasks run by scheduler, passing a session is tricky unless scheduler Context has it.
@@ -16,73 +16,35 @@ from app.services.birthday_templates import format_public_birthday_message
 # Ideally, the scheduler setup should pass the session.
 # For simplicity in this refactor, I will accept an optional session or create one.
 
-async def fetch_birthdays_from_sheets(week: str = "next") -> Optional[Dict]:
-    """Calls Google Apps Script to get birthdays. week can be 'this' or 'next'."""
-    try:
-        async with httpx.AsyncClient(follow_redirects=True) as client:
-            url = f"{settings.GOOGLE_APPS_SCRIPT_URL}?week={week}"
-            response = await client.get(
-                url,
-                timeout=30.0
-            )
-            
-            if response.status_code == 200:
-                data = response.json()
-                logger.info(f"✅ Fetched birthdays from Google Sheets: {len(data.get('employees', []))} people")
-                return data
-            else:
-                logger.error(f"❌ Error calling Google Sheets API: {response.status_code}")
-                return None
-    except Exception as e:
-        logger.error(f"❌ Unknown error fetching birthdays: {e}")
-        return None
-
-def format_birthday_message(birthday_data: Dict) -> str:
-    employees = birthday_data.get('employees', [])
-    if not employees: return ""
-    
-    next_week_range = birthday_data.get('nextWeekRange', {})
-    start = next_week_range.get('start', '')
-    end = next_week_range.get('end', '')
-    
-    message = f"🎂 *THÔNG BÁO SINH NHẬT TUẦN SAU*\n📅 Từ {start} đến {end}\n" + "=" * 40 + "\n\n"
-    
-    grouped = {}
-    for emp in employees:
-        grouped.setdefault(emp['birthDate'], []).append(emp)
-    
-    for date_str in sorted(grouped.keys(), key=lambda d: datetime.strptime(d, '%d/%m/%Y')):
-        day_emps = grouped[date_str]
-        day_of_week = day_emps[0]['dayOfWeek']
-        message += f"📌 *{day_of_week}, {date_str}:*\n"
-        for emp in day_emps:
-            message += f"   🎉 {emp['name']} ({emp['department']}) - {emp.get('age', '?')} tuổi\n"
-        message += "\n"
-    
-    message += "=" * 40 + "\n" + f"📊 Tổng cộng: *{len(employees)} nhân viên*\n💡 Nhớ chuẩn bị quà hoặc gửi lời chúc nhé!"
-    return message
+from app.mcp.core.provider_registry import provider_registry
 
 async def send_birthday_notifications():
     logger.info("🎂 Scheduler (Birthday): Checking for next week's birthdays...")
-    birthday_data = await fetch_birthdays_from_sheets()
-    if not birthday_data or birthday_data.get('error'): return
+    
+    # Get birthday provider from registry
+    birthday_provider = provider_registry.get("birthday")
+    if not birthday_provider:
+        logger.error("❌ Birthday provider not found or not initialized.")
+        return
+
+    # Fetch next week's birthdays
+    birthday_data = await birthday_provider.get_birthdays(week="next")
+    
+    if not birthday_data or birthday_data.get('error'):
+        logger.error(f"❌ Failed to get birthday data: {birthday_data.get('error') if birthday_data else 'Unknown error'}")
+        return
     
     employees = birthday_data.get('employees', [])
     if not employees:
         logger.info("ℹ️ No birthdays next week.")
         return
     
-    # 1. Send Admin / Internal Report (existing)
-    message = format_birthday_message(birthday_data)
+    # Generate combined message (Internal List + Public Draft)
+    message = birthday_provider.get_combined_birthday_message(birthday_data, week="next")
+    
     if message:
         await zalo.send_zalo_message(message, settings.MY_ZALO_ID)
-
-    # 2. Send Public Announcement Draft (new)
-    public_message = format_public_birthday_message(birthday_data)
-    if public_message:
-        # Add a prefix to explain what this is
-        wrapper_msg = f"📝 *DRAFT CONTENT FOR PUBLIC POST:*\n(Copy & Paste below)\n\n{public_message}"
-        await zalo.send_zalo_message(wrapper_msg, settings.MY_ZALO_ID)
+        logger.info(f"✅ Sent birthday notification for {len(employees)} employees.")
 
 async def getattr_session(app_ref=None):
     # This acts as a bridge to get session from app if provided, or create new

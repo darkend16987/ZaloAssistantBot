@@ -13,7 +13,8 @@ class Settings(BaseSettings):
     GOOGLE_API_KEY: SecretStr
 
     # --- Zalo / Reminder Config ---
-    MY_ZALO_ID: str = "" # Optional or required depending on logic, keeping from original
+    MY_ZALO_ID: str = "" 
+    FRONTEND_SERVICE_URL: str = "http://frontend:3000"
     
     # --- Google Apps Script Config ---
     GOOGLE_APPS_SCRIPT_URL: str = ""
