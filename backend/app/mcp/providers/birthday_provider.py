@@ -2,12 +2,14 @@
 """
 Birthday Provider
 =================
-Provider kết nối với Google Apps Script để lấy dữ liệu sinh nhật.
+Provider kết nối với 1Office API để lấy dữ liệu sinh nhật nhân viên.
 """
 
 import aiohttp
+import json
+import urllib.parse
 from typing import Dict, List, Optional, Any
-from datetime import datetime
+from datetime import datetime, timedelta
 import random
 
 from app.mcp.core.base_provider import BaseProvider, ProviderConfig, ProviderStatus
@@ -90,14 +92,23 @@ Chúc các bạn có một ngày sinh nhật thật nhiều niềm vui và tuổ
 ]
 
 # State file for tracking last used template
-# Use same path as legacy birthday_templates.py for consistency
 BIRTHDAY_STATE_FILE = "backend/data/birthday_state.json"
+
+# Vietnamese day of week mapping
+WEEKDAY_NAMES = {
+    0: "Thứ Hai",
+    1: "Thứ Ba",
+    2: "Thứ Tư",
+    3: "Thứ Năm",
+    4: "Thứ Sáu",
+    5: "Thứ Bảy",
+    6: "Chủ Nhật"
+}
 
 
 def _load_last_template_index() -> int:
     """Load last used template index from state file"""
     import os
-    import json
     try:
         if os.path.exists(BIRTHDAY_STATE_FILE):
             with open(BIRTHDAY_STATE_FILE, 'r', encoding='utf-8') as f:
@@ -111,7 +122,6 @@ def _load_last_template_index() -> int:
 def _save_last_template_index(index: int):
     """Save last used template index to state file"""
     import os
-    import json
     try:
         os.makedirs(os.path.dirname(BIRTHDAY_STATE_FILE), exist_ok=True)
         with open(BIRTHDAY_STATE_FILE, 'w', encoding='utf-8') as f:
@@ -131,7 +141,6 @@ def get_random_template_index() -> int:
     if num_templates <= 1:
         return 0
 
-    # Pick a random index different from the last one
     new_index = last_index
     while new_index == last_index:
         new_index = random.randint(0, num_templates - 1)
@@ -140,49 +149,85 @@ def get_random_template_index() -> int:
     return new_index
 
 
+def _get_week_range(week: str = "this") -> tuple:
+    """
+    Calculate week date range.
+
+    Args:
+        week: "this" for current week, "next" for next week, "next_next" for week after next
+
+    Returns:
+        Tuple of (start_date, end_date) as datetime objects
+    """
+    today = datetime.now()
+
+    # Find Monday of current week
+    days_since_monday = today.weekday()
+    monday = today - timedelta(days=days_since_monday)
+
+    if week == "next":
+        monday = monday + timedelta(weeks=1)
+    elif week == "next_next":
+        monday = monday + timedelta(weeks=2)
+
+    sunday = monday + timedelta(days=6)
+
+    return monday, sunday
+
+
+def _format_date_for_api(dt: datetime) -> str:
+    """Format datetime to dd/MM/yyyy for 1Office API"""
+    return dt.strftime("%d/%m/%Y")
+
+
 class BirthdayProvider(BaseProvider):
     """
-    Provider cho Birthday data từ Google Sheets.
+    Provider cho Birthday data từ 1Office API.
 
-    Kết nối với Google Apps Script để:
-    - Lấy danh sách sinh nhật tuần này/tuần sau
-    - Format message chúc mừng
+    Sử dụng API: /api/personnel/profile/gets
+    Filter theo:
+    - birthday_now trong khoảng tuần
+    - job_status = "Đang làm việc"
     """
+
+    # 1Office API endpoint
+    API_BASE_URL = "https://innojsc.1office.vn/api/personnel/profile/gets"
 
     def __init__(self, config: Optional[ProviderConfig] = None):
         super().__init__(config or ProviderConfig(name="birthday"))
-        self._apps_script_url: Optional[str] = None
+        self._access_token: Optional[str] = None
 
     @property
     def name(self) -> str:
         return "birthday"
 
     async def initialize(self) -> None:
-        """Initialize provider"""
-        self._apps_script_url = settings.GOOGLE_APPS_SCRIPT_URL
+        """Initialize provider with 1Office token"""
+        # Reuse the same token as OneOffice provider
+        self._access_token = settings.ONEOFFICE_TOKEN.get_secret_value() if settings.ONEOFFICE_TOKEN else None
         self._http_session = aiohttp.ClientSession(
             timeout=aiohttp.ClientTimeout(total=self.config.timeout)
         )
 
-        if not self._apps_script_url:
-            logger.warning("GOOGLE_APPS_SCRIPT_URL not configured")
+        if not self._access_token:
+            logger.warning("ONEOFFICE_TOKEN not configured for Birthday provider")
             self._status = ProviderStatus.UNAVAILABLE
         else:
             self._status = ProviderStatus.HEALTHY
-            logger.info("Birthday provider initialized")
+            logger.info("Birthday provider initialized with 1Office API")
 
     async def health_check(self) -> ProviderStatus:
-        """Check Google Apps Script connectivity"""
-        if not self._apps_script_url:
+        """Check 1Office API connectivity"""
+        if not self._access_token:
             self._status = ProviderStatus.UNAVAILABLE
             return self._status
 
         try:
             session = await self.get_http_session()
             async with session.get(
-                self._apps_script_url,
-                params={"week": "this"},
-                timeout=5
+                self.API_BASE_URL,
+                params={"access_token": self._access_token},
+                timeout=aiohttp.ClientTimeout(total=5)
             ) as response:
                 if response.status == 200:
                     self._status = ProviderStatus.HEALTHY
@@ -196,28 +241,94 @@ class BirthdayProvider(BaseProvider):
 
     async def get_birthdays(
         self,
-        week: str = "this"  # Changed default to "this"
+        week: str = "this"
     ) -> Optional[Dict[str, Any]]:
         """
-        Lấy danh sách sinh nhật.
+        Lấy danh sách sinh nhật từ 1Office API.
 
         Args:
-            week: "this" for current week, "next" for next week
+            week: "this" for current week, "next" for next week, "next_next" for week after next
 
         Returns:
             Dict with 'employees' list and week range info
         """
-        if not self._apps_script_url:
-            return {"error": "Apps Script URL not configured"}
+        if not self._access_token:
+            return {"error": "1Office token not configured"}
 
         try:
+            # Calculate week range
+            start_date, end_date = _get_week_range(week)
+
+            # Build filter for 1Office API
+            # Filter: birthday_now in range AND job_status = "Đang làm việc"
+            sfilter = {
+                "ors": [[
+                    {"f": "birthday_now", "o": "date_after", "p": _format_date_for_api(start_date - timedelta(days=1))},
+                    {"f": "birthday_now", "o": "date_before", "p": _format_date_for_api(end_date + timedelta(days=1))}
+                ]],
+                "ands": [
+                    {"f": "job_status", "o": "is", "p": "Đang làm việc"}
+                ]
+            }
+
+            params = {
+                "access_token": self._access_token,
+                "@sfilter": json.dumps(sfilter)
+            }
+
             session = await self.get_http_session()
-            async with session.get(
-                self._apps_script_url,
-                params={"week": week}
-            ) as response:
+            async with session.get(self.API_BASE_URL, params=params) as response:
                 response.raise_for_status()
-                return await response.json(content_type=None)
+                api_data = await response.json()
+
+                if api_data.get("error"):
+                    return {"error": api_data.get("message", "API error")}
+
+                # Transform API response to our format
+                employees = []
+                for person in api_data.get("data", []):
+                    # Parse birthday_now (dd/MM/yyyy format)
+                    birthday_str = person.get("birthday_now", "")
+                    day_of_week = ""
+
+                    if birthday_str:
+                        try:
+                            birthday_date = datetime.strptime(birthday_str, "%d/%m/%Y")
+                            day_of_week = WEEKDAY_NAMES.get(birthday_date.weekday(), "")
+                        except ValueError:
+                            pass
+
+                    employees.append({
+                        "name": person.get("name", "N/A"),
+                        "birthDate": birthday_str,
+                        "dayOfWeek": day_of_week,
+                        "department": person.get("department_id", ""),
+                        "code": person.get("code", ""),
+                        "job_status": person.get("job_status", "")
+                    })
+
+                # Sort by birthday date
+                def sort_key(emp):
+                    try:
+                        return datetime.strptime(emp["birthDate"], "%d/%m/%Y")
+                    except (ValueError, KeyError):
+                        return datetime.max
+
+                employees.sort(key=sort_key)
+
+                return {
+                    "employees": employees,
+                    "weekRange": {
+                        "start": _format_date_for_api(start_date),
+                        "end": _format_date_for_api(end_date)
+                    },
+                    "week": week,
+                    "total": len(employees)
+                }
+
+        except aiohttp.ClientError as e:
+            logger.error(f"HTTP error fetching birthdays: {e}")
+            return {"error": f"Connection error: {str(e)}"}
         except Exception as e:
             logger.error(f"Error fetching birthdays: {e}", exc_info=True)
             return {"error": str(e)}
@@ -225,7 +336,7 @@ class BirthdayProvider(BaseProvider):
     def format_birthday_list(
         self,
         birthday_data: Dict[str, Any],
-        week_label: str = "TUẦN SAU"
+        week_label: str = "TUẦN NÀY"
     ) -> str:
         """
         Format danh sách sinh nhật thành message.
@@ -242,8 +353,7 @@ class BirthdayProvider(BaseProvider):
         if not employees:
             return f"Không có ai sinh nhật trong {week_label.lower()}."
 
-        # Get week range - try both possible keys from Apps Script response
-        week_range = birthday_data.get('weekRange') or birthday_data.get('thisWeekRange') or birthday_data.get('nextWeekRange', {})
+        week_range = birthday_data.get('weekRange', {})
         start = week_range.get('start', '')
         end = week_range.get('end', '')
 
@@ -254,14 +364,13 @@ class BirthdayProvider(BaseProvider):
             birth_date = emp.get('birthDate', 'N/A')
             day_of_week = emp.get('dayOfWeek', '')
             department = emp.get('department', '')
-            age = emp.get('age', '')
 
-            age_str = f" - {age} tuổi" if age else ""
             dept_str = f" ({department})" if department else ""
 
             message += f"🎈 *{name}*{dept_str}\n"
-            message += f"   📅 {day_of_week}, {birth_date}{age_str}\n\n"
+            message += f"   📅 {day_of_week}, {birth_date}\n\n"
 
+        message += f"*Tổng cộng: {len(employees)} người*"
         return message
 
     def format_public_announcement(
@@ -331,19 +440,24 @@ class BirthdayProvider(BaseProvider):
     def get_combined_birthday_message(
         self,
         birthday_data: Dict[str, Any],
-        week: str = "this"  # Changed default to "this"
+        week: str = "this"
     ) -> str:
         """
         Get combined birthday list and public announcement.
 
         Args:
             birthday_data: Data from get_birthdays()
-            week: "this" or "next"
+            week: "this", "next", or "next_next"
 
         Returns:
             Combined message with list and announcement template
         """
-        week_label = "TUẦN NÀY" if week == "this" else "TUẦN SAU"
+        week_labels = {
+            "this": "TUẦN NÀY",
+            "next": "TUẦN SAU",
+            "next_next": "TUẦN SAU NỮA"
+        }
+        week_label = week_labels.get(week, "TUẦN NÀY")
 
         list_message = self.format_birthday_list(birthday_data, week_label)
         public_message = self.format_public_announcement(birthday_data)

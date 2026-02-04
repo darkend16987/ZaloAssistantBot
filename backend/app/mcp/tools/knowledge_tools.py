@@ -88,15 +88,8 @@ VÍ DỤ:
             if document_type:
                 filters = {"doc_id": document_type}
 
-            # Get context for query
-            context = await provider.get_context_for_query(
-                query=query,
-                max_chunks=3,
-                include_full_doc=True  # Include full doc if small enough
-            )
-
-            # Get retrieval result for metadata
-            result = await provider.retrieve(query, top_k=3, filters=filters)
+            # Get retrieval result - only top 2 most relevant chunks
+            result = await provider.retrieve(query, top_k=2, filters=filters)
 
             if not result.chunks:
                 return ToolResult(
@@ -104,6 +97,20 @@ VÍ DỤ:
                     data="Không tìm thấy thông tin liên quan trong các quy định của công ty. Vui lòng liên hệ phòng Hành chính - Nhân sự để được hỗ trợ.",
                     metadata={"found": False, "query": query}
                 )
+
+            # Build concise response with only relevant content
+            # Limit each chunk to ~1500 chars to keep total response manageable
+            MAX_CHUNK_LENGTH = 1500
+            response_parts = []
+
+            for i, chunk in enumerate(result.chunks[:2], 1):
+                content = chunk.content
+                if len(content) > MAX_CHUNK_LENGTH:
+                    content = content[:MAX_CHUNK_LENGTH] + "..."
+
+                response_parts.append(f"**[{chunk.source}]**\n{content}")
+
+            context = "\n\n---\n\n".join(response_parts)
 
             # Build response with sources
             sources = list(set(
