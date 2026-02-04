@@ -350,34 +350,34 @@ class BirthdayProvider(BaseProvider):
             for person in all_raw_employees:
                 # Skip if not a valid working status
                 job_status = person.get("job_status", "")
-                    if job_status not in valid_job_statuses:
-                        continue
+                if job_status not in valid_job_statuses:
+                    continue
 
-                    # Parse birthday_now (dd/MM/yyyy format)
-                    birthday_str = person.get("birthday_now", "")
-                    if not birthday_str:
-                        continue
+                # Parse birthday_now (dd/MM/yyyy format)
+                birthday_str = person.get("birthday_now", "")
+                if not birthday_str:
+                    continue
 
-                    try:
-                        birthday_date = datetime.strptime(birthday_str, "%d/%m/%Y")
-                    except ValueError:
-                        continue
+                try:
+                    birthday_date = datetime.strptime(birthday_str, "%d/%m/%Y")
+                except ValueError:
+                    continue
 
-                    # Check if birthday is within week range
-                    # Compare only month and day (birthday_now already has current year)
-                    if not (start_date.date() <= birthday_date.date() <= end_date.date()):
-                        continue
+                # Check if birthday is within week range
+                # Compare only month and day (birthday_now already has current year)
+                if not (start_date.date() <= birthday_date.date() <= end_date.date()):
+                    continue
 
-                    day_of_week = WEEKDAY_NAMES.get(birthday_date.weekday(), "")
+                day_of_week = WEEKDAY_NAMES.get(birthday_date.weekday(), "")
 
-                    employees.append({
-                        "name": person.get("name", "N/A"),
-                        "birthDate": birthday_str,
-                        "dayOfWeek": day_of_week,
-                        "department": person.get("department_id", ""),
-                        "code": person.get("code", ""),
-                        "job_status": job_status
-                    })
+                employees.append({
+                    "name": person.get("name", "N/A"),
+                    "birthDate": birthday_str,
+                    "dayOfWeek": day_of_week,
+                    "department": person.get("department_id", ""),
+                    "code": person.get("code", ""),
+                    "job_status": job_status
+                })
 
                 # Sort by birthday date
                 def sort_key(emp):
