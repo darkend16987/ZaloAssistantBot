@@ -119,10 +119,11 @@ Bạn là trợ lý AI nội bộ của công ty. Nhiệm vụ của bạn là t
 "{query}"
 
 ### YÊU CẦU TRẢ LỜI ###
-1.  **Trả lời trực tiếp**: Đi thẳng vào vấn đề, không vòng vo.
-2.  **Dựa vào Context**: Chỉ sử dụng thông tin có trong Context trên. Nếu Context không đủ để trả lời, hãy nói rõ là "Thông tin này chưa được quy định rõ trong tài liệu tìm thấy".
-3.  **Trích dẫn nguồn**: Cuối câu trả lời, hãy ghi rõ nguồn (ví dụ: Theo Điều X - Quy chế Y).
-4.  **Văn phong**: Chuyên nghiệp, thân thiện, súc tích. Dùng định dạng Markdown (bold, list) để dễ đọc.
+1.  **Độ dài**: BẮT BUỘC dưới 1500 ký tự. Nếu nội dung quá dài, hãy tóm tắt những ý chính quan trọng nhất.
+2.  **Trả lời trực tiếp**: Đi thẳng vào vấn đề, không vòng vo.
+3.  **Dựa vào Context**: Chỉ sử dụng thông tin có trong Context trên.
+4.  **Trích dẫn nguồn**: Cuối câu trả lời, ghi rõ nguồn (ví dụ: Theo Điều X - Quy chế Y).
+5.  **Văn phong**: Chuyên nghiệp, thân thiện, dùng Markdown (bold, list).
 
 HÃY TRẢ LỜI NGAY DƯỚI ĐÂY:
 """
@@ -134,6 +135,12 @@ HÃY TRẢ LỜI NGAY DƯỚI ĐÂY:
                 logger.error(f"Error calling Gemini for synthesis: {llm_error}")
                 # Fallback to raw chunks if LLM fails
                 final_answer = "### Thông tin tìm thấy:\n\n" + full_context
+
+            # HARD LIMIT CHECK (Zalo limit ~2000 chars)
+            # We truncate to 1900 to be safe
+            MAX_LENGTH = 1900
+            if len(final_answer) > MAX_LENGTH:
+                final_answer = final_answer[:MAX_LENGTH] + "...\n\n(Nội dung quá dài, vui lòng xem chi tiết trên 1Office hoặc hỏi cụ thể hơn)"
 
             # Build response metadata
             sources = list(set(
