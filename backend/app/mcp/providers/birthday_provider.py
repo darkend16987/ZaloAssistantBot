@@ -275,11 +275,34 @@ class BirthdayProvider(BaseProvider):
             # API filter format: filters=[{"job_status": ["WORKING", "LEAVING"]}]
             # WORKING = 'Đang làm việc', LEAVING = 'Nghỉ thai sản'
             # Note: Build URL manually to avoid double URL-encoding of filters
+            # The 1Office API seems to be very strict or non-standard regarding URL encoding of the 'filters' param.
+            # It expects raw brackets/braces/quotes in the query string.
             api_filters = [{"job_status": ["WORKING", "LEAVING"]}]
-            filters_json = json.dumps(api_filters, separators=(',', ':'))  # Compact JSON without spaces
+            filters_json = json.dumps(api_filters, separators=(',', ':'))  # Compact JSON
             
-            # Build URL manually with raw filters (not URL-encoded)
-            url = f"{self.API_BASE_URL}?access_token={self._access_token}&filters={filters_json}&limit=1000"
+            # We need to ensure the filters_json is passed EXACTLY as is, without strict URL encoding of special chars.
+            # aiohttp/yarl usually encodes everything. We will manually construct the query string
+            # and pass encoded=True to yarl.URL to verify if we can slip it through.
+            # However, yarl might still validate.
+            
+            # Use yarl to safely encode other parts if needed, but here we trust the token is safe.
+            # strict=False might be needed if yarl rejects the characters.
+            from yarl import URL
+            
+            base_url = URL(self.API_BASE_URL)
+            # We manually build the query string to keep filters 'raw'
+            query_string = f"access_token={self._access_token}&filters={filters_json}&limit=1000"
+            
+            # Construct URL with raw query string. 
+            # CAUTION: This assumes the server (and intermediate proxies) can handle "raw" chars in query.
+            # If yarl.URL(..., encoded=True) fails validation, this might raise ValueError.
+            # But typically for 'encoded=True', it expects %XX, but might allow others?
+            # Actually, let's try to be clever: we only want to NOT encode specific chars.
+            # But simplest path to 'match' the user's manual request is to form the string and say "it's encoded".
+            full_url_str = f"{self.API_BASE_URL}?{query_string}"
+            url = URL(full_url_str, encoded=True)
+            
+            logger.info(f"Birthday API Request URL: {url}")
 
             session = await self.get_http_session()
             async with session.get(url) as response:
