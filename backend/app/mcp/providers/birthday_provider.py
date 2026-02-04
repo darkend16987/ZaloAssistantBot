@@ -272,17 +272,17 @@ class BirthdayProvider(BaseProvider):
             start_date, end_date = _get_week_range(week)
 
             # Filter by job_status to only get active employees
-            # API filter format: filters=[{"job_status": ["WORKING", "LEAVING", "LEAVE_SICK"]}]
-            # WORKING = 'Đang làm việc', LEAVING = 'Nghỉ thai sản', LEAVE_SICK = 'Nghỉ ốm đau'
-            api_filters = [{"job_status": ["WORKING", "LEAVING", "LEAVE_SICK"]}]
-            params = {
-                "access_token": self._access_token,
-                "filters": json.dumps(api_filters),
-                "limit": 1000
-            }
+            # API filter format: filters=[{"job_status": ["WORKING", "LEAVING"]}]
+            # WORKING = 'Đang làm việc', LEAVING = 'Nghỉ thai sản'
+            # Note: Build URL manually to avoid double URL-encoding of filters
+            api_filters = [{"job_status": ["WORKING", "LEAVING"]}]
+            filters_json = json.dumps(api_filters, separators=(',', ':'))  # Compact JSON without spaces
+            
+            # Build URL manually with raw filters (not URL-encoded)
+            url = f"{self.API_BASE_URL}?access_token={self._access_token}&filters={filters_json}&limit=1000"
 
             session = await self.get_http_session()
-            async with session.get(self.API_BASE_URL, params=params) as response:
+            async with session.get(url) as response:
                 response.raise_for_status()
                 api_data = await response.json()
 
@@ -290,8 +290,8 @@ class BirthdayProvider(BaseProvider):
                     return {"error": api_data.get("message", "API error")}
 
                 # Filter and transform on client-side
-                # Valid job statuses: WORKING='Đang làm việc', LEAVING='Nghỉ thai sản', LEAVE_SICK='Nghỉ ốm đau'
-                valid_job_statuses = ["Đang làm việc", "Nghỉ thai sản", "Nghỉ ốm đau"]
+                # Valid job statuses: WORKING='Đang làm việc', LEAVING='Nghỉ thai sản'
+                valid_job_statuses = ["Đang làm việc", "Nghỉ thai sản"]
                 employees = []
                 for person in api_data.get("data", []):
                     # Skip if not a valid working status
