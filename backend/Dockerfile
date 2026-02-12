@@ -1,6 +1,6 @@
 # E:\ZaloAssistant\backend\Dockerfile
 
-# Bắt đầu từ một môi trường Python 3.11 gọn nhẹ
+# Bắt đầu từ một môi trường Python gọn nhẹ
 FROM python:3.13-slim
 
 # Đặt thư mục làm việc bên trong container
@@ -15,8 +15,14 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Sao chép toàn bộ code của bạn vào
 COPY . .
 
+# Đảm bảo entrypoint có quyền thực thi
+RUN chmod +x docker-entrypoint.sh
+
 # Mở cổng 5000 để bên ngoài có thể giao tiếp vào
 EXPOSE 5000
+
+# Entrypoint: auto-rebuild knowledge indexes nếu chưa có, rồi chạy app
+ENTRYPOINT ["./docker-entrypoint.sh"]
 
 # Lệnh để chạy ứng dụng của bạn khi container khởi động
 CMD ["python", "main_api.py"]
