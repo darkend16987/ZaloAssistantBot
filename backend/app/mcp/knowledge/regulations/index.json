@@ -14,7 +14,9 @@
         "nghỉ phép", "phép năm", "nghỉ lễ", "nghỉ tết",
         "nghỉ ốm", "thai sản", "kỷ luật", "sa thải",
         "tác phong", "trang phục", "bảo mật", "bảo vệ tài sản",
-        "đi muộn", "về sớm", "chấm công"
+        "đi muộn", "về sớm", "chấm công",
+        "thử việc", "chính thức", "tích lũy phép", "ngày phép",
+        "tính phép", "probation", "nhận chính thức"
       ],
       "sections": [
         {"id": "thoi_gian_lam_viec", "title": "Thời gian làm việc", "articles": [4, 5, 6]},
@@ -88,6 +90,12 @@
     "giờ làm việc": ["noi_quy_lao_dong#thoi_gian_lam_viec"],
     "nghỉ phép": ["noi_quy_lao_dong#nghi_phep"],
     "phép năm": ["noi_quy_lao_dong#nghi_phep"],
+    "ngày phép": ["noi_quy_lao_dong#nghi_phep"],
+    "tích lũy phép": ["noi_quy_lao_dong#nghi_phep"],
+    "thử việc": ["noi_quy_lao_dong#nghi_phep"],
+    "nhận chính thức": ["noi_quy_lao_dong#nghi_phep"],
+    "chính thức": ["noi_quy_lao_dong#nghi_phep"],
+    "probation": ["noi_quy_lao_dong#nghi_phep"],
     "du lịch": ["quy_che_du_lich"],
     "vay tiền": ["quy_cho_vay"],
     "công tác phí": ["dinh_muc_chi#cong_tac"],
