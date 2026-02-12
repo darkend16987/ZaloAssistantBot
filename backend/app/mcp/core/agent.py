@@ -118,9 +118,9 @@ class AgentOrchestrator:
         # Create function declarations from tools
         function_declarations = self._create_function_declarations()
 
-        # Create model with tools
+        # Create model with tools (use configurable model name)
         self._model = genai.GenerativeModel(
-            model_name='gemini-2.5-flash',
+            model_name=settings.GEMINI_MODEL,
             tools=[Tool(function_declarations=function_declarations)]
         )
 

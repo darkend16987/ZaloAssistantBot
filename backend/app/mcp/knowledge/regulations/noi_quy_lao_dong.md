@@ -55,18 +55,38 @@ Thời gian nghỉ ngơi là thời gian NLĐ không làm việc theo quy địn
 ## Điều 7: Nghỉ phép hàng năm
 
 ### Số ngày nghỉ phép:
-- NLĐ làm việc đủ 12 tháng: **12 ngày phép/năm**, hưởng nguyên lương
-- NLĐ làm việc dưới 12 tháng: tính theo tỷ lệ tương ứng với số tháng thực tế làm việc (không tính thời gian thử việc)
+- NLĐ làm việc đủ 12 tháng: **12 ngày phép/năm**, hưởng nguyên lương (tương ứng **01 ngày phép/tháng**)
+- NLĐ làm việc dưới 12 tháng: tính theo tỷ lệ tương ứng với số tháng thực tế làm việc
 - Cứ đủ **05 năm làm việc** thì số ngày nghỉ hằng năm được **tăng thêm 01 ngày**
+
+### Cách tính ngày phép cho nhân viên mới (bao gồm thời gian thử việc):
+- Theo Bộ luật Lao động (Điều 65 Nghị định 145/2020/NĐ-CP): Thời gian thử việc **được tính là thời gian làm việc** để tính số ngày nghỉ hằng năm, nếu NLĐ tiếp tục làm việc cho công ty sau khi hết thời gian thử việc (tức là được nhận chính thức).
+- Một tháng được tính là **01 tháng làm việc** để tính ngày nghỉ hằng năm nếu tổng số ngày làm việc và ngày nghỉ có hưởng lương chiếm tỷ lệ **từ 50%** số ngày làm việc bình thường trong tháng đó.
+- Trong thời gian thử việc, ngày phép được **tích lũy** nhưng chưa sử dụng được. Khi được nhận chính thức, hệ thống sẽ **truy cộng (backdate)** số ngày phép đã tích lũy trong giai đoạn thử việc.
+
+### Cơ chế tích lũy phép theo tháng:
+- Mỗi tháng làm việc (đủ điều kiện ≥50% ngày công), NLĐ tích lũy **01 ngày phép**
+- Số ngày nghỉ phép sẽ được **cộng vào ngày đầu tiên của tháng tiếp theo** (tức phép tháng 7 sẽ được cộng vào ngày 01/08)
+- NLĐ **không được ứng trước** ngày nghỉ phép của các tháng sau
+
+### Ví dụ minh họa cách tính phép khi chuyển từ thử việc sang chính thức:
+> **Tình huống:** NLĐ bắt đầu thử việc tháng 7, được nhận chính thức tháng 9.
+> - Tháng 7 (thử việc): Tích lũy 01 ngày phép (chưa được sử dụng)
+> - Tháng 8 (thử việc): Tích lũy 01 ngày phép (chưa được sử dụng)
+> - Ngày 01/09 (nhận chính thức): Hệ thống truy cộng → NLĐ có **02 ngày phép** từ tháng 7 và tháng 8
+> - Ngày 01/10: Cộng thêm 01 ngày phép của tháng 9 → Tổng tích lũy **03 ngày phép**
+>
+> **Kết luận:** Trong tháng 9, NLĐ có 02 ngày phép để sử dụng. Ngày phép của tháng 9 sẽ được cộng vào ngày 01/10.
 
 ### Quy định về gia hạn phép năm (từ 01/01/2026):
 - Ngày nghỉ phép hàng năm sẽ hết hạn sử dụng vào ngày **31/12 hàng năm**
 - Thời gian gia hạn: đến hết ngày **31/03 năm sau**
 - Số ngày nghỉ phép tối đa được gia hạn: **8 ngày**
 
-### Lưu ý:
-- Số ngày nghỉ phép sẽ được cộng vào ngày đầu tiên của tháng
+### Lưu ý quan trọng:
+- Số ngày nghỉ phép sẽ được cộng vào ngày đầu tiên của tháng tiếp theo
 - NLĐ không được ứng trước ngày nghỉ phép của các tháng sau
+- Khi hỏi "tháng X có bao nhiêu ngày phép", câu trả lời là số phép **khả dụng trong tháng X** (tức phép tích lũy đến hết tháng trước đó), không phải tổng phép cả năm
 
 ## Điều 8: Ngày làm việc trước và sau Tết Nguyên đán
 Ngày làm việc cuối cùng và ngày làm việc đầu tiên trước và sau dịp nghỉ tết nguyên đán hàng năm, không yêu cầu CBNV phải làm việc. CBNV có thể tham gia các hoạt động vui chơi, giải trí, nhưng vẫn phải chấm công đầy đủ.

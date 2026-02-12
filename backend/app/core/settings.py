@@ -31,6 +31,10 @@ class Settings(BaseSettings):
     # --- MCP Agent Settings ---
     USE_MCP_AGENT: bool = True  # Set to True to use new MCP agent, False for legacy
 
+    # --- LLM Model Settings ---
+    GEMINI_MODEL: str = "gemini-2.5-flash"  # Model for agent/intent (e.g. gemini-2.5-flash, gemini-2.5-pro)
+    GEMINI_KNOWLEDGE_MODEL: str = ""  # Model for knowledge synthesis (defaults to GEMINI_MODEL if empty). Use a stronger model here for better reasoning on complex questions.
+
     # Pydantic V2 Config
     model_config = SettingsConfigDict(
         env_file=".env",

@@ -107,10 +107,10 @@ VÍ DỤ:
 
             # Call Gemini to synthesize answer
             try:
-                from app.services.gemini import gemini_model
-                
-                prompt = f"""
-Bạn là trợ lý AI nội bộ của công ty. Nhiệm vụ của bạn là trả lời câu hỏi của nhân viên dựa trên các quy định được cung cấp dưới đây.
+                from app.services.gemini import get_knowledge_model
+                knowledge_model = get_knowledge_model()
+
+                prompt = f"""Bạn là trợ lý AI nội bộ của công ty. Nhiệm vụ của bạn là trả lời câu hỏi của nhân viên dựa trên các quy định được cung cấp dưới đây.
 
 ### THÔNG TIN QUY ĐỊNH (CONTEXT) ###
 {full_context}
@@ -118,17 +118,33 @@ Bạn là trợ lý AI nội bộ của công ty. Nhiệm vụ của bạn là t
 ### CÂU HỎI CỦA NHÂN VIÊN ###
 "{query}"
 
-### YÊU CẦU TRẢ LỜI ###
+### PHƯƠNG PHÁP TRẢ LỜI ###
+
+**Bước 1 - Phân tích câu hỏi:**
+- Xác định chính xác nhân viên đang hỏi gì (hỏi về tháng cụ thể hay cả năm? hỏi số ngày khả dụng hay tổng tích lũy?)
+- Nếu hỏi "tháng X có bao nhiêu ngày phép" → trả lời số phép **khả dụng TRONG tháng X**, KHÔNG phải tổng phép từ tháng X đến hết năm
+
+**Bước 2 - Suy luận từng bước (đối với câu hỏi tính toán):**
+- Liệt kê các quy định liên quan từ Context
+- Nếu có nhiều quy định liên quan, kết hợp chúng một cách logic
+- Đặc biệt chú ý: thời gian thử việc, cơ chế tích lũy theo tháng, thời điểm cộng phép
+- Tính toán từng bước và ghi rõ cách tính
+
+**Bước 3 - Đưa ra câu trả lời:**
+- Trả lời trực tiếp câu hỏi trước, sau đó giải thích
+- Nếu có ví dụ minh họa trong Context phù hợp với tình huống, hãy sử dụng
+
+### YÊU CẦU ĐỊNH DẠNG ###
 1.  **Độ dài**: BẮT BUỘC dưới 1500 ký tự. Nếu nội dung quá dài, hãy tóm tắt những ý chính quan trọng nhất.
-2.  **Trả lời trực tiếp**: Đi thẳng vào vấn đề, không vòng vo.
-3.  **Dựa vào Context**: Chỉ sử dụng thông tin có trong Context trên.
-4.  **Trích dẫn nguồn**: Cuối câu trả lời, ghi rõ nguồn (ví dụ: Theo Điều X - Quy chế Y).
+2.  **Trả lời trực tiếp**: Đi thẳng vào vấn đề, nêu con số/kết luận ngay đầu.
+3.  **Dựa vào Context**: Chỉ sử dụng thông tin có trong Context trên. Không bịa đặt quy định.
+4.  **Trích dẫn nguồn**: Cuối câu trả lời, ghi rõ nguồn (ví dụ: Theo Điều X - Nội quy lao động).
 5.  **Văn phong**: Chuyên nghiệp, thân thiện, dùng Markdown (bold, list).
 
 HÃY TRẢ LỜI NGAY DƯỚI ĐÂY:
 """
-                # Call Gemini
-                response = await gemini_model.generate_content_async(prompt)
+                # Call Gemini with knowledge model (may use stronger model for reasoning)
+                response = await knowledge_model.generate_content_async(prompt)
                 final_answer = response.text.strip()
                 
             except Exception as llm_error:

@@ -9,10 +9,23 @@ from app.core.logging import logger
 # Initialize Gemini
 try:
     genai.configure(api_key=settings.GOOGLE_API_KEY.get_secret_value())
-    gemini_model = genai.GenerativeModel('gemini-2.5-flash')
+    gemini_model = genai.GenerativeModel(settings.GEMINI_MODEL)
+    logger.info(f"Gemini initialized with model: {settings.GEMINI_MODEL}")
+
+    # Knowledge model: use a separate (potentially stronger) model for knowledge synthesis
+    _knowledge_model_name = settings.GEMINI_KNOWLEDGE_MODEL or settings.GEMINI_MODEL
+    _knowledge_model = genai.GenerativeModel(_knowledge_model_name)
+    if _knowledge_model_name != settings.GEMINI_MODEL:
+        logger.info(f"Knowledge synthesis model: {_knowledge_model_name}")
 except Exception as e:
     logger.critical(f"Failed to configure Gemini AI. Check GOOGLE_API_KEY. Error: {e}")
     # We don't exit here as other services might still work
+    _knowledge_model = None
+
+
+def get_knowledge_model() -> genai.GenerativeModel:
+    """Get the model used for knowledge synthesis (may be a stronger model for better reasoning)."""
+    return _knowledge_model or gemini_model
 
 async def ask_gemini_for_intent(user_message: str, tasks_data: List[Dict], 
                                last_task_ids: Optional[List[int]] = None) -> Dict:
