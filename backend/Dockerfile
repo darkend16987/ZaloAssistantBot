@@ -6,6 +6,9 @@ FROM python:3.13-slim
 # Đặt thư mục làm việc bên trong container
 WORKDIR /app
 
+# Cài đặt dos2unix để fix lỗi line ending
+RUN apt-get update && apt-get install -y --no-install-recommends dos2unix && rm -rf /var/lib/apt/lists/*
+
 # Sao chép file danh sách thư viện vào trước
 COPY requirements.txt .
 
@@ -16,7 +19,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Fix CRLF line endings (Windows) và đảm bảo entrypoint có quyền thực thi
-RUN sed -i 's/\r$//' docker-entrypoint.sh && chmod +x docker-entrypoint.sh
+# Sử dụng dos2unix cho an toàn và triệt để hơn lệnh sed
+RUN dos2unix docker-entrypoint.sh && chmod +x docker-entrypoint.sh
 
 # Mở cổng 5000 để bên ngoài có thể giao tiếp vào
 EXPOSE 5000
