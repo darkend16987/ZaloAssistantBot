@@ -15,8 +15,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Sao chép toàn bộ code của bạn vào
 COPY . .
 
-# Đảm bảo entrypoint có quyền thực thi
-RUN chmod +x docker-entrypoint.sh
+# Fix CRLF line endings (Windows) và đảm bảo entrypoint có quyền thực thi
+RUN sed -i 's/\r$//' docker-entrypoint.sh && chmod +x docker-entrypoint.sh
 
 # Mở cổng 5000 để bên ngoài có thể giao tiếp vào
 EXPOSE 5000
