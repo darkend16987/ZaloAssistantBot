@@ -1,0 +1,2212 @@
+{
+  "dinh_muc_chi": {
+    "source_file": "dinh_muc_chi.md",
+    "model_used": "gemini-2.5-flash",
+    "entity_count": 94,
+    "entities": [
+      {
+        "class": "FinancialRule",
+        "text": "Tất cả các khoản chi phải có chứng từ hợp lệ",
+        "attributes": {
+          "rule_type": "expense_documentation",
+          "mechanism": "phải có chứng từ hợp lệ"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Chi hỗ trợ, phúc lợi được trích từ Quỹ phúc lợi hoặc Chi phí của Công ty",
+        "attributes": {
+          "rule_type": "funding_source_for_benefits",
+          "mechanism": "trích từ Quỹ phúc lợi hoặc Chi phí của Công ty"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Ban lãnh đạo Công ty",
+        "attributes": {
+          "rule_type": "office_supplies_entitlement",
+          "applies_to": "Ban lãnh đạo Công ty"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Bộ phận hành chính, kế toán, hợp đồng",
+        "attributes": {
+          "rule_type": "office_supplies_entitlement",
+          "applies_to": "Bộ phận hành chính, kế toán, hợp đồng"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Các phòng ban, cá nhân khác tự trang bị theo nhu cầu sử dụng (ngoại trừ giấy in và mực in)",
+        "attributes": {
+          "rule_type": "office_supplies_provision",
+          "applies_to": "Các phòng ban, cá nhân khác",
+          "restriction": "tự trang bị (ngoại trừ giấy in và mực in)"
+        }
+      },
+      {
+        "class": "ProcedureRule",
+        "text": "Phòng Hành chính lập đề xuất mua sắm hàng tháng",
+        "attributes": {
+          "rule_type": "office_supplies_procurement_proposal",
+          "mechanism": "Phòng Hành chính lập đề xuất",
+          "period": "hàng tháng"
+        }
+      },
+      {
+        "class": "ProcedureRule",
+        "text": "Trình Ban lãnh đạo Công ty phê duyệt",
+        "attributes": {
+          "rule_type": "office_supplies_procurement_approval",
+          "mechanism": "Trình Ban lãnh đạo Công ty phê duyệt"
+        }
+      },
+      {
+        "class": "ProcedureRule",
+        "text": "Định kỳ 3 tháng/lần: tham khảo giá từ ít nhất 3 website",
+        "attributes": {
+          "rule_type": "office_supplies_price_comparison",
+          "period": "Định kỳ 3 tháng/lần",
+          "mechanism": "tham khảo giá từ ít nhất 3 website"
+        }
+      },
+      {
+        "class": "ProcedureRule",
+        "text": "Bộ phận phát sinh nhu cầu đề nghị",
+        "attributes": {
+          "rule_type": "it_equipment_procurement_request",
+          "mechanism": "Bộ phận phát sinh nhu cầu đề nghị"
+        }
+      },
+      {
+        "class": "ProcedureRule",
+        "text": "Bộ phận IT thu thập báo giá từ ít nhất 3 nơi",
+        "attributes": {
+          "rule_type": "it_equipment_price_comparison",
+          "mechanism": "Bộ phận IT thu thập báo giá từ ít nhất 3 nơi"
+        }
+      },
+      {
+        "class": "ProcedureRule",
+        "text": "Trình Ban lãnh đạo Công ty phê duyệt",
+        "attributes": {
+          "rule_type": "it_equipment_procurement_approval",
+          "mechanism": "Trình Ban lãnh đạo Công ty phê duyệt"
+        }
+      },
+      {
+        "class": "ProcedureRule",
+        "text": "Bộ phận IT mua sắm và bàn giao",
+        "attributes": {
+          "rule_type": "it_equipment_procurement_and_delivery",
+          "mechanism": "Bộ phận IT mua sắm và bàn giao"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Khoản mua sắm/sửa chữa dưới 5 triệu đồng: có thể chọn đơn vị đã cung cấp trước đó mà không cần 3 báo giá",
+        "attributes": {
+          "rule_type": "it_equipment_procurement_exception",
+          "condition": "dưới 5 triệu đồng",
+          "amount": "5.000.000 đồng",
+          "restriction": "không cần 3 báo giá",
+          "mechanism": "có thể chọn đơn vị đã cung cấp trước đó"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Công ty không trang bị máy tính xách tay cho CBNV",
+        "attributes": {
+          "rule_type": "laptop_provision",
+          "restriction": "không trang bị máy tính xách tay cho CBNV"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Chỉ mua sắm khi thực sự cần thiết và được Ban lãnh đạo phê duyệt",
+        "attributes": {
+          "rule_type": "laptop_procurement_condition",
+          "condition": "thực sự cần thiết và được Ban lãnh đạo phê duyệt"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Chi phí điện, nước, phí dịch vụ tòa nhà, vệ sinh, gửi xe máy CBNV, thiết bị văn phòng, cây cảnh, hoa quả, đồ uống... → chi theo thực tế phát sinh, trong hạn mức ngân sách",
+        "attributes": {
+          "rule_type": "office_utility_expenses",
+          "mechanism": "chi theo thực tế phát sinh",
+          "restriction": "trong hạn mức ngân sách"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Thanh toán theo hóa đơn chứng từ hợp lệ",
+        "attributes": {
+          "rule_type": "landline_phone_payment",
+          "mechanism": "Thanh toán theo hóa đơn chứng từ hợp lệ"
+        }
+      },
+      {
+        "class": "ProcedureRule",
+        "text": "Thư thường: tập hợp trước 15h hàng ngày gửi lễ tân",
+        "attributes": {
+          "rule_type": "regular_mail_procedure",
+          "condition": "trước 15h hàng ngày",
+          "mechanism": "tập hợp gửi lễ tân"
+        }
+      },
+      {
+        "class": "ProcedureRule",
+        "text": "Thư hỏa tốc: báo ngay lập tức cho lễ tân",
+        "attributes": {
+          "rule_type": "express_mail_procedure",
+          "mechanism": "báo ngay lập tức cho lễ tân"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Chuyển phát hàng không từ 2 triệu đồng trở lên: cần Ban lãnh đạo phê duyệt trước",
+        "attributes": {
+          "rule_type": "air_freight_approval",
+          "condition": "từ 2 triệu đồng trở lên",
+          "amount": "2.000.000 đồng",
+          "mechanism": "cần Ban lãnh đạo phê duyệt trước"
+        }
+      },
+      {
+        "class": "ProcedureRule",
+        "text": "Phải có lệnh điều xe/phiếu yêu cầu do Trưởng phòng xác nhận",
+        "attributes": {
+          "rule_type": "company_car_usage_approval",
+          "condition": "Phải có lệnh điều xe/phiếu yêu cầu do Trưởng phòng xác nhận"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Chi phí xăng dầu, sửa chữa, bảo hiểm: thanh toán theo thực tế",
+        "attributes": {
+          "rule_type": "company_car_expenses",
+          "mechanism": "thanh toán theo thực tế"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Không thanh toán: tiền phạt vi phạm giao thông, bồi thường do lỗi lái xe",
+        "attributes": {
+          "rule_type": "company_car_expense_exclusion",
+          "restriction": "Không thanh toán tiền phạt vi phạm giao thông, bồi thường do lỗi lái xe"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Chỉ sử dụng cho mục đích công việc",
+        "attributes": {
+          "rule_type": "taxi_card_usage",
+          "restriction": "Chỉ sử dụng cho mục đích công việc"
+        }
+      },
+      {
+        "class": "ProcedureRule",
+        "text": "Phải có phiếu yêu cầu được trưởng bộ phận và Ban lãnh đạo phê duyệt",
+        "attributes": {
+          "rule_type": "taxi_card_usage_approval",
+          "condition": "Phải có phiếu yêu cầu được trưởng bộ phận và Ban lãnh đạo phê duyệt"
+        }
+      },
+      {
+        "class": "ProcedureRule",
+        "text": "Giữ lại tất cả bill, ký xác nhận và chuyển cho phòng hành chính",
+        "attributes": {
+          "rule_type": "taxi_card_expense_reporting",
+          "mechanism": "Giữ lại tất cả bill, ký xác nhận và chuyển cho phòng hành chính"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Chỉ cấp Phó Tổng giám đốc trở lên mới được phép thanh toán",
+        "attributes": {
+          "rule_type": "business_entertainment_eligibility",
+          "applies_to": "Phó Tổng giám đốc trở lên"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Phải thanh toán hàng tháng",
+        "attributes": {
+          "rule_type": "business_entertainment_payment_frequency",
+          "period": "hàng tháng"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Ngày ghi trên hóa đơn và ngày thanh toán không cách nhau quá 20 ngày",
+        "attributes": {
+          "rule_type": "business_entertainment_payment_deadline",
+          "restriction": "không cách nhau quá 20 ngày",
+          "duration": "20 ngày"
+        }
+      },
+      {
+        "class": "ProcedureRule",
+        "text": "Phải có Kế hoạch công tác được Ban lãnh đạo phê duyệt trước ít nhất 3 ngày",
+        "attributes": {
+          "rule_type": "business_trip_plan_approval",
+          "condition": "Phải có Kế hoạch công tác được Ban lãnh đạo phê duyệt",
+          "duration": "ít nhất 3 ngày trước"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Tổng số ngày đi công tác: tính từ ngày bắt đầu đến ngày về",
+        "attributes": {
+          "rule_type": "business_trip_duration_calculation",
+          "calculation_method": "tính từ ngày bắt đầu đến ngày về"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Địa điểm ngoại tỉnh (không thuộc Hà Nội): 300.000 đồng/ngày",
+        "attributes": {
+          "rule_type": "daily_allowance_same_day_trip",
+          "condition": "Địa điểm ngoại tỉnh (không thuộc Hà Nội)",
+          "amount": "300.000 đồng",
+          "period": "ngày"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Các trường hợp khác: không hưởng công tác phí",
+        "attributes": {
+          "rule_type": "daily_allowance_same_day_trip_exclusion",
+          "condition": "Các trường hợp khác",
+          "restriction": "không hưởng công tác phí"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Khoảng cách từ trụ sở Công ty đến địa điểm công tác ≥ 15 km",
+        "attributes": {
+          "rule_type": "personal_car_mileage_reimbursement_condition",
+          "condition": "Khoảng cách từ trụ sở Công ty đến địa điểm công tác ≥ 15 km"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Mức tiêu thụ: 0,2 lít xăng/km/ô tô (bao gồm cả lượt đi và về)",
+        "attributes": {
+          "rule_type": "personal_car_mileage_reimbursement_rate",
+          "amount": "0,2 lít xăng",
+          "period": "km/ô tô",
+          "calculation_method": "bao gồm cả lượt đi và về"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Đã bao gồm chi phí cầu đường, cước qua phà, đò",
+        "attributes": {
+          "rule_type": "personal_car_mileage_reimbursement_inclusion",
+          "mechanism": "Đã bao gồm chi phí cầu đường, cước qua phà, đò"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Phổ thông linh hoạt/tiêu chuẩn",
+        "attributes": {
+          "rule_type": "airfare_class",
+          "applies_to": "Chủ tịch HĐQT, Phó CT HĐQT, TGĐ, Phó TGĐ"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "900.000đ/đêm",
+        "attributes": {
+          "rule_type": "hotel_cost_zone1",
+          "applies_to": "Chủ tịch HĐQT, Phó CT HĐQT, TGĐ, Phó TGĐ",
+          "amount": "900.000đ",
+          "period": "đêm"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "800.000đ/đêm",
+        "attributes": {
+          "rule_type": "hotel_cost_zone2",
+          "applies_to": "Chủ tịch HĐQT, Phó CT HĐQT, TGĐ, Phó TGĐ",
+          "amount": "800.000đ",
+          "period": "đêm"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "600.000đ/ngày",
+        "attributes": {
+          "rule_type": "daily_allowance_zone1",
+          "applies_to": "Chủ tịch HĐQT, Phó CT HĐQT, TGĐ, Phó TGĐ",
+          "amount": "600.000đ",
+          "period": "ngày"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "500.000đ/ngày",
+        "attributes": {
+          "rule_type": "daily_allowance_zone2",
+          "applies_to": "Chủ tịch HĐQT, Phó CT HĐQT, TGĐ, Phó TGĐ",
+          "amount": "500.000đ",
+          "period": "ngày"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Phổ thông tiết kiệm/siêu tiết kiệm",
+        "attributes": {
+          "rule_type": "airfare_class",
+          "applies_to": "CBNV khác"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "800.000đ/đêm",
+        "attributes": {
+          "rule_type": "hotel_cost_zone1",
+          "applies_to": "CBNV khác",
+          "amount": "800.000đ",
+          "period": "đêm"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "700.000đ/đêm",
+        "attributes": {
+          "rule_type": "hotel_cost_zone2",
+          "applies_to": "CBNV khác",
+          "amount": "700.000đ",
+          "period": "đêm"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "500.000đ/ngày",
+        "attributes": {
+          "rule_type": "daily_allowance_zone1",
+          "applies_to": "CBNV khác",
+          "amount": "500.000đ",
+          "period": "ngày"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "400.000đ/ngày",
+        "attributes": {
+          "rule_type": "daily_allowance_zone2",
+          "applies_to": "CBNV khác",
+          "amount": "400.000đ",
+          "period": "ngày"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Vùng 1: Hà Nội, TP HCM, Hải Phòng, Đà Nẵng, Cần Thơ, Nha Trang, Vũng Tàu, Hạ Long, Phan Thiết",
+        "attributes": {
+          "rule_type": "travel_zone_definition",
+          "zone": "Vùng 1",
+          "mechanism": "Hà Nội, TP HCM, Hải Phòng, Đà Nẵng, Cần Thơ, Nha Trang, Vũng Tàu, Hạ Long, Phan Thiết"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Vùng 2: Các địa phương còn lại",
+        "attributes": {
+          "rule_type": "travel_zone_definition",
+          "zone": "Vùng 2",
+          "mechanism": "Các địa phương còn lại"
+        }
+      },
+      {
+        "class": "ProcedureRule",
+        "text": "Cấp Phó TGĐ trở lên: ưu tiên chọn giờ phù hợp, thứ tự hãng: Vietnam Airlines → Bamboo Airways → Vietjet Air",
+        "attributes": {
+          "rule_type": "airfare_booking_priority",
+          "applies_to": "Cấp Phó TGĐ trở lên",
+          "mechanism": "ưu tiên chọn giờ phù hợp, thứ tự hãng: Vietnam Airlines → Bamboo Airways → Vietjet Air"
+        }
+      },
+      {
+        "class": "ProcedureRule",
+        "text": "CBNV khác: phòng hành chính đặt vé giá thấp nhất",
+        "attributes": {
+          "rule_type": "airfare_booking_policy",
+          "applies_to": "CBNV khác",
+          "mechanism": "phòng hành chính đặt vé giá thấp nhất"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Hoàn/hủy/đổi vé: cần Ban lãnh đạo phê duyệt, nếu không phải tự thanh toán chi phí phát sinh",
+        "attributes": {
+          "rule_type": "airfare_change_cancellation_policy",
+          "condition": "cần Ban lãnh đạo phê duyệt",
+          "restriction": "nếu không phải tự thanh toán chi phí phát sinh"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Đoàn từ 2 người trở lên cùng giới tính: ngủ ghép phòng",
+        "attributes": {
+          "rule_type": "hotel_sharing_policy",
+          "condition": "Đoàn từ 2 người trở lên cùng giới tính",
+          "mechanism": "ngủ ghép phòng"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Chi phí khách sạn trong bảng là cho phòng đôi",
+        "attributes": {
+          "rule_type": "hotel_cost_basis",
+          "mechanism": "Chi phí khách sạn trong bảng là cho phòng đôi"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "200 USD/đêm",
+        "attributes": {
+          "rule_type": "hotel_cost_international_zone1",
+          "applies_to": "Chủ tịch HĐQT, Phó CT, TGĐ, Phó TGĐ",
+          "condition": "Singapore, Nhật, HK, Mỹ, Châu Âu",
+          "amount": "200 USD",
+          "period": "đêm"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "150 USD/đêm",
+        "attributes": {
+          "rule_type": "hotel_cost_international_zone2",
+          "applies_to": "Chủ tịch HĐQT, Phó CT, TGĐ, Phó TGĐ",
+          "condition": "Nước khác",
+          "amount": "150 USD",
+          "period": "đêm"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "50 USD/ngày",
+        "attributes": {
+          "rule_type": "daily_allowance_international_zone1",
+          "applies_to": "Chủ tịch HĐQT, Phó CT, TGĐ, Phó TGĐ",
+          "condition": "Singapore, Nhật, HK, Mỹ, Châu Âu",
+          "amount": "50 USD",
+          "period": "ngày"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "45 USD/ngày",
+        "attributes": {
+          "rule_type": "daily_allowance_international_zone2",
+          "applies_to": "Chủ tịch HĐQT, Phó CT, TGĐ, Phó TGĐ",
+          "condition": "Nước khác",
+          "amount": "45 USD",
+          "period": "ngày"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "150 USD/đêm",
+        "attributes": {
+          "rule_type": "hotel_cost_international_zone1",
+          "applies_to": "CBNV khác",
+          "condition": "Singapore, Nhật, HK, Mỹ, Châu Âu",
+          "amount": "150 USD",
+          "period": "đêm"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "120 USD/đêm",
+        "attributes": {
+          "rule_type": "hotel_cost_international_zone2",
+          "applies_to": "CBNV khác",
+          "condition": "Nước khác",
+          "amount": "120 USD",
+          "period": "đêm"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "45 USD/ngày",
+        "attributes": {
+          "rule_type": "daily_allowance_international_zone1",
+          "applies_to": "CBNV khác",
+          "condition": "Singapore, Nhật, HK, Mỹ, Châu Âu",
+          "amount": "45 USD",
+          "period": "ngày"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "40 USD/ngày",
+        "attributes": {
+          "rule_type": "daily_allowance_international_zone2",
+          "applies_to": "CBNV khác",
+          "condition": "Nước khác",
+          "amount": "40 USD",
+          "period": "ngày"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Đi công tác theo chế độ nghỉ mát, thi đua: không thanh toán công tác phí",
+        "attributes": {
+          "rule_type": "business_trip_allowance_exclusion",
+          "condition": "Đi công tác theo chế độ nghỉ mát, thi đua",
+          "restriction": "không thanh toán công tác phí"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Chi phí visa do Công ty chi trả",
+        "attributes": {
+          "rule_type": "visa_cost_reimbursement",
+          "mechanism": "Công ty chi trả"
+        }
+      },
+      {
+        "class": "BenefitRule",
+        "text": "NLĐ đã ký HĐLĐ chính thức: 1.000.000 đồng/người",
+        "attributes": {
+          "rule_type": "wedding_benefit",
+          "applies_to": "NLĐ đã ký HĐLĐ chính thức",
+          "amount": "1.000.000 đồng"
+        }
+      },
+      {
+        "class": "BenefitRule",
+        "text": "Chi theo thực tế phát sinh (cho đám cưới NLĐ đã ký HĐLĐ chính thức)",
+        "attributes": {
+          "rule_type": "wedding_car_rental_benefit",
+          "condition": "đám cưới NLĐ đã ký HĐLĐ chính thức",
+          "mechanism": "Chi theo thực tế phát sinh"
+        }
+      },
+      {
+        "class": "BenefitRule",
+        "text": "HĐQT, Ban TGĐ: 2.000.000 đồng/người",
+        "attributes": {
+          "rule_type": "sick_leave_visit_benefit",
+          "condition": "nằm viện từ 2 ngày trở lên",
+          "applies_to": "HĐQT, Ban TGĐ",
+          "amount": "2.000.000 đồng"
+        }
+      },
+      {
+        "class": "BenefitRule",
+        "text": "Trưởng phòng, trưởng bộ phận: 1.000.000 đồng/người",
+        "attributes": {
+          "rule_type": "sick_leave_visit_benefit",
+          "condition": "nằm viện từ 2 ngày trở lên",
+          "applies_to": "Trưởng phòng, trưởng bộ phận",
+          "amount": "1.000.000 đồng"
+        }
+      },
+      {
+        "class": "BenefitRule",
+        "text": "CBNV còn lại: 500.000 đồng/người",
+        "attributes": {
+          "rule_type": "sick_leave_visit_benefit",
+          "condition": "nằm viện từ 2 ngày trở lên",
+          "applies_to": "CBNV còn lại",
+          "amount": "500.000 đồng"
+        }
+      },
+      {
+        "class": "BenefitRule",
+        "text": "Tứ thân phụ mẫu, vợ/chồng, con của HĐQT/Ban TGĐ: 1.000.000 đồng/người",
+        "attributes": {
+          "rule_type": "sick_leave_visit_benefit_family",
+          "condition": "nằm viện từ 2 ngày trở lên",
+          "applies_to": "Tứ thân phụ mẫu, vợ/chồng, con của HĐQT/Ban TGĐ",
+          "amount": "1.000.000 đồng"
+        }
+      },
+      {
+        "class": "BenefitRule",
+        "text": "Tứ thân phụ mẫu, vợ/chồng, con của NLĐ còn lại: 500.000 đồng/người",
+        "attributes": {
+          "rule_type": "sick_leave_visit_benefit_family",
+          "condition": "nằm viện từ 2 ngày trở lên",
+          "applies_to": "Tứ thân phụ mẫu, vợ/chồng, con của NLĐ còn lại",
+          "amount": "500.000 đồng"
+        }
+      },
+      {
+        "class": "BenefitRule",
+        "text": "NLĐ mắc bệnh hiểm nghèo: 5.000.000 đồng/người",
+        "attributes": {
+          "rule_type": "critical_illness_benefit",
+          "applies_to": "NLĐ mắc bệnh hiểm nghèo",
+          "amount": "5.000.000 đồng"
+        }
+      },
+      {
+        "class": "BenefitRule",
+        "text": "HĐQT, Ban TGĐ: 10.000.000 đồng + vòng hoa",
+        "attributes": {
+          "rule_type": "bereavement_benefit",
+          "condition": "tứ thân phụ mẫu, vợ/chồng, con, bản thân NLĐ qua đời",
+          "applies_to": "HĐQT, Ban TGĐ",
+          "amount": "10.000.000 đồng",
+          "mechanism": "kèm vòng hoa"
+        }
+      },
+      {
+        "class": "BenefitRule",
+        "text": "Trưởng phòng, trưởng bộ phận: 2.000.000 đồng + vòng hoa",
+        "attributes": {
+          "rule_type": "bereavement_benefit",
+          "condition": "tứ thân phụ mẫu, vợ/chồng, con, bản thân NLĐ qua đời",
+          "applies_to": "Trưởng phòng, trưởng bộ phận",
+          "amount": "2.000.000 đồng",
+          "mechanism": "kèm vòng hoa"
+        }
+      },
+      {
+        "class": "BenefitRule",
+        "text": "CBNV còn lại: 1.000.000 đồng + vòng hoa",
+        "attributes": {
+          "rule_type": "bereavement_benefit",
+          "condition": "tứ thân phụ mẫu, vợ/chồng, con, bản thân NLĐ qua đời",
+          "applies_to": "CBNV còn lại",
+          "amount": "1.000.000 đồng",
+          "mechanism": "kèm vòng hoa"
+        }
+      },
+      {
+        "class": "BenefitRule",
+        "text": "NLĐ chưa có HĐLĐ chính thức, thử việc: 500.000 đồng + vòng hoa",
+        "attributes": {
+          "rule_type": "bereavement_benefit",
+          "condition": "tứ thân phụ mẫu, vợ/chồng, con, bản thân NLĐ qua đời",
+          "applies_to": "NLĐ chưa có HĐLĐ chính thức, thử việc",
+          "amount": "500.000 đồng",
+          "mechanism": "kèm vòng hoa"
+        }
+      },
+      {
+        "class": "BenefitRule",
+        "text": "HĐQT, Ban TGĐ, Trưởng/Phó phòng: 2.000.000 đồng/người",
+        "attributes": {
+          "rule_type": "childbirth_benefit",
+          "applies_to": "HĐQT, Ban TGĐ, Trưởng/Phó phòng",
+          "amount": "2.000.000 đồng"
+        }
+      },
+      {
+        "class": "BenefitRule",
+        "text": "CBNV còn lại: 1.000.000 đồng/người",
+        "attributes": {
+          "rule_type": "childbirth_benefit",
+          "applies_to": "CBNV còn lại",
+          "amount": "1.000.000 đồng"
+        }
+      },
+      {
+        "class": "BenefitRule",
+        "text": "Lao động nữ đã ký HĐLĐ chính thức: 500.000 đồng/người",
+        "attributes": {
+          "rule_type": "women_day_benefit",
+          "applies_to": "Lao động nữ đã ký HĐLĐ chính thức",
+          "amount": "500.000 đồng"
+        }
+      },
+      {
+        "class": "BenefitRule",
+        "text": "NLĐ chưa có HĐLĐ, thử việc, thực tập: 300.000 đồng/người",
+        "attributes": {
+          "rule_type": "women_day_benefit",
+          "applies_to": "NLĐ chưa có HĐLĐ, thử việc, thực tập",
+          "amount": "300.000 đồng"
+        }
+      },
+      {
+        "class": "BenefitRule",
+        "text": "200.000 đồng/người",
+        "attributes": {
+          "rule_type": "children_day_mid_autumn_benefit",
+          "applies_to": "con đẻ CBNV",
+          "condition": "từ 14 tuổi trở xuống",
+          "amount": "200.000 đồng"
+        }
+      },
+      {
+        "class": "BenefitRule",
+        "text": "Nếu cả bố mẹ đều làm việc cho Inno thì tính cả suất bố và mẹ",
+        "attributes": {
+          "rule_type": "children_day_mid_autumn_benefit_calculation",
+          "condition": "cả bố mẹ đều làm việc cho Inno",
+          "calculation_method": "tính cả suất bố và mẹ"
+        }
+      },
+      {
+        "class": "BenefitRule",
+        "text": "Tối đa 500.000 đồng/người tham dự",
+        "attributes": {
+          "rule_type": "company_anniversary_benefit",
+          "amount": "500.000 đồng",
+          "restriction": "Tối đa",
+          "applies_to": "người tham dự"
+        }
+      },
+      {
+        "class": "BenefitRule",
+        "text": "Đội bóng đá: 6.000.000 đồng/tháng",
+        "attributes": {
+          "rule_type": "sports_team_support",
+          "applies_to": "Đội bóng đá",
+          "amount": "6.000.000 đồng",
+          "period": "tháng"
+        }
+      },
+      {
+        "class": "BenefitRule",
+        "text": "Đội cầu lông: 4.000.000 đồng/tháng",
+        "attributes": {
+          "rule_type": "sports_team_support",
+          "applies_to": "Đội cầu lông",
+          "amount": "4.000.000 đồng",
+          "period": "tháng"
+        }
+      },
+      {
+        "class": "BenefitRule",
+        "text": "HĐQT, Ban TGĐ, Trưởng phòng: 3.000.000 đồng/người",
+        "attributes": {
+          "rule_type": "holiday_bonus",
+          "applies_to": "HĐQT, Ban TGĐ, Trưởng phòng",
+          "amount": "3.000.000 đồng"
+        }
+      },
+      {
+        "class": "BenefitRule",
+        "text": "Phó phòng: 2.000.000 đồng/người",
+        "attributes": {
+          "rule_type": "holiday_bonus",
+          "applies_to": "Phó phòng",
+          "amount": "2.000.000 đồng"
+        }
+      },
+      {
+        "class": "BenefitRule",
+        "text": "CBNV còn lại: 1.000.000 đồng/người",
+        "attributes": {
+          "rule_type": "holiday_bonus",
+          "applies_to": "CBNV còn lại",
+          "amount": "1.000.000 đồng"
+        }
+      },
+      {
+        "class": "BenefitRule",
+        "text": "Thử việc, thực tập: 500.000 đồng/người",
+        "attributes": {
+          "rule_type": "holiday_bonus",
+          "applies_to": "Thử việc, thực tập",
+          "amount": "500.000 đồng"
+        }
+      },
+      {
+        "class": "BenefitRule",
+        "text": "Xe máy/xe đạp: 100% tiền gửi xe máy đầu tiên",
+        "attributes": {
+          "rule_type": "parking_fee_support",
+          "applies_to": "Xe máy/xe đạp",
+          "amount": "100%",
+          "calculation_method": "tiền gửi xe máy đầu tiên"
+        }
+      },
+      {
+        "class": "BenefitRule",
+        "text": "Ô tô: 50% phí gửi xe ô tô đầu tiên",
+        "attributes": {
+          "rule_type": "parking_fee_support",
+          "applies_to": "Ô tô",
+          "amount": "50%",
+          "calculation_method": "phí gửi xe ô tô đầu tiên"
+        }
+      },
+      {
+        "class": "BenefitRule",
+        "text": "HĐQT, Ban TGĐ: 100% chi phí",
+        "attributes": {
+          "rule_type": "professional_certificate_support",
+          "applies_to": "HĐQT, Ban TGĐ",
+          "amount": "100%",
+          "calculation_method": "chi phí"
+        }
+      },
+      {
+        "class": "BenefitRule",
+        "text": "Trưởng/Phó phòng: 50% chi phí",
+        "attributes": {
+          "rule_type": "professional_certificate_support",
+          "applies_to": "Trưởng/Phó phòng",
+          "amount": "50%",
+          "calculation_method": "chi phí"
+        }
+      },
+      {
+        "class": "BenefitRule",
+        "text": "150.000 đồng/người/tháng (cho NLĐ đã ký HĐLĐ chính thức và thử việc)",
+        "attributes": {
+          "rule_type": "dinner_allowance",
+          "applies_to": "NLĐ đã ký HĐLĐ chính thức và thử việc",
+          "amount": "150.000 đồng",
+          "period": "tháng"
+        }
+      },
+      {
+        "class": "BenefitRule",
+        "text": "Chi vào ngày mùng 1 hàng tháng theo danh sách CBNV tại thời điểm đó",
+        "attributes": {
+          "rule_type": "dinner_allowance_payment_timing",
+          "mechanism": "Chi vào ngày mùng 1 hàng tháng theo danh sách CBNV tại thời điểm đó"
+        }
+      }
+    ]
+  },
+  "noi_quy_lao_dong": {
+    "source_file": "noi_quy_lao_dong.md",
+    "model_used": "gemini-2.5-flash",
+    "entity_count": 85,
+    "entities": [
+      {
+        "class": "ProcedureRule",
+        "text": "Nội quy lao động áp dụng đối với toàn thể CBNV trong Công ty theo các hình thức và các loại hợp đồng lao động, kể cả người lao động đang trong thời gian thử việc.",
+        "attributes": {
+          "rule_type": "document_applicability",
+          "applies_to": "toàn thể CBNV, mọi hình thức HĐLĐ, kể cả thử việc"
+        }
+      },
+      {
+        "class": "DisciplinaryRule",
+        "text": "Nội quy lao động là căn cứ để xử lý kỷ luật và thực hiện trách nhiệm vật chất đối với người lao động vi phạm.",
+        "attributes": {
+          "rule_type": "disciplinary_basis",
+          "mechanism": "căn cứ xử lý kỷ luật và trách nhiệm vật chất"
+        }
+      },
+      {
+        "class": "ProcedureRule",
+        "text": "Mọi nội dung không có trong Nội quy lao động này được thực hiện theo quy định hiện hành của Luật lao động, luật BHXH và các quy định khác của Nhà nước.",
+        "attributes": {
+          "rule_type": "legal_supremacy",
+          "mechanism": "áp dụng luật hiện hành nếu không có trong nội quy",
+          "legal_reference": "Luật lao động, luật BHXH và các quy định khác của Nhà nước"
+        }
+      },
+      {
+        "class": "ProcedureRule",
+        "text": "Trong trường hợp Luật lao động, luật BHXH và các quy định khác của Nhà nước có thay đổi mà Nội quy lao động chưa chỉnh sửa thì thực hiện theo đúng những quy định đã thay đổi.",
+        "attributes": {
+          "rule_type": "legal_update_policy",
+          "mechanism": "áp dụng quy định đã thay đổi nếu luật thay đổi",
+          "legal_reference": "Luật lao động, luật BHXH và các quy định khác của Nhà nước"
+        }
+      },
+      {
+        "class": "WorkingTimeRule",
+        "text": "Từ thứ 2 đến thứ 6 và các buổi sáng thứ 7 của tuần lẻ (trong năm).",
+        "attributes": {
+          "rule_type": "working_days",
+          "days": "thứ 2 đến thứ 6, sáng thứ 7 tuần lẻ",
+          "applies_to": "khối sản xuất"
+        }
+      },
+      {
+        "class": "WorkingTimeRule",
+        "text": "Buổi sáng: Từ 8h30 đến 12h (Sau 8h40 sẽ bị tính là đi muộn).",
+        "attributes": {
+          "rule_type": "working_hours_morning",
+          "start": "8h30",
+          "end": "12h",
+          "late_threshold": "8h40",
+          "applies_to": "khối sản xuất"
+        }
+      },
+      {
+        "class": "WorkingTimeRule",
+        "text": "Buổi chiều: Từ 13h đến 17h30.",
+        "attributes": {
+          "rule_type": "working_hours_afternoon",
+          "start": "13h",
+          "end": "17h30",
+          "applies_to": "khối sản xuất"
+        }
+      },
+      {
+        "class": "WorkingTimeRule",
+        "text": "Từ thứ 2 đến thứ 6.",
+        "attributes": {
+          "rule_type": "working_days",
+          "days": "thứ 2 đến thứ 6",
+          "applies_to": "khối chức năng"
+        }
+      },
+      {
+        "class": "WorkingTimeRule",
+        "text": "Buổi sáng: Từ 8h30 đến 12h (Sau 8h40 sẽ bị tính là đi muộn).",
+        "attributes": {
+          "rule_type": "working_hours_morning",
+          "start": "8h30",
+          "end": "12h",
+          "late_threshold": "8h40",
+          "applies_to": "khối chức năng"
+        }
+      },
+      {
+        "class": "WorkingTimeRule",
+        "text": "Buổi chiều: Từ 13h đến 17h30.",
+        "attributes": {
+          "rule_type": "working_hours_afternoon",
+          "start": "13h",
+          "end": "17h30",
+          "applies_to": "khối chức năng"
+        }
+      },
+      {
+        "class": "ProcedureRule",
+        "text": "phải làm đơn trên 1office (Tùy từng trường hợp mà sử dụng loại đơn thích hợp như hướng dẫn đã ban hành) và phải ghi rõ lý do đi họp, đi công trường.",
+        "attributes": {
+          "rule_type": "special_absence_request",
+          "condition": "không thể đến Công ty, nơi làm việc theo đúng quy định về thời gian làm việc (đi họp, đi công trường)",
+          "mechanism": "làm đơn trên 1office, ghi rõ lý do",
+          "approval_by": "Trưởng phòng, BLĐ"
+        }
+      },
+      {
+        "class": "WorkingTimeRule",
+        "text": "Nếu không làm đơn trên 1office phù hợp thì hệ thống 1office sẽ không tính công cho thời gian đó.",
+        "attributes": {
+          "rule_type": "attendance_recording_condition",
+          "condition": "không làm đơn trên 1office phù hợp",
+          "restriction": "không tính công"
+        }
+      },
+      {
+        "class": "WorkingTimeRule",
+        "text": "lao động có thể được ưu tiên đi làm theo ca làm việc với giờ làm khác với ca làm việc của công ty.",
+        "attributes": {
+          "rule_type": "flexible_working_arrangement",
+          "condition": "căn cứ tình hình thực tế về hoàn cảnh gia đình của lao động",
+          "mechanism": "ưu tiên đi làm theo ca làm việc khác"
+        }
+      },
+      {
+        "class": "BenefitRule",
+        "text": "Lao động nữ có con nhỏ dưới 12 tháng tuổi được giảm bớt 01 giờ làm việc hằng ngày và phải thông báo cho bộ phận nhân sự để xác định ca làm việc phù hợp.",
+        "attributes": {
+          "rule_type": "maternity_working_hours_reduction",
+          "condition": "lao động nữ có con nhỏ dưới 12 tháng tuổi",
+          "duration": "giảm 01 giờ",
+          "period": "hằng ngày",
+          "mechanism": "thông báo cho bộ phận nhân sự"
+        }
+      },
+      {
+        "class": "DisciplinaryRule",
+        "text": "NLĐ làm việc theo thời gian quy định vì bất cứ lý do gì (ngoại trừ những trường hợp đã nêu tại khoản 4.2) mà đến Công ty muộn so với giờ quy định, về trước giờ kết thúc làm việc của buổi chiều mà không có sự xin phép và đồng ý của trưởng phòng (dưới hình thức đơn từ trên hệ thống 1office) sẽ bị tính là đi muộn/về sớm (hình thức phạt theo quy chế phạt đi muộn/về sớm).",
+        "attributes": {
+          "rule_type": "lateness_early_departure_violation",
+          "condition": "đến muộn/về sớm không có phép (trừ 4.2)",
+          "mechanism": "bị tính là đi muộn/về sớm",
+          "disciplinary_action": "phạt theo quy chế phạt đi muộn/về sớm",
+          "approval_by": "trưởng phòng (đơn trên 1office)"
+        }
+      },
+      {
+        "class": "WorkingTimeRule",
+        "text": "Chủ trương của BLĐ Công ty là hướng tới việc chỉ làm việc trong giờ hành chính, không làm thêm giờ.",
+        "attributes": {
+          "rule_type": "overtime_policy",
+          "restriction": "không làm thêm giờ",
+          "mechanism": "chỉ làm việc trong giờ hành chính"
+        }
+      },
+      {
+        "class": "WorkingTimeRule",
+        "text": "Việc làm thêm, tăng ca chỉ thực hiện khi phát sinh công việc gấp (theo yêu cầu của CĐT và khách hàng) và phải thực hiện theo nhóm.",
+        "attributes": {
+          "rule_type": "overtime_condition",
+          "condition": "phát sinh công việc gấp (yêu cầu CĐT/khách hàng)",
+          "mechanism": "thực hiện theo nhóm"
+        }
+      },
+      {
+        "class": "ProcedureRule",
+        "text": "Trưởng phòng có trách nhiệm làm đề xuất làm thêm/tăng ca và trình BLĐ xem xét phê duyệt trước khi thực hiện.",
+        "attributes": {
+          "rule_type": "overtime_approval_procedure",
+          "mechanism": "Trưởng phòng làm đề xuất, trình BLĐ phê duyệt"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "100.000đ/người/giờ làm thêm/tăng ca (đã bao gồm cả tiền ăn tăng ca nếu làm tối).",
+        "attributes": {
+          "rule_type": "overtime_allowance",
+          "amount": "100.000đ",
+          "period": "giờ",
+          "applies_to": "người",
+          "includes": "tiền ăn tăng ca nếu làm tối"
+        }
+      },
+      {
+        "class": "LeaveRule",
+        "text": "12 ngày phép/năm, hưởng nguyên lương (tương ứng 01 ngày phép/tháng)",
+        "attributes": {
+          "rule_type": "annual_leave_entitlement",
+          "condition": "làm việc đủ 12 tháng",
+          "duration": "12 ngày",
+          "period": "năm",
+          "pay_status": "hưởng nguyên lương",
+          "monthly_equivalent": "01 ngày/tháng"
+        }
+      },
+      {
+        "class": "LeaveRule",
+        "text": "tính theo tỷ lệ tương ứng với số tháng thực tế làm việc",
+        "attributes": {
+          "rule_type": "prorated_leave",
+          "condition": "làm việc dưới 12 tháng",
+          "calculation_method": "tỷ lệ theo số tháng thực tế"
+        }
+      },
+      {
+        "class": "LeaveRule",
+        "text": "Cứ đủ 05 năm làm việc thì số ngày nghỉ hằng năm được tăng thêm 01 ngày",
+        "attributes": {
+          "rule_type": "seniority_leave_increase",
+          "condition": "đủ 05 năm làm việc",
+          "duration": "tăng thêm 01 ngày",
+          "period": "hằng năm"
+        }
+      },
+      {
+        "class": "LeaveRule",
+        "text": "Thời gian thử việc được tính là thời gian làm việc để tính số ngày nghỉ hằng năm, nếu NLĐ tiếp tục làm việc cho công ty sau khi hết thời gian thử việc (tức là được nhận chính thức).",
+        "attributes": {
+          "rule_type": "probation_leave_counting",
+          "condition": "tiếp tục làm việc sau thử việc (được nhận chính thức)",
+          "legal_reference": "Điều 65 Nghị định 145/2020/NĐ-CP",
+          "mechanism": "thời gian thử việc được tính là thời gian làm việc"
+        }
+      },
+      {
+        "class": "LeaveRule",
+        "text": "Một tháng được tính là 01 tháng làm việc để tính ngày nghỉ hằng năm nếu tổng số ngày làm việc và ngày nghỉ có hưởng lương chiếm tỷ lệ từ 50% số ngày làm việc bình thường trong tháng đó.",
+        "attributes": {
+          "rule_type": "monthly_work_condition_for_leave_accrual",
+          "condition": "tổng số ngày làm việc và ngày nghỉ có hưởng lương chiếm tỷ lệ từ 50% số ngày làm việc bình thường trong tháng",
+          "calculation_method": "tính 01 tháng làm việc"
+        }
+      },
+      {
+        "class": "LeaveRule",
+        "text": "Trong thời gian thử việc, ngày phép được tích lũy nhưng chưa sử dụng được.",
+        "attributes": {
+          "rule_type": "probation_leave_usage_restriction",
+          "condition": "trong thời gian thử việc",
+          "restriction": "chưa sử dụng được",
+          "mechanism": "ngày phép được tích lũy"
+        }
+      },
+      {
+        "class": "LeaveRule",
+        "text": "Khi được nhận chính thức, hệ thống sẽ truy cộng (backdate) số ngày phép đã tích lũy trong giai đoạn thử việc.",
+        "attributes": {
+          "rule_type": "probation_leave_credit_timing",
+          "condition": "khi được nhận chính thức",
+          "mechanism": "hệ thống truy cộng (backdate) số ngày phép đã tích lũy"
+        }
+      },
+      {
+        "class": "LeaveRule",
+        "text": "Mỗi tháng làm việc (đủ điều kiện ≥50% ngày công), NLĐ tích lũy 01 ngày phép",
+        "attributes": {
+          "rule_type": "monthly_leave_accrual",
+          "condition": "đủ điều kiện ≥50% ngày công trong tháng",
+          "duration": "01 ngày",
+          "period": "tháng"
+        }
+      },
+      {
+        "class": "LeaveRule",
+        "text": "Số ngày nghỉ phép sẽ được cộng vào ngày đầu tiên của tháng tiếp theo (tức phép tháng 7 sẽ được cộng vào ngày 01/08)",
+        "attributes": {
+          "rule_type": "leave_credit_timing",
+          "mechanism": "cộng vào ngày đầu tiên của tháng tiếp theo",
+          "example": "phép tháng 7 cộng vào 01/08"
+        }
+      },
+      {
+        "class": "LeaveRule",
+        "text": "NLĐ không được ứng trước ngày nghỉ phép của các tháng sau",
+        "attributes": {
+          "rule_type": "leave_advance_prohibition",
+          "restriction": "không được ứng trước ngày nghỉ phép của các tháng sau"
+        }
+      },
+      {
+        "class": "LeaveRule",
+        "text": "Ngày nghỉ phép hàng năm sẽ hết hạn sử dụng vào ngày 31/12 hàng năm",
+        "attributes": {
+          "rule_type": "annual_leave_expiration",
+          "expiration_date": "31/12 hàng năm",
+          "effective_date": "từ 01/01/2026"
+        }
+      },
+      {
+        "class": "LeaveRule",
+        "text": "Thời gian gia hạn: đến hết ngày 31/03 năm sau",
+        "attributes": {
+          "rule_type": "annual_leave_carry_over_period",
+          "duration": "đến hết 31/03 năm sau",
+          "effective_date": "từ 01/01/2026"
+        }
+      },
+      {
+        "class": "LeaveRule",
+        "text": "Số ngày nghỉ phép tối đa được gia hạn: 8 ngày",
+        "attributes": {
+          "rule_type": "annual_leave_carry_over_limit",
+          "duration": "tối đa 8 ngày",
+          "effective_date": "từ 01/01/2026"
+        }
+      },
+      {
+        "class": "WorkingTimeRule",
+        "text": "Ngày làm việc cuối cùng và ngày làm việc đầu tiên trước và sau dịp nghỉ tết nguyên đán hàng năm, không yêu cầu CBNV phải làm việc.",
+        "attributes": {
+          "rule_type": "tet_holiday_special_working_days",
+          "condition": "ngày làm việc cuối cùng và đầu tiên trước và sau Tết Nguyên đán",
+          "restriction": "không yêu cầu làm việc"
+        }
+      },
+      {
+        "class": "WorkingTimeRule",
+        "text": "CBNV có thể tham gia các hoạt động vui chơi, giải trí, nhưng vẫn phải chấm công đầy đủ.",
+        "attributes": {
+          "rule_type": "tet_holiday_attendance_requirement",
+          "condition": "ngày làm việc cuối cùng và đầu tiên trước và sau Tết Nguyên đán",
+          "mechanism": "vẫn phải chấm công đầy đủ"
+        }
+      },
+      {
+        "class": "BenefitRule",
+        "text": "Nghỉ lễ, tết, nghỉ phép theo quy định",
+        "attributes": {
+          "rule_type": "paid_leave_types",
+          "pay_status": "hưởng lương",
+          "condition": "nghỉ lễ, tết, nghỉ phép theo quy định"
+        }
+      },
+      {
+        "class": "BenefitRule",
+        "text": "Bản thân kết hôn: 03 ngày",
+        "attributes": {
+          "rule_type": "special_paid_leave_marriage",
+          "condition": "bản thân kết hôn",
+          "duration": "03 ngày",
+          "pay_status": "hưởng lương"
+        }
+      },
+      {
+        "class": "BenefitRule",
+        "text": "Con đẻ, con nuôi kết hôn: 01 ngày",
+        "attributes": {
+          "rule_type": "special_paid_leave_child_marriage",
+          "condition": "con đẻ, con nuôi kết hôn",
+          "duration": "01 ngày",
+          "pay_status": "hưởng lương"
+        }
+      },
+      {
+        "class": "BenefitRule",
+        "text": "Cha đẻ, mẹ đẻ, cha nuôi, mẹ nuôi; cha đẻ, mẹ đẻ, cha nuôi, mẹ nuôi của vợ hoặc chồng; vợ hoặc chồng; con đẻ, con nuôi chết: 03 ngày",
+        "attributes": {
+          "rule_type": "special_paid_leave_bereavement",
+          "condition": "cha đẻ, mẹ đẻ, cha nuôi, mẹ nuôi; cha đẻ, mẹ đẻ, cha nuôi, mẹ nuôi của vợ hoặc chồng; vợ hoặc chồng; con đẻ, con nuôi chết",
+          "duration": "03 ngày",
+          "pay_status": "hưởng lương"
+        }
+      },
+      {
+        "class": "BenefitRule",
+        "text": "Ông bà nội ngoại, anh chị em ruột qua đời: 01 ngày",
+        "attributes": {
+          "rule_type": "special_unpaid_leave_bereavement",
+          "condition": "ông bà nội ngoại, anh chị em ruột qua đời",
+          "duration": "01 ngày",
+          "pay_status": "không hưởng lương"
+        }
+      },
+      {
+        "class": "BenefitRule",
+        "text": "Bố mẹ kết hôn, anh chị em ruột kết hôn: 01 ngày",
+        "attributes": {
+          "rule_type": "special_unpaid_leave_family_marriage",
+          "condition": "bố mẹ kết hôn, anh chị em ruột kết hôn",
+          "duration": "01 ngày",
+          "pay_status": "không hưởng lương"
+        }
+      },
+      {
+        "class": "BenefitRule",
+        "text": "Các trường hợp khác có thể thỏa thuận với người sử dụng lao động",
+        "attributes": {
+          "rule_type": "other_unpaid_leave",
+          "condition": "các trường hợp khác",
+          "mechanism": "thỏa thuận với người sử dụng lao động",
+          "pay_status": "không hưởng lương"
+        }
+      },
+      {
+        "class": "BenefitRule",
+        "text": "Nghỉ ốm đau: 30-70 ngày/năm, nghỉ thêm tối đa 180 ngày",
+        "attributes": {
+          "rule_type": "sick_leave_entitlement",
+          "duration": "30-70 ngày/năm",
+          "additional_duration": "tối đa 180 ngày",
+          "pay_status": "BHXH"
+        }
+      },
+      {
+        "class": "BenefitRule",
+        "text": "Nghỉ con ốm: 15-20 ngày/năm",
+        "attributes": {
+          "rule_type": "child_sick_leave_entitlement",
+          "duration": "15-20 ngày",
+          "period": "năm",
+          "pay_status": "BHXH"
+        }
+      },
+      {
+        "class": "BenefitRule",
+        "text": "Nghỉ khám thai: 05 lần, mỗi lần 01 ngày",
+        "attributes": {
+          "rule_type": "prenatal_checkup_leave",
+          "duration": "05 lần",
+          "per_instance_duration": "01 ngày",
+          "pay_status": "BHXH"
+        }
+      },
+      {
+        "class": "BenefitRule",
+        "text": "Nghỉ thai sản nữ: 06 tháng",
+        "attributes": {
+          "rule_type": "maternity_leave_female",
+          "duration": "06 tháng",
+          "applies_to": "nữ",
+          "pay_status": "BHXH"
+        }
+      },
+      {
+        "class": "BenefitRule",
+        "text": "Sinh thường: 05 ngày",
+        "attributes": {
+          "rule_type": "paternity_leave_normal_birth",
+          "condition": "vợ sinh thường",
+          "duration": "05 ngày",
+          "applies_to": "nam",
+          "pay_status": "BHXH"
+        }
+      },
+      {
+        "class": "BenefitRule",
+        "text": "Sinh mổ, sinh con dưới 32 tuần: 07 ngày",
+        "attributes": {
+          "rule_type": "paternity_leave_complicated_birth",
+          "condition": "vợ sinh mổ, sinh con dưới 32 tuần",
+          "duration": "07 ngày",
+          "applies_to": "nam",
+          "pay_status": "BHXH"
+        }
+      },
+      {
+        "class": "BenefitRule",
+        "text": "Sinh đôi: 10 ngày (sinh 3 trở lên: thêm 03 ngày/con)",
+        "attributes": {
+          "rule_type": "paternity_leave_multiple_births",
+          "condition": "vợ sinh đôi",
+          "duration": "10 ngày",
+          "additional_duration": "thêm 03 ngày/con (sinh 3 trở lên)",
+          "applies_to": "nam",
+          "pay_status": "BHXH"
+        }
+      },
+      {
+        "class": "BenefitRule",
+        "text": "Sinh đôi trở lên + phẫu thuật: 14 ngày",
+        "attributes": {
+          "rule_type": "paternity_leave_multiple_births_surgery",
+          "condition": "vợ sinh đôi trở lên + phẫu thuật",
+          "duration": "14 ngày",
+          "applies_to": "nam",
+          "pay_status": "BHXH"
+        }
+      },
+      {
+        "class": "ProcedureRule",
+        "text": "0,5 - 1 ngày | Trước 24h00 ngày hôm trước",
+        "attributes": {
+          "rule_type": "leave_request_notice_period",
+          "duration": "0.5 - 1 ngày nghỉ",
+          "notice_period": "trước 24h00 ngày hôm trước"
+        }
+      },
+      {
+        "class": "ProcedureRule",
+        "text": "1,5 - 2,5 ngày | Trước 02 ngày",
+        "attributes": {
+          "rule_type": "leave_request_notice_period",
+          "duration": "1.5 - 2.5 ngày nghỉ",
+          "notice_period": "trước 02 ngày"
+        }
+      },
+      {
+        "class": "ProcedureRule",
+        "text": "3 - 5 ngày | Trước 01 tuần",
+        "attributes": {
+          "rule_type": "leave_request_notice_period",
+          "duration": "3 - 5 ngày nghỉ",
+          "notice_period": "trước 01 tuần"
+        }
+      },
+      {
+        "class": "ProcedureRule",
+        "text": "5,5 ngày trở lên | Trước 02 tuần",
+        "attributes": {
+          "rule_type": "leave_request_notice_period",
+          "duration": "5.5 ngày trở lên",
+          "notice_period": "trước 02 tuần"
+        }
+      },
+      {
+        "class": "ProcedureRule",
+        "text": "Trong vòng 01 giờ làm việc đầu tiên phải xin phép cấp quản lý trực tiếp.",
+        "attributes": {
+          "rule_type": "urgent_leave_request_procedure",
+          "condition": "ốm đau/việc đột xuất",
+          "notice_period": "trong vòng 01 giờ làm việc đầu tiên",
+          "mechanism": "xin phép cấp quản lý trực tiếp"
+        }
+      },
+      {
+        "class": "DisciplinaryRule",
+        "text": "NLĐ nghỉ không xin phép bị coi là nghỉ không phép và không được hưởng lương",
+        "attributes": {
+          "rule_type": "unauthorized_absence_consequence",
+          "condition": "nghỉ không xin phép",
+          "disciplinary_action": "coi là nghỉ không phép",
+          "pay_status": "không được hưởng lương"
+        }
+      },
+      {
+        "class": "ProcedureRule",
+        "text": "Hết thời gian xin nghỉ, người lao động phải có mặt tại nơi làm việc",
+        "attributes": {
+          "rule_type": "return_to_work_after_leave",
+          "condition": "hết thời gian xin nghỉ",
+          "mechanism": "phải có mặt tại nơi làm việc"
+        }
+      },
+      {
+        "class": "ProcedureRule",
+        "text": "HĐLĐ không xác định thời hạn: báo trước ít nhất 45 ngày",
+        "attributes": {
+          "rule_type": "resignation_notice_period",
+          "condition": "HĐLĐ không xác định thời hạn",
+          "notice_period": "ít nhất 45 ngày"
+        }
+      },
+      {
+        "class": "ProcedureRule",
+        "text": "HĐLĐ 12-36 tháng: báo trước ít nhất 30 ngày",
+        "attributes": {
+          "rule_type": "resignation_notice_period",
+          "condition": "HĐLĐ 12-36 tháng",
+          "notice_period": "ít nhất 30 ngày"
+        }
+      },
+      {
+        "class": "ProcedureRule",
+        "text": "HĐLĐ dưới 12 tháng: báo trước ít nhất 03 ngày làm việc",
+        "attributes": {
+          "rule_type": "resignation_notice_period",
+          "condition": "HĐLĐ dưới 12 tháng",
+          "notice_period": "ít nhất 03 ngày làm việc"
+        }
+      },
+      {
+        "class": "ProcedureRule",
+        "text": "Bàn giao toàn bộ công việc, giấy tờ, trang thiết bị cho quản lý trực tiếp",
+        "attributes": {
+          "rule_type": "resignation_handover_requirement",
+          "condition": "khi nghỉ việc",
+          "mechanism": "bàn giao toàn bộ công việc, giấy tờ, trang thiết bị",
+          "applies_to": "quản lý trực tiếp"
+        }
+      },
+      {
+        "class": "ProcedureRule",
+        "text": "Thực hiện đầy đủ thủ tục thanh quyết toán tài chính",
+        "attributes": {
+          "rule_type": "resignation_financial_settlement",
+          "condition": "khi nghỉ việc",
+          "mechanism": "thực hiện đầy đủ thủ tục thanh quyết toán tài chính"
+        }
+      },
+      {
+        "class": "ProcedureRule",
+        "text": "Trang phục: tự do khi không gặp khách hàng (nhưng không phản cảm). Khi gặp khách hàng/đối tác phải sạch sẽ, gọn gàng.",
+        "attributes": {
+          "rule_type": "dress_code",
+          "condition": "không gặp khách hàng",
+          "restriction": "không phản cảm",
+          "condition_2": "gặp khách hàng/đối tác",
+          "requirement_2": "sạch sẽ, gọn gàng"
+        }
+      },
+      {
+        "class": "ProcedureRule",
+        "text": "Tác phong: nhanh nhẹn, hoạt bát có trách nhiệm trong công việc.",
+        "attributes": {
+          "rule_type": "conduct_expectation",
+          "requirement": "nhanh nhẹn, hoạt bát, có trách nhiệm trong công việc"
+        }
+      },
+      {
+        "class": "ProcedureRule",
+        "text": "Thái độ làm việc: nghiêm túc, tích cực, chủ động hoàn thành công việc được giao.",
+        "attributes": {
+          "rule_type": "attitude_expectation",
+          "requirement": "nghiêm túc, tích cực, chủ động hoàn thành công việc được giao"
+        }
+      },
+      {
+        "class": "ProcedureRule",
+        "text": "Tham gia đầy đủ các buổi huấn luyện về an toàn lao động",
+        "attributes": {
+          "rule_type": "employee_obligation_safety_training",
+          "requirement": "tham gia đầy đủ các buổi huấn luyện về an toàn lao động"
+        }
+      },
+      {
+        "class": "ProcedureRule",
+        "text": "Chấp hành lịch khám sức khỏe hàng năm",
+        "attributes": {
+          "rule_type": "employee_obligation_health_check",
+          "requirement": "chấp hành lịch khám sức khỏe hàng năm"
+        }
+      },
+      {
+        "class": "ProcedureRule",
+        "text": "Thực hiện đúng các quy định về PCCC",
+        "attributes": {
+          "rule_type": "employee_obligation_fire_safety",
+          "requirement": "thực hiện đúng các quy định về PCCC"
+        }
+      },
+      {
+        "class": "ProcedureRule",
+        "text": "Vệ sinh ngăn nắp tại nơi làm việc",
+        "attributes": {
+          "rule_type": "employee_obligation_workplace_hygiene",
+          "requirement": "vệ sinh ngăn nắp tại nơi làm việc"
+        }
+      },
+      {
+        "class": "DisciplinaryRule",
+        "text": "Không hút thuốc tại nơi làm việc",
+        "attributes": {
+          "rule_type": "workplace_conduct_prohibition",
+          "restriction": "không hút thuốc tại nơi làm việc"
+        }
+      },
+      {
+        "class": "DisciplinaryRule",
+        "text": "Không được sử dụng tài sản của Công ty vào việc cá nhân",
+        "attributes": {
+          "rule_type": "company_property_misuse_prohibition",
+          "restriction": "không được sử dụng tài sản của Công ty vào việc cá nhân"
+        }
+      },
+      {
+        "class": "ProcedureRule",
+        "text": "NLĐ về sau cùng phải kiểm tra tắt các thiết bị điện, khóa cửa trước khi về",
+        "attributes": {
+          "rule_type": "closing_procedure",
+          "condition": "NLĐ về sau cùng",
+          "mechanism": "kiểm tra tắt các thiết bị điện, khóa cửa"
+        }
+      },
+      {
+        "class": "ProcedureRule",
+        "text": "Có trách nhiệm bảo quản tài sản của Công ty",
+        "attributes": {
+          "rule_type": "company_property_protection_obligation",
+          "requirement": "có trách nhiệm bảo quản tài sản của Công ty"
+        }
+      },
+      {
+        "class": "ProcedureRule",
+        "text": "Sử dụng tài sản đúng mục đích",
+        "attributes": {
+          "rule_type": "company_property_usage_rule",
+          "requirement": "sử dụng tài sản đúng mục đích"
+        }
+      },
+      {
+        "class": "DisciplinaryRule",
+        "text": "Không được mang tài liệu, thiết bị ra ngoài khi chưa được phép",
+        "attributes": {
+          "rule_type": "company_property_removal_prohibition",
+          "restriction": "không được mang tài liệu, thiết bị ra ngoài khi chưa được phép"
+        }
+      },
+      {
+        "class": "DisciplinaryRule",
+        "text": "Không tiết lộ thông tin về sản xuất, kinh doanh, tài chính, nhân sự",
+        "attributes": {
+          "rule_type": "confidentiality_rule",
+          "restriction": "không tiết lộ thông tin về sản xuất, kinh doanh, tài chính, nhân sự"
+        }
+      },
+      {
+        "class": "DisciplinaryRule",
+        "text": "Không sao chép tài liệu bảo mật khi chưa được phép",
+        "attributes": {
+          "rule_type": "confidential_document_copying_prohibition",
+          "restriction": "không sao chép tài liệu bảo mật khi chưa được phép"
+        }
+      },
+      {
+        "class": "ProcedureRule",
+        "text": "Thực hiện nghiêm chỉnh chế độ bảo mật thông tin",
+        "attributes": {
+          "rule_type": "information_security_obligation",
+          "requirement": "thực hiện nghiêm chỉnh chế độ bảo mật thông tin"
+        }
+      },
+      {
+        "class": "DisciplinaryRule",
+        "text": "Khiển trách",
+        "attributes": {
+          "rule_type": "disciplinary_action_type",
+          "action": "khiển trách"
+        }
+      },
+      {
+        "class": "DisciplinaryRule",
+        "text": "Kéo dài thời hạn nâng lương không quá 06 tháng",
+        "attributes": {
+          "rule_type": "disciplinary_action_type",
+          "action": "kéo dài thời hạn nâng lương",
+          "duration": "không quá 06 tháng"
+        }
+      },
+      {
+        "class": "DisciplinaryRule",
+        "text": "Cách chức",
+        "attributes": {
+          "rule_type": "disciplinary_action_type",
+          "action": "cách chức"
+        }
+      },
+      {
+        "class": "DisciplinaryRule",
+        "text": "Sa thải",
+        "attributes": {
+          "rule_type": "disciplinary_action_type",
+          "action": "sa thải"
+        }
+      },
+      {
+        "class": "DisciplinaryRule",
+        "text": "Trộm cắp, tham ô, đánh bạc, cố ý gây thương tích, sử dụng ma túy tại nơi làm việc",
+        "attributes": {
+          "rule_type": "grounds_for_termination",
+          "violation": "trộm cắp, tham ô, đánh bạc, cố ý gây thương tích, sử dụng ma túy tại nơi làm việc",
+          "action": "sa thải"
+        }
+      },
+      {
+        "class": "DisciplinaryRule",
+        "text": "Tiết lộ bí mật kinh doanh, xâm phạm quyền sở hữu trí tuệ",
+        "attributes": {
+          "rule_type": "grounds_for_termination",
+          "violation": "tiết lộ bí mật kinh doanh, xâm phạm quyền sở hữu trí tuệ",
+          "action": "sa thải"
+        }
+      },
+      {
+        "class": "DisciplinaryRule",
+        "text": "Bị xử lý kỷ luật kéo dài thời hạn nâng lương/cách chức mà tái phạm",
+        "attributes": {
+          "rule_type": "grounds_for_termination",
+          "violation": "tái phạm sau khi bị kéo dài thời hạn nâng lương/cách chức",
+          "action": "sa thải"
+        }
+      },
+      {
+        "class": "DisciplinaryRule",
+        "text": "Tự ý bỏ việc 05 ngày cộng dồn trong 30 ngày hoặc 20 ngày cộng dồn trong 365 ngày mà không có lý do chính đáng",
+        "attributes": {
+          "rule_type": "grounds_for_termination",
+          "violation": "tự ý bỏ việc",
+          "condition": "05 ngày cộng dồn trong 30 ngày hoặc 20 ngày cộng dồn trong 365 ngày",
+          "restriction": "không có lý do chính đáng",
+          "action": "sa thải"
+        }
+      }
+    ]
+  },
+  "quy_che_du_lich": {
+    "source_file": "quy_che_du_lich.md",
+    "model_used": "gemini-2.5-flash",
+    "entity_count": 44,
+    "entities": [
+      {
+        "class": "BenefitRule",
+        "text": "Quy định này áp dụng đối với toàn bộ nhân viên hiện đang làm việc tại: Công ty CP Inno Và các Công ty con của Công ty CP Inno",
+        "attributes": {
+          "rule_type": "eligibility_scope",
+          "applies_to": "toàn bộ nhân viên hiện đang làm việc tại: Công ty CP Inno Và các Công ty con của Công ty CP Inno"
+        }
+      },
+      {
+        "class": "BenefitRule",
+        "text": "Từ năm 2023, Công ty sẽ không tổ chức đi du lịch toàn bộ CBNV mà sẽ hỗ trợ kinh phí để các nhóm tự tổ chức đi du lịch.",
+        "attributes": {
+          "rule_type": "travel_policy_change",
+          "condition": "Từ năm 2023",
+          "mechanism": "Công ty sẽ không tổ chức đi du lịch toàn bộ CBNV mà sẽ hỗ trợ kinh phí để các nhóm tự tổ chức đi du lịch"
+        }
+      },
+      {
+        "class": "BenefitRule",
+        "text": "Thành viên phải đến từ ít nhất 2 phòng khác nhau",
+        "attributes": {
+          "rule_type": "group_composition_department",
+          "restriction": "ít nhất 2 phòng khác nhau"
+        }
+      },
+      {
+        "class": "BenefitRule",
+        "text": "Số lượng CBNV tham gia: không nhỏ hơn 8 người",
+        "attributes": {
+          "rule_type": "group_size_minimum",
+          "restriction": "không nhỏ hơn 8 người"
+        }
+      },
+      {
+        "class": "BenefitRule",
+        "text": "CBNV từ 1 phòng không chiếm nhiều hơn 75% tổng số của nhóm",
+        "attributes": {
+          "rule_type": "group_composition_department_ratio",
+          "restriction": "không chiếm nhiều hơn 75% tổng số của nhóm"
+        }
+      },
+      {
+        "class": "BenefitRule",
+        "text": "Thành viên của 2 năm liên tiếp không được đến từ các phòng giống nhau",
+        "attributes": {
+          "rule_type": "group_composition_continuity",
+          "restriction": "không được đến từ các phòng giống nhau"
+        }
+      },
+      {
+        "class": "BenefitRule",
+        "text": "Phòng AS6 cần ghép đi chung với Chi nhánh Miền Nam.",
+        "attributes": {
+          "rule_type": "specific_grouping_requirement",
+          "applies_to": "Phòng AS6",
+          "mechanism": "cần ghép đi chung với Chi nhánh Miền Nam"
+        }
+      },
+      {
+        "class": "BenefitRule",
+        "text": "CBNV đã ký HĐLĐ | 5.000.000 đồng/người",
+        "attributes": {
+          "rule_type": "travel_fund_entitlement",
+          "condition": "CBNV đã ký HĐLĐ",
+          "amount": "5.000.000 đồng/người"
+        }
+      },
+      {
+        "class": "BenefitRule",
+        "text": "CBNV đang thử việc | 2.500.000 đồng/người",
+        "attributes": {
+          "rule_type": "travel_fund_entitlement",
+          "condition": "CBNV đang thử việc",
+          "amount": "2.500.000 đồng/người"
+        }
+      },
+      {
+        "class": "BenefitRule",
+        "text": "Sinh viên thực tập | Không hỗ trợ",
+        "attributes": {
+          "rule_type": "travel_fund_entitlement",
+          "condition": "Sinh viên thực tập",
+          "amount": "Không hỗ trợ"
+        }
+      },
+      {
+        "class": "BenefitRule",
+        "text": "Người thân của CBNV | Không hỗ trợ",
+        "attributes": {
+          "rule_type": "travel_fund_entitlement",
+          "condition": "Người thân của CBNV",
+          "amount": "Không hỗ trợ"
+        }
+      },
+      {
+        "class": "BenefitRule",
+        "text": "CBNV không đi du lịch | Không hỗ trợ",
+        "attributes": {
+          "rule_type": "travel_fund_entitlement",
+          "condition": "CBNV không đi du lịch",
+          "amount": "Không hỗ trợ"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Kinh phí hỗ trợ không lớn hơn giá trị các Hóa đơn GTGT nhóm nộp về",
+        "attributes": {
+          "rule_type": "reimbursement_limit_invoice_value",
+          "restriction": "không lớn hơn giá trị các Hóa đơn GTGT nhóm nộp về"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Nếu sử dụng Hóa đơn bán hàng (không phải HĐ GTGT): mức hỗ trợ giảm 10% phần thuế tương ứng",
+        "attributes": {
+          "rule_type": "reimbursement_reduction_non_vat_invoice",
+          "condition": "sử dụng Hóa đơn bán hàng (không phải HĐ GTGT)",
+          "calculation_method": "mức hỗ trợ giảm 10% phần thuế tương ứng"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Giá trị tổng hóa đơn chia cho số CBNV không vượt quá 25 triệu đồng/CBNV",
+        "attributes": {
+          "rule_type": "total_invoice_value_per_employee_limit",
+          "restriction": "không vượt quá 25 triệu đồng/CBNV",
+          "calculation_method": "Giá trị tổng hóa đơn chia cho số CBNV"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Ví dụ 1: Nhóm 20 người (15 CBNV + 5 người thân), hóa đơn GTGT 80 triệu đồng → Công ty hỗ trợ: 75 triệu đồng (15 CBNV x 5 triệu) → Phần thuế GTGT của 5 triệu vượt sẽ được hoàn sau khi kê khai",
+        "attributes": {
+          "rule_type": "travel_fund_calculation_example",
+          "example": "Nhóm 20 người (15 CBNV + 5 người thân), hóa đơn GTGT 80 triệu đồng. Hỗ trợ: 75 triệu đồng (15 CBNV x 5 triệu). Phần thuế GTGT của 5 triệu vượt sẽ được hoàn sau khi kê khai."
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Ví dụ 2: Nhóm 20 người (15 CBNV + 5 người thân), hóa đơn GTGT 60 triệu đồng → Công ty hỗ trợ: 60 triệu đồng (vì 60 triệu < 75 triệu định mức)",
+        "attributes": {
+          "rule_type": "travel_fund_calculation_example",
+          "example": "Nhóm 20 người (15 CBNV + 5 người thân), hóa đơn GTGT 60 triệu đồng. Hỗ trợ: 60 triệu đồng (vì 60 triệu < 75 triệu định mức)."
+        }
+      },
+      {
+        "class": "LeaveRule",
+        "text": "Tối đa: 5 ngày/năm dương lịch",
+        "attributes": {
+          "rule_type": "travel_leave_entitlement",
+          "duration": "5 ngày",
+          "period": "năm dương lịch",
+          "restriction": "Tối đa",
+          "pay_status": "được tính công"
+        }
+      },
+      {
+        "class": "LeaveRule",
+        "text": "Có thể chia thành 1 hoặc 2 lần đi du lịch trong năm",
+        "attributes": {
+          "rule_type": "travel_leave_usage_flexibility",
+          "mechanism": "chia thành 1 hoặc 2 lần đi du lịch trong năm"
+        }
+      },
+      {
+        "class": "LeaveRule",
+        "text": "Ngày nghỉ đi du lịch chỉ được sử dụng cho mục đích đi du lịch, không được sử dụng cho mục đích khác",
+        "attributes": {
+          "rule_type": "travel_leave_purpose_restriction",
+          "restriction": "chỉ được sử dụng cho mục đích đi du lịch, không được sử dụng cho mục đích khác"
+        }
+      },
+      {
+        "class": "LeaveRule",
+        "text": "Nếu phát hiện xin nghỉ du lịch nhưng không đi → không được tính công",
+        "attributes": {
+          "rule_type": "travel_leave_misuse_consequence",
+          "condition": "phát hiện xin nghỉ du lịch nhưng không đi",
+          "pay_status": "không được tính công"
+        }
+      },
+      {
+        "class": "ProcedureRule",
+        "text": "Tạo loại đơn xin nghỉ đi du lịch trên 1office",
+        "attributes": {
+          "rule_type": "leave_request_method",
+          "mechanism": "Tạo loại đơn xin nghỉ đi du lịch trên 1office"
+        }
+      },
+      {
+        "class": "ProcedureRule",
+        "text": "Nhóm thống nhất nội dung hợp đồng với Công ty cung cấp dịch vụ",
+        "attributes": {
+          "rule_type": "payment_procedure_contract_group_responsibility",
+          "condition": "Có ký hợp đồng với đơn vị du lịch",
+          "mechanism": "Nhóm thống nhất nội dung hợp đồng với Công ty cung cấp dịch vụ"
+        }
+      },
+      {
+        "class": "ProcedureRule",
+        "text": "Liên hệ bộ phận hành chính để được hỗ trợ ký hợp đồng",
+        "attributes": {
+          "rule_type": "payment_procedure_contract_admin_support",
+          "condition": "Có ký hợp đồng với đơn vị du lịch",
+          "mechanism": "Liên hệ bộ phận hành chính để được hỗ trợ ký hợp đồng"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Công ty thanh toán trực tiếp với đơn vị cung cấp dịch vụ",
+        "attributes": {
+          "rule_type": "payment_method_direct_to_vendor",
+          "condition": "Có ký hợp đồng với đơn vị du lịch",
+          "mechanism": "Công ty thanh toán trực tiếp với đơn vị cung cấp dịch vụ"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Nếu chi phí > định mức: nhóm nộp bổ sung phần thiếu cho Công ty",
+        "attributes": {
+          "rule_type": "payment_procedure_cost_exceeds_limit",
+          "condition": "chi phí > định mức",
+          "mechanism": "nhóm nộp bổ sung phần thiếu cho Công ty"
+        }
+      },
+      {
+        "class": "ProcedureRule",
+        "text": "Sau khi đi du lịch, nhóm nộp hóa đơn, chứng từ về Công ty",
+        "attributes": {
+          "rule_type": "payment_procedure_no_contract_submission",
+          "condition": "Không ký hợp đồng",
+          "mechanism": "Sau khi đi du lịch, nhóm nộp hóa đơn, chứng từ về Công ty"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Công ty xem xét sự hợp lệ và chi tiền cho nhóm",
+        "attributes": {
+          "rule_type": "payment_procedure_no_contract_reimbursement",
+          "condition": "Không ký hợp đồng",
+          "mechanism": "Công ty xem xét sự hợp lệ và chi tiền cho nhóm"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Hóa đơn từ 20 triệu đồng trở lên → bắt buộc thanh toán qua tài khoản ngân hàng của Công ty",
+        "attributes": {
+          "rule_type": "payment_method_bank_transfer_threshold",
+          "condition": "Hóa đơn từ 20 triệu đồng trở lên",
+          "mechanism": "bắt buộc thanh toán qua tài khoản ngân hàng của Công ty"
+        }
+      },
+      {
+        "class": "ProcedureRule",
+        "text": "Các nhóm cần cung cấp ảnh chụp tập thể cả nhóm cho bộ phận Marketing",
+        "attributes": {
+          "rule_type": "communication_support_photo_submission",
+          "mechanism": "cung cấp ảnh chụp tập thể cả nhóm cho bộ phận Marketing"
+        }
+      },
+      {
+        "class": "ProcedureRule",
+        "text": "Nếu có quy định về đồng phục theo chủ đề năm → phải tuân thủ khi chụp ảnh truyền thông",
+        "attributes": {
+          "rule_type": "communication_support_uniform_compliance",
+          "condition": "có quy định về đồng phục theo chủ đề năm",
+          "mechanism": "phải tuân thủ khi chụp ảnh truyền thông"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Máy bay | Vé máy bay (Thẻ lên máy bay) + Hóa đơn GTGT",
+        "attributes": {
+          "rule_type": "expense_documentation_airfare",
+          "applies_to": "Máy bay",
+          "mechanism": "Vé máy bay (Thẻ lên máy bay) + Hóa đơn GTGT"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Tàu hỏa | Vé tàu hỏa + Hóa đơn GTGT/Hóa đơn bán hàng",
+        "attributes": {
+          "rule_type": "expense_documentation_train",
+          "applies_to": "Tàu hỏa",
+          "mechanism": "Vé tàu hỏa + Hóa đơn GTGT/Hóa đơn bán hàng"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Ô tô/Phương tiện khác | Hóa đơn GTGT/Hóa đơn bán hàng",
+        "attributes": {
+          "rule_type": "expense_documentation_car_other_transport",
+          "applies_to": "Ô tô/Phương tiện khác",
+          "mechanism": "Hóa đơn GTGT/Hóa đơn bán hàng"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Khách sạn/Phòng nghỉ | Hóa đơn GTGT/Hóa đơn bán hàng",
+        "attributes": {
+          "rule_type": "expense_documentation_accommodation",
+          "applies_to": "Khách sạn/Phòng nghỉ",
+          "mechanism": "Hóa đơn GTGT/Hóa đơn bán hàng"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Ăn uống | Hóa đơn GTGT/Hóa đơn bán hàng (ghi rõ tên món, số lượng, đơn giá)",
+        "attributes": {
+          "rule_type": "expense_documentation_food_beverage",
+          "applies_to": "Ăn uống",
+          "mechanism": "Hóa đơn GTGT/Hóa đơn bán hàng (ghi rõ tên món, số lượng, đơn giá)"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Dịch vụ khác (vé tham quan, teambuilding...) | Hóa đơn GTGT/Hóa đơn bán hàng",
+        "attributes": {
+          "rule_type": "expense_documentation_other_services",
+          "applies_to": "Dịch vụ khác (vé tham quan, teambuilding...)",
+          "mechanism": "Hóa đơn GTGT/Hóa đơn bán hàng"
+        }
+      },
+      {
+        "class": "ProcedureRule",
+        "text": "Gửi danh sách đi du lịch về bộ phận hành chính để được cấp thông tin xuất hóa đơn",
+        "attributes": {
+          "rule_type": "documentation_procedure_invoice_info_request",
+          "mechanism": "Gửi danh sách đi du lịch về bộ phận hành chính để được cấp thông tin xuất hóa đơn"
+        }
+      },
+      {
+        "class": "ProcedureRule",
+        "text": "Cung cấp thông tin xuất hóa đơn cho các bên cung cấp dịch vụ",
+        "attributes": {
+          "rule_type": "documentation_procedure_provide_invoice_info",
+          "mechanism": "Cung cấp thông tin xuất hóa đơn cho các bên cung cấp dịch vụ"
+        }
+      },
+      {
+        "class": "ProcedureRule",
+        "text": "Hóa đơn từ 20 triệu đồng trở lên → liên hệ Công ty thanh toán qua tài khoản ngân hàng",
+        "attributes": {
+          "rule_type": "documentation_procedure_large_invoice_payment",
+          "condition": "Hóa đơn từ 20 triệu đồng trở lên",
+          "mechanism": "liên hệ Công ty thanh toán qua tài khoản ngân hàng"
+        }
+      },
+      {
+        "class": "ProcedureRule",
+        "text": "Sau khi đi du lịch về: lập bảng kê chi phí và nộp hóa đơn về phòng Hành chính",
+        "attributes": {
+          "rule_type": "documentation_procedure_post_travel_submission",
+          "mechanism": "Sau khi đi du lịch về: lập bảng kê chi phí và nộp hóa đơn về phòng Hành chính"
+        }
+      },
+      {
+        "class": "ProcedureRule",
+        "text": "Khuyến khích đi du lịch thông qua Công ty tổ chức tour để thuận tiện lấy hóa đơn",
+        "attributes": {
+          "rule_type": "documentation_guideline_tour_company",
+          "mechanism": "Khuyến khích đi du lịch thông qua Công ty tổ chức tour để thuận tiện lấy hóa đơn"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Chỉ lấy hóa đơn của bên cung cấp dịch vụ mà nhóm thực tế sử dụng",
+        "attributes": {
+          "rule_type": "documentation_restriction_actual_service_provider",
+          "restriction": "Chỉ lấy hóa đơn của bên cung cấp dịch vụ mà nhóm thực tế sử dụng"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Hóa đơn bán hàng phải đúng quy định của cơ quan thuế (không phải hóa đơn bán lẻ)",
+        "attributes": {
+          "rule_type": "documentation_restriction_sales_invoice_validity",
+          "restriction": "Hóa đơn bán hàng phải đúng quy định của cơ quan thuế (không phải hóa đơn bán lẻ)"
+        }
+      }
+    ]
+  },
+  "quy_cho_vay": {
+    "source_file": "quy_cho_vay.md",
+    "model_used": "gemini-2.5-flash",
+    "entity_count": 16,
+    "entities": [
+      {
+        "class": "FinancialRule",
+        "text": "Giá trị quỹ hỗ trợ cho vay ngắn hạn: 500.000.000 đồng (Năm trăm triệu đồng)",
+        "attributes": {
+          "rule_type": "loan_fund_value",
+          "amount": "500.000.000 đồng"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Quỹ hỗ trợ cho vay ngắn hạn được sử dụng với mục đích cho người lao động của Công ty Cổ phần INNO vay khi có nhu cầu.",
+        "attributes": {
+          "rule_type": "loan_eligibility",
+          "applies_to": "người lao động của Công ty Cổ phần INNO",
+          "condition": "khi có nhu cầu"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Số tiền vay tối đa: 3 tháng lương (lương tháng gần nhất)",
+        "attributes": {
+          "rule_type": "max_loan_amount",
+          "amount": "3 tháng lương",
+          "calculation_method": "lương tháng gần nhất"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Thời hạn vay tối đa: 06 tháng",
+        "attributes": {
+          "rule_type": "max_loan_duration",
+          "duration": "06 tháng"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Lãi suất: 0%",
+        "attributes": {
+          "rule_type": "loan_interest_rate",
+          "amount": "0%",
+          "condition": "trong hạn"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Lương tạm ứng: đối với NLĐ hưởng lương tạm ứng",
+        "attributes": {
+          "rule_type": "salary_definition_for_loan",
+          "condition": "NLĐ hưởng lương tạm ứng",
+          "mechanism": "lương tạm ứng"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Lương cứng: đối với NLĐ hưởng lương cứng",
+        "attributes": {
+          "rule_type": "salary_definition_for_loan",
+          "condition": "NLĐ hưởng lương cứng",
+          "mechanism": "lương cứng"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Lãi suất áp dụng: bằng lãi suất tiền gửi tiết kiệm kỳ hạn 6 tháng của Techcombank tại thời điểm bắt đầu quá hạn",
+        "attributes": {
+          "rule_type": "overdue_interest_rate",
+          "condition": "quá thời hạn thanh toán",
+          "calculation_method": "bằng lãi suất tiền gửi tiết kiệm kỳ hạn 6 tháng của Techcombank tại thời điểm bắt đầu quá hạn"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Cách tính lãi: từ thời điểm bắt đầu quá hạn đến khi thanh toán xong",
+        "attributes": {
+          "rule_type": "overdue_interest_calculation",
+          "condition": "quá thời hạn thanh toán",
+          "calculation_method": "từ thời điểm bắt đầu quá hạn đến khi thanh toán xong"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Công ty khấu trừ dần vào lương hàng tháng (1/3 tháng lương/tháng)",
+        "attributes": {
+          "rule_type": "overdue_loan_recovery",
+          "condition": "quá thời hạn thanh toán",
+          "mechanism": "khấu trừ dần vào lương hàng tháng",
+          "amount": "1/3 tháng lương/tháng"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Người lao động chỉ được vay tiền lần tiếp theo sau 3 tháng kể từ khi thanh toán hết khoản vay trước đó.",
+        "attributes": {
+          "rule_type": "re_borrowing_interval",
+          "restriction": "chỉ được vay tiền lần tiếp theo sau 3 tháng",
+          "condition": "kể từ khi thanh toán hết khoản vay trước đó"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Vay để chi trả cho các việc cấp bách: Tai nạn, Ốm đau phải nằm viện, Bệnh hiểm nghèo, Đám ma",
+        "attributes": {
+          "rule_type": "loan_priority_condition",
+          "condition": "nhiều người lao động có nhu cầu vay cùng một thời điểm",
+          "mechanism": "Ưu tiên 1",
+          "applies_to": "Vay để chi trả cho các việc cấp bách: Tai nạn, Ốm đau phải nằm viện, Bệnh hiểm nghèo, Đám ma"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Người lao động có mức lương thấp được vay trước",
+        "attributes": {
+          "rule_type": "loan_priority_condition",
+          "condition": "nhiều người lao động có nhu cầu vay cùng một thời điểm",
+          "mechanism": "Ưu tiên 2",
+          "applies_to": "Người lao động có mức lương thấp"
+        }
+      },
+      {
+        "class": "FinancialRule",
+        "text": "Người lao động chưa vay quỹ hỗ trợ lần nào được ưu tiên cho vay trước",
+        "attributes": {
+          "rule_type": "loan_priority_condition",
+          "condition": "nhiều người lao động có nhu cầu vay cùng một thời điểm",
+          "mechanism": "Ưu tiên 3",
+          "applies_to": "Người lao động chưa vay quỹ hỗ trợ lần nào"
+        }
+      },
+      {
+        "class": "ProcedureRule",
+        "text": "Người lao động cần làm Đơn xin vay ngắn hạn từ quỹ hỗ trợ của Công ty trình các cấp lãnh đạo phê duyệt.",
+        "attributes": {
+          "rule_type": "loan_application_procedure",
+          "mechanism": "làm Đơn xin vay ngắn hạn từ quỹ hỗ trợ của Công ty trình các cấp lãnh đạo phê duyệt"
+        }
+      },
+      {
+        "class": "ProcedureRule",
+        "text": "Thực hiện theo: công việc quy trình trên 1office",
+        "attributes": {
+          "rule_type": "loan_application_platform",
+          "mechanism": "công việc quy trình trên 1office"
+        }
+      }
+    ]
+  }
+}

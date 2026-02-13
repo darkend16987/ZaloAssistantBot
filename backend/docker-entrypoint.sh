@@ -25,9 +25,8 @@ if [ ! -f "$EXTRACTED_DIR/entities.json" ] || [ ! -d "$INDEXED_DIR" ] || [ -z "$
     echo "=================================================="
 
     if [ -n "$GOOGLE_API_KEY" ]; then
-        python -m app.mcp.knowledge.rebuild --no-langextract 2>&1 || {
-            echo "WARNING: Knowledge rebuild failed. Starting with legacy mode."
-        }
+        echo "Starting knowledge rebuild in background..."
+        python -m app.mcp.knowledge.rebuild --no-langextract >> /var/log/knowledge_rebuild.log 2>&1 &
     else
         echo "WARNING: GOOGLE_API_KEY not set. Skipping knowledge rebuild."
         echo "         System will start in legacy mode."
