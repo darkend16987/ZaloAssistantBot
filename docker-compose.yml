@@ -12,8 +12,8 @@ services:
     volumes:
       # Đồng bộ code từ máy thật vào container để dev cho tiện
       - ./backend:/app
-    # ✅ Entrypoint: auto-rebuild knowledge indexes nếu chưa có, rồi chạy CMD
-    entrypoint: ["bash", "./docker-entrypoint.sh"]
+    # ✅ Entrypoint đã được xử lý trong Dockerfile
+    # entrypoint: ["bash", "./docker-entrypoint.sh"]
     command: python main_api.py
     networks:
       - zalo-net
@@ -37,7 +37,7 @@ services:
     command: node index.js
     networks:
       - zalo-net
-      
+
 # ✅ Định nghĩa một mạng riêng cho các service giao tiếp với nhau
 networks:
   zalo-net:

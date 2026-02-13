@@ -18,15 +18,16 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Sao chép toàn bộ code của bạn vào
 COPY . .
 
-# Fix CRLF line endings (Windows) và đảm bảo entrypoint có quyền thực thi
-# Sử dụng dos2unix cho an toàn và triệt để hơn lệnh sed
-RUN dos2unix docker-entrypoint.sh && chmod +x docker-entrypoint.sh
+# Move entrypoint script to /usr/local/bin to avoid being overwritten by volume mount
+RUN mv docker-entrypoint.sh /usr/local/bin/ && \
+    dos2unix /usr/local/bin/docker-entrypoint.sh && \
+    chmod +x /usr/local/bin/docker-entrypoint.sh
 
 # Mở cổng 5000 để bên ngoài có thể giao tiếp vào
 EXPOSE 5000
 
 # Entrypoint: auto-rebuild knowledge indexes nếu chưa có, rồi chạy app
-ENTRYPOINT ["./docker-entrypoint.sh"]
+ENTRYPOINT ["docker-entrypoint.sh"]
 
 # Lệnh để chạy ứng dụng của bạn khi container khởi động
 CMD ["python", "main_api.py"]
