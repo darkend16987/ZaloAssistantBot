@@ -12,7 +12,8 @@ services:
     volumes:
       # Đồng bộ code từ máy thật vào container để dev cho tiện
       - ./backend:/app
-    # ✅ Lệnh khởi động tường minh, tránh phụ thuộc vào CMD trong Dockerfile
+    # ✅ Entrypoint: auto-rebuild knowledge indexes nếu chưa có, rồi chạy CMD
+    entrypoint: ["bash", "./docker-entrypoint.sh"]
     command: python main_api.py
     networks:
       - zalo-net
