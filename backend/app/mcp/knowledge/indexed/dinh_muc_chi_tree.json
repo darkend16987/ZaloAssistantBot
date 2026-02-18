@@ -1,0 +1,382 @@
+{
+  "doc_name": "dinh_muc_chi",
+  "doc_description": "Tài liệu này quy định định mức và quy trình chi tiêu, mua sắm đối với văn phòng phẩm, máy tính, thiết bị IT và các chi phí liên quan.",
+  "structure": [
+    {
+      "title": "QUY ĐỊNH ĐỊNH MỨC MỘT SỐ KHOẢN CHI",
+      "node_id": "0000",
+      "summary": "# QUY ĐỊNH ĐỊNH MỨC MỘT SỐ KHOẢN CHI\n\n---",
+      "start_index": 0,
+      "end_index": 3,
+      "text": "# QUY ĐỊNH ĐỊNH MỨC MỘT SỐ KHOẢN CHI\n\n---",
+      "nodes": [
+        {
+          "title": "Điều 1. Mục đích",
+          "node_id": "0001",
+          "summary": "Mục đích là hệ thống hóa các định mức chi tiêu trong Công ty nhằm tăng tính tự chủ, hiệu quả trong hoạt động và nâng cao ý thức tiết kiệm của các phòng, ban, đơn vị.",
+          "start_index": 4,
+          "end_index": 8,
+          "text": "## Điều 1. Mục đích\n- Hệ thống các định mức chi tiêu trong Công ty\n- Tăng tính tự chủ, hiệu quả trong hoạt động\n- Nâng cao ý thức tiết kiệm của các phòng, ban, đơn vị",
+          "nodes": []
+        },
+        {
+          "title": "Điều 2. Các quy định chung",
+          "node_id": "0002",
+          "summary": "Điều 2 quy định các khoản chi phải có chứng từ hợp lệ; chi hỗ trợ, phúc lợi được trích từ Quỹ phúc lợi hoặc Chi phí của Công ty.",
+          "start_index": 9,
+          "end_index": 14,
+          "text": "## Điều 2. Các quy định chung\n- Tất cả các khoản chi phải có chứng từ hợp lệ\n- Chi hỗ trợ, phúc lợi được trích từ Quỹ phúc lợi hoặc Chi phí của Công ty\n\n---",
+          "nodes": []
+        },
+        {
+          "title": "Điều 3. Quy định về văn phòng phẩm",
+          "node_id": "0003",
+          "summary": "## Điều 3. Quy định về văn phòng phẩm",
+          "start_index": 15,
+          "end_index": 16,
+          "text": "## Điều 3. Quy định về văn phòng phẩm",
+          "nodes": [
+            {
+              "title": "Đối tượng được cấp:",
+              "node_id": "0004",
+              "summary": "Công ty sẽ cấp phát thiết bị cho Ban lãnh đạo, Bộ phận hành chính, kế toán và hợp đồng. Các phòng ban, cá nhân khác tự trang bị theo nhu cầu, ngoại trừ giấy in và mực in sẽ được công ty cung cấp.",
+              "start_index": 17,
+              "end_index": 22,
+              "text": "### Đối tượng được cấp:\n- Ban lãnh đạo Công ty\n- Bộ phận hành chính, kế toán, hợp đồng\n\n**Lưu ý:** Các phòng ban, cá nhân khác tự trang bị theo nhu cầu sử dụng (ngoại trừ giấy in và mực in).",
+              "nodes": []
+            },
+            {
+              "title": "Quy trình mua sắm:",
+              "node_id": "0005",
+              "summary": "Quy trình mua sắm yêu cầu Phòng Hành chính lập đề xuất mua sắm hàng tháng để Ban lãnh đạo Công ty phê duyệt. Định kỳ 3 tháng/lần, phải tham khảo giá từ ít nhất 3 website.",
+              "start_index": 23,
+              "end_index": 29,
+              "text": "### Quy trình mua sắm:\n1. Phòng Hành chính lập đề xuất mua sắm hàng tháng\n2. Trình Ban lãnh đạo Công ty phê duyệt\n3. Định kỳ 3 tháng/lần: tham khảo giá từ ít nhất 3 website\n\n---",
+              "nodes": []
+            }
+          ]
+        },
+        {
+          "title": "Điều 4. Mua sắm máy tính, thiết bị IT",
+          "node_id": "0006",
+          "summary": "## Điều 4. Mua sắm máy tính, thiết bị IT",
+          "start_index": 30,
+          "end_index": 31,
+          "text": "## Điều 4. Mua sắm máy tính, thiết bị IT",
+          "nodes": [
+            {
+              "title": "Quy trình:",
+              "node_id": "0007",
+              "summary": "Quy trình mua sắm yêu cầu bộ phận phát sinh nhu cầu đề xuất, sau đó Bộ phận IT thu thập báo giá từ **ít nhất 3 nơi** và trình Ban lãnh đạo Công ty phê duyệt, trước khi Bộ phận IT tiến hành mua sắm và bàn giao.",
+              "start_index": 32,
+              "end_index": 37,
+              "text": "### Quy trình:\n1. Bộ phận phát sinh nhu cầu đề nghị\n2. Bộ phận IT thu thập báo giá từ **ít nhất 3 nơi**\n3. Trình Ban lãnh đạo Công ty phê duyệt\n4. Bộ phận IT mua sắm và bàn giao",
+              "nodes": []
+            },
+            {
+              "title": "Ngoại lệ:",
+              "node_id": "0008",
+              "summary": "Khoản mua sắm/sửa chữa dưới 5 triệu đồng là ngoại lệ cho phép chọn đơn vị đã cung cấp trước đó mà không cần 3 báo giá.",
+              "start_index": 38,
+              "end_index": 42,
+              "text": "### Ngoại lệ:\nKhoản mua sắm/sửa chữa **dưới 5 triệu đồng**: có thể chọn đơn vị đã cung cấp trước đó mà không cần 3 báo giá.\n\n---",
+              "nodes": []
+            }
+          ]
+        },
+        {
+          "title": "Điều 5. Chi phí máy tính xách tay",
+          "node_id": "0009",
+          "summary": "Theo Điều 5 về chi phí máy tính xách tay, Công ty không trang bị máy tính xách tay cho CBNV. Việc mua sắm chỉ được thực hiện khi thực sự cần thiết và có sự phê duyệt của Ban lãnh đạo.",
+          "start_index": 43,
+          "end_index": 47,
+          "text": "## Điều 5. Chi phí máy tính xách tay\nCông ty **không trang bị** máy tính xách tay cho CBNV. Chỉ mua sắm khi thực sự cần thiết và được Ban lãnh đạo phê duyệt.\n\n---",
+          "nodes": []
+        },
+        {
+          "title": "Điều 6. Chi phí dịch vụ",
+          "node_id": "0010",
+          "summary": "## Điều 6. Chi phí dịch vụ",
+          "start_index": 48,
+          "end_index": 49,
+          "text": "## Điều 6. Chi phí dịch vụ",
+          "nodes": [
+            {
+              "title": "6.1. Chi phí văn phòng",
+              "node_id": "0011",
+              "summary": "Các chi phí văn phòng (như điện, nước, dịch vụ tòa nhà, vệ sinh, gửi xe máy CBNV, thiết bị văn phòng, v.v.) sẽ được chi theo thực tế phát sinh, trong hạn mức ngân sách.",
+              "start_index": 50,
+              "end_index": 52,
+              "text": "### 6.1. Chi phí văn phòng\nChi phí điện, nước, phí dịch vụ tòa nhà, vệ sinh, gửi xe máy CBNV, thiết bị văn phòng, cây cảnh, hoa quả, đồ uống... → chi theo thực tế phát sinh, trong hạn mức ngân sách.",
+              "nodes": []
+            },
+            {
+              "title": "6.2. Điện thoại cố định",
+              "node_id": "0012",
+              "summary": "Quy định 6.2 về điện thoại cố định nêu rõ: việc thanh toán phải được thực hiện theo hóa đơn chứng từ hợp lệ.",
+              "start_index": 53,
+              "end_index": 55,
+              "text": "### 6.2. Điện thoại cố định\nThanh toán theo hóa đơn chứng từ hợp lệ.",
+              "nodes": []
+            },
+            {
+              "title": "6.3. Chuyển phát thư",
+              "node_id": "0013",
+              "summary": "Quy định về chuyển phát thư như sau: thư thường cần được tập hợp gửi lễ tân trước 15h hàng ngày; thư hỏa tốc phải báo ngay lập tức cho lễ tân. Đối với chuyển phát hàng không từ 2 triệu đồng trở lên, cần có sự phê duyệt trước từ Ban lãnh đạo.",
+              "start_index": 56,
+              "end_index": 60,
+              "text": "### 6.3. Chuyển phát thư\n- Thư thường: tập hợp trước 15h hàng ngày gửi lễ tân\n- Thư hỏa tốc: báo ngay lập tức cho lễ tân\n- **Chuyển phát hàng không từ 2 triệu đồng trở lên:** cần Ban lãnh đạo phê duyệt trước",
+              "nodes": []
+            },
+            {
+              "title": "6.4. Xe ô tô công ty",
+              "node_id": "0014",
+              "summary": "Để sử dụng xe ô tô công ty, cần có lệnh điều xe/phiếu yêu cầu do Trưởng phòng xác nhận. Công ty sẽ thanh toán chi phí xăng dầu, sửa chữa, bảo hiểm theo thực tế, nhưng không thanh toán tiền phạt vi phạm giao thông hoặc bồi thường do lỗi lái xe.",
+              "start_index": 61,
+              "end_index": 65,
+              "text": "### 6.4. Xe ô tô công ty\n- Phải có lệnh điều xe/phiếu yêu cầu do Trưởng phòng xác nhận\n- Chi phí xăng dầu, sửa chữa, bảo hiểm: thanh toán theo thực tế\n- **Không thanh toán:** tiền phạt vi phạm giao thông, bồi thường do lỗi lái xe",
+              "nodes": []
+            },
+            {
+              "title": "6.5. Thẻ Taxi",
+              "node_id": "0015",
+              "summary": "Để sử dụng Thẻ Taxi (6.5), chỉ dành cho mục đích công việc, cần có phiếu yêu cầu được trưởng bộ phận và Ban lãnh đạo phê duyệt. Sau khi sử dụng, người dùng phải giữ lại tất cả bill, ký xác nhận và chuyển cho phòng hành chính.",
+              "start_index": 66,
+              "end_index": 72,
+              "text": "### 6.5. Thẻ Taxi\n- Chỉ sử dụng cho mục đích công việc\n- Phải có phiếu yêu cầu được trưởng bộ phận và Ban lãnh đạo phê duyệt\n- Giữ lại tất cả bill, ký xác nhận và chuyển cho phòng hành chính\n\n---",
+              "nodes": []
+            }
+          ]
+        },
+        {
+          "title": "Điều 7. Chi phí hỗ trợ kinh doanh (tiếp khách, giao dịch)",
+          "node_id": "0016",
+          "summary": "Chi phí hỗ trợ kinh doanh (tiếp khách, giao dịch) chỉ được cấp Phó Tổng giám đốc trở lên phê duyệt thanh toán, phải được thanh toán hàng tháng và ngày ghi trên hóa đơn không được cách ngày thanh toán quá 20 ngày.",
+          "start_index": 73,
+          "end_index": 80,
+          "text": "## Điều 7. Chi phí hỗ trợ kinh doanh (tiếp khách, giao dịch)\n\n- Chỉ cấp **Phó Tổng giám đốc trở lên** mới được phép thanh toán\n- Phải thanh toán hàng tháng\n- Ngày ghi trên hóa đơn và ngày thanh toán không cách nhau quá **20 ngày**\n\n---",
+          "nodes": []
+        },
+        {
+          "title": "Điều 9-13. Quy định công tác phí",
+          "node_id": "0017",
+          "summary": "## Điều 9-13. Quy định công tác phí",
+          "start_index": 81,
+          "end_index": 82,
+          "text": "## Điều 9-13. Quy định công tác phí",
+          "nodes": [
+            {
+              "title": "9.1. Quy định chung",
+              "node_id": "0018",
+              "summary": "Kế hoạch công tác phải được Ban lãnh đạo phê duyệt trước ít nhất 3 ngày. Tổng số ngày đi công tác được tính từ ngày bắt đầu đến ngày về.",
+              "start_index": 83,
+              "end_index": 86,
+              "text": "### 9.1. Quy định chung\n- Phải có Kế hoạch công tác được Ban lãnh đạo phê duyệt trước **ít nhất 3 ngày**\n- Tổng số ngày đi công tác: tính từ ngày bắt đầu đến ngày về",
+              "nodes": []
+            },
+            {
+              "title": "9.2. Công tác phí đi và về trong ngày",
+              "node_id": "0019",
+              "summary": "Đối với công tác phí đi và về trong ngày, chỉ các chuyến đi ngoại tỉnh (không thuộc Hà Nội) mới được hưởng mức **300.000 đồng/ngày**. Các trường hợp khác sẽ không được nhận công tác phí.",
+              "start_index": 87,
+              "end_index": 90,
+              "text": "### 9.2. Công tác phí đi và về trong ngày\n- Địa điểm ngoại tỉnh (không thuộc Hà Nội): **300.000 đồng/ngày**\n- Các trường hợp khác: không hưởng công tác phí",
+              "nodes": []
+            },
+            {
+              "title": "9.3. Khoán chi phí ô tô cá nhân",
+              "node_id": "0020",
+              "summary": "Khoán chi phí ô tô cá nhân áp dụng khi khoảng cách từ trụ sở Công ty đến địa điểm công tác **≥ 15 km**. Mức khoán là **0,2 lít xăng/km/ô tô** (bao gồm cả lượt đi và về), đã bao gồm chi phí cầu đường, cước qua phà, đò.",
+              "start_index": 91,
+              "end_index": 97,
+              "text": "### 9.3. Khoán chi phí ô tô cá nhân\n- Khoảng cách từ trụ sở Công ty đến địa điểm công tác **≥ 15 km**\n- Mức tiêu thụ: **0,2 lít xăng/km/ô tô** (bao gồm cả lượt đi và về)\n- Đã bao gồm chi phí cầu đường, cước qua phà, đò\n\n---",
+              "nodes": []
+            }
+          ]
+        },
+        {
+          "title": "ĐỊNH MỨC CÔNG TÁC PHÍ TRONG NƯỚC",
+          "node_id": "0021",
+          "summary": "## ĐỊNH MỨC CÔNG TÁC PHÍ TRONG NƯỚC",
+          "start_index": 98,
+          "end_index": 99,
+          "text": "## ĐỊNH MỨC CÔNG TÁC PHÍ TRONG NƯỚC",
+          "nodes": [
+            {
+              "title": "Bảng định mức:",
+              "node_id": "0022",
+              "summary": "Bảng định mức này quy định hạng vé máy bay, chi phí khách sạn và công tác phí cho các chức danh lãnh đạo (Chủ tịch HĐQT, Phó CT HĐQT, TGĐ, Phó TGĐ) và CBNV khác, tùy theo vùng công tác (Vùng 1 hoặc Vùng 2). Cụ thể, lãnh đạo được vé Phổ thông linh hoạt/tiêu chuẩn, khách sạn 800.000-900.000đ/đêm và công tác phí 500.000-600.000đ/ngày; CBNV khác được vé Phổ thông tiết kiệm/siêu tiết kiệm, khách sạn 700.000-800.000đ/đêm và công tác phí 400.000-500.000đ/ngày.",
+              "start_index": 100,
+              "end_index": 106,
+              "text": "### Bảng định mức:\n\n| Chức danh | Hạng vé máy bay | Chi phí khách sạn Vùng 1 | Chi phí khách sạn Vùng 2 | Công tác phí Vùng 1 | Công tác phí Vùng 2 |\n|-----------|-----------------|--------------------------|--------------------------|---------------------|---------------------|\n| Chủ tịch HĐQT, Phó CT HĐQT, TGĐ, Phó TGĐ | Phổ thông linh hoạt/tiêu chuẩn | 900.000đ/đêm | 800.000đ/đêm | 600.000đ/ngày | 500.000đ/ngày |\n| CBNV khác | Phổ thông tiết kiệm/siêu tiết kiệm | 800.000đ/đêm | 700.000đ/đêm | 500.000đ/ngày | 400.000đ/ngày |",
+              "nodes": []
+            },
+            {
+              "title": "Phân vùng địa phương:",
+              "node_id": "0023",
+              "summary": "Quy định Phân vùng địa phương chia các địa phương thành 2 vùng: Vùng 1 gồm 9 địa phương (Hà Nội, TP HCM, Hải Phòng, Đà Nẵng, Cần Thơ, Nha Trang, Vũng Tàu, Hạ Long, Phan Thiết), và Vùng 2 áp dụng cho các địa phương còn lại.",
+              "start_index": 107,
+              "end_index": 110,
+              "text": "### Phân vùng địa phương:\n- **Vùng 1:** Hà Nội, TP HCM, Hải Phòng, Đà Nẵng, Cần Thơ, Nha Trang, Vũng Tàu, Hạ Long, Phan Thiết\n- **Vùng 2:** Các địa phương còn lại",
+              "nodes": []
+            },
+            {
+              "title": "Quy định đặt vé máy bay:",
+              "node_id": "0024",
+              "summary": "Quy định đặt vé máy bay nêu rõ: Cấp Phó TGĐ trở lên được ưu tiên chọn giờ, hãng theo thứ tự Vietnam Airlines → Bamboo Airways → Vietjet Air; CBNV khác do phòng hành chính đặt vé giá thấp nhất. Việc hoàn/hủy/đổi vé cần Ban lãnh đạo phê duyệt, nếu không phải tự thanh toán chi phí phát sinh.",
+              "start_index": 111,
+              "end_index": 115,
+              "text": "### Quy định đặt vé máy bay:\n- Cấp Phó TGĐ trở lên: ưu tiên chọn giờ phù hợp, thứ tự hãng: Vietnam Airlines → Bamboo Airways → Vietjet Air\n- CBNV khác: phòng hành chính đặt vé giá thấp nhất\n- Hoàn/hủy/đổi vé: cần Ban lãnh đạo phê duyệt, nếu không phải tự thanh toán chi phí phát sinh",
+              "nodes": []
+            },
+            {
+              "title": "Quy định về khách sạn:",
+              "node_id": "0025",
+              "summary": "Đoàn từ 2 người trở lên cùng giới tính sẽ ngủ ghép phòng, và chi phí khách sạn trong bảng được tính cho phòng đôi.",
+              "start_index": 116,
+              "end_index": 121,
+              "text": "### Quy định về khách sạn:\n- Đoàn từ 2 người trở lên cùng giới tính: ngủ ghép phòng\n- Chi phí khách sạn trong bảng là cho **phòng đôi**\n\n---",
+              "nodes": []
+            }
+          ]
+        },
+        {
+          "title": "ĐỊNH MỨC CÔNG TÁC PHÍ NƯỚC NGOÀI",
+          "node_id": "0026",
+          "summary": "Quy định này thiết lập định mức công tác phí nước ngoài về chi phí khách sạn và công tác phí, khác nhau tùy theo chức danh (Chủ tịch HĐQT/TGĐ/Phó TGĐ nhận 150-200 USD/đêm khách sạn, 45-50 USD/ngày công tác phí; CBNV khác nhận 120-150 USD/đêm khách sạn, 40-45 USD/ngày công tác phí) và khu vực (Singapore, Nhật, HK, Mỹ, Châu Âu hoặc nước khác). Công ty chi trả phí visa, nhưng không thanh toán công tác phí cho các chuyến đi theo chế độ nghỉ mát hoặc thi đua.",
+          "start_index": 122,
+          "end_index": 134,
+          "text": "## ĐỊNH MỨC CÔNG TÁC PHÍ NƯỚC NGOÀI\n\n| Chức danh | Chi phí khách sạn (Singapore, Nhật, HK, Mỹ, Châu Âu) | Chi phí khách sạn (Nước khác) | Công tác phí (Singapore, Nhật, HK, Mỹ, Châu Âu) | Công tác phí (Nước khác) |\n|-----------|-----------------------------------------------------|------------------------------|------------------------------------------------|--------------------------|\n| Chủ tịch HĐQT, Phó CT, TGĐ, Phó TGĐ | 200 USD/đêm | 150 USD/đêm | 50 USD/ngày | 45 USD/ngày |\n| CBNV khác | 150 USD/đêm | 120 USD/đêm | 45 USD/ngày | 40 USD/ngày |\n\n**Lưu ý:**\n- Đi công tác theo chế độ nghỉ mát, thi đua: không thanh toán công tác phí\n- Chi phí visa do Công ty chi trả\n\n---",
+          "nodes": []
+        },
+        {
+          "title": "Điều 14. ĐỊNH MỨC CHI HỖ TRỢ - PHÚC LỢI",
+          "node_id": "0027",
+          "summary": "## Điều 14. ĐỊNH MỨC CHI HỖ TRỢ - PHÚC LỢI",
+          "start_index": 135,
+          "end_index": 136,
+          "text": "## Điều 14. ĐỊNH MỨC CHI HỖ TRỢ - PHÚC LỢI",
+          "nodes": [
+            {
+              "title": "1. Mừng kết hôn",
+              "node_id": "0028",
+              "summary": "Mức chi mừng kết hôn là **1.000.000 đồng/người** áp dụng cho **NLĐ đã ký HĐLĐ chính thức**.",
+              "start_index": 137,
+              "end_index": 141,
+              "text": "### 1. Mừng kết hôn\n| Đối tượng | Mức chi |\n|-----------|---------|\n| NLĐ đã ký HĐLĐ chính thức | **1.000.000 đồng/người** |",
+              "nodes": []
+            },
+            {
+              "title": "2. Thuê xe đi ăn cưới",
+              "node_id": "0029",
+              "summary": "Mục 2 quy định chi phí thuê xe đi ăn cưới được thanh toán theo thực tế phát sinh, áp dụng cho đám cưới của NLĐ đã ký HĐLĐ chính thức.",
+              "start_index": 142,
+              "end_index": 144,
+              "text": "### 2. Thuê xe đi ăn cưới\nChi theo thực tế phát sinh (cho đám cưới NLĐ đã ký HĐLĐ chính thức)",
+              "nodes": []
+            },
+            {
+              "title": "3. Thăm hỏi ốm đau (nằm viện từ 2 ngày trở lên)",
+              "node_id": "0030",
+              "summary": "Quy định thăm hỏi ốm đau áp dụng khi nằm viện từ 2 ngày trở lên, với mức chi: **2.000.000 đồng** cho HĐQT/Ban TGĐ; **1.000.000 đồng** cho Trưởng phòng/bộ phận và tứ thân/vợ/chồng/con của HĐQT/Ban TGĐ; **500.000 đồng** cho CBNV còn lại và tứ thân/vợ/chồng/con của NLĐ còn lại. Đặc biệt, NLĐ mắc bệnh hiểm nghèo nhận hỗ trợ **5.000.000 đồng**.",
+              "start_index": 145,
+              "end_index": 154,
+              "text": "### 3. Thăm hỏi ốm đau (nằm viện từ 2 ngày trở lên)\n| Đối tượng | Mức chi |\n|-----------|---------|\n| HĐQT, Ban TGĐ | **2.000.000 đồng/người** |\n| Trưởng phòng, trưởng bộ phận | **1.000.000 đồng/người** |\n| CBNV còn lại | **500.000 đồng/người** |\n| Tứ thân phụ mẫu, vợ/chồng, con của HĐQT/Ban TGĐ | **1.000.000 đồng/người** |\n| Tứ thân phụ mẫu, vợ/chồng, con của NLĐ còn lại | **500.000 đồng/người** |\n| NLĐ mắc bệnh hiểm nghèo | **5.000.000 đồng/người** |",
+              "nodes": []
+            },
+            {
+              "title": "4. Thăm viếng hiếu (tứ thân phụ mẫu, vợ/chồng, con, bản thân NLĐ qua đời)",
+              "node_id": "0031",
+              "summary": "Quy định mức chi thăm viếng hiếu khi tứ thân phụ mẫu, vợ/chồng, con, hoặc bản thân NLĐ qua đời, bao gồm tiền mặt và vòng hoa. Mức chi phân loại theo cấp bậc: HĐQT/Ban TGĐ nhận 10.000.000 đồng, Trưởng phòng/bộ phận 2.000.000 đồng, CBNV còn lại 1.000.000 đồng, và NLĐ thử việc/chưa HĐLĐ chính thức 500.000 đồng.",
+              "start_index": 155,
+              "end_index": 162,
+              "text": "### 4. Thăm viếng hiếu (tứ thân phụ mẫu, vợ/chồng, con, bản thân NLĐ qua đời)\n| Đối tượng | Mức chi |\n|-----------|---------|\n| HĐQT, Ban TGĐ | **10.000.000 đồng + vòng hoa** |\n| Trưởng phòng, trưởng bộ phận | **2.000.000 đồng + vòng hoa** |\n| CBNV còn lại | **1.000.000 đồng + vòng hoa** |\n| NLĐ chưa có HĐLĐ chính thức, thử việc | **500.000 đồng + vòng hoa** |",
+              "nodes": []
+            },
+            {
+              "title": "5. Thăm hỏi sinh con",
+              "node_id": "0032",
+              "summary": "Quy định về thăm hỏi sinh con có mức chi 2.000.000 đồng/người cho HĐQT, Ban TGĐ, Trưởng/Phó phòng và 1.000.000 đồng/người cho CBNV còn lại.",
+              "start_index": 163,
+              "end_index": 168,
+              "text": "### 5. Thăm hỏi sinh con\n| Đối tượng | Mức chi |\n|-----------|---------|\n| HĐQT, Ban TGĐ, Trưởng/Phó phòng | **2.000.000 đồng/người** |\n| CBNV còn lại | **1.000.000 đồng/người** |",
+              "nodes": []
+            },
+            {
+              "title": "6. Mừng ngày 8/3 và 20/10",
+              "node_id": "0033",
+              "summary": "Vào các ngày 8/3 và 20/10, công ty chi mừng 500.000 đồng/người cho lao động nữ đã ký HĐLĐ chính thức và 300.000 đồng/người cho người lao động chưa có HĐLĐ, thử việc hoặc thực tập.",
+              "start_index": 169,
+              "end_index": 174,
+              "text": "### 6. Mừng ngày 8/3 và 20/10\n| Đối tượng | Mức chi |\n|-----------|---------|\n| Lao động nữ đã ký HĐLĐ chính thức | **500.000 đồng/người** |\n| NLĐ chưa có HĐLĐ, thử việc, thực tập | **300.000 đồng/người** |",
+              "nodes": []
+            },
+            {
+              "title": "7. Mừng 1/6 và Trung thu (con đẻ CBNV từ 14 tuổi trở xuống)",
+              "node_id": "0034",
+              "summary": "Chính sách mừng 1/6 và Trung thu chi trả **200.000 đồng/người** cho con đẻ của CBNV từ **14 tuổi trở xuống**. Đặc biệt, nếu cả bố và mẹ đều làm việc cho Inno, con sẽ nhận được suất mừng từ cả hai.",
+              "start_index": 175,
+              "end_index": 178,
+              "text": "### 7. Mừng 1/6 và Trung thu (con đẻ CBNV từ 14 tuổi trở xuống)\n**200.000 đồng/người**\n*Nếu cả bố mẹ đều làm việc cho Inno thì tính cả suất bố và mẹ*",
+              "nodes": []
+            },
+            {
+              "title": "8. Mừng sinh nhật Công ty",
+              "node_id": "0035",
+              "summary": "Quy định mức chi tối đa cho sự kiện mừng sinh nhật Công ty là 500.000 đồng/người tham dự.",
+              "start_index": 179,
+              "end_index": 181,
+              "text": "### 8. Mừng sinh nhật Công ty\nTối đa **500.000 đồng/người tham dự**",
+              "nodes": []
+            },
+            {
+              "title": "9. Hỗ trợ đội thể thao hàng tháng",
+              "node_id": "0036",
+              "summary": "Quy định 9 nêu rõ chính sách hỗ trợ đội thể thao hàng tháng: đội bóng đá nhận **6.000.000 đồng/tháng** và đội cầu lông nhận **4.000.000 đồng/tháng**.",
+              "start_index": 182,
+              "end_index": 187,
+              "text": "### 9. Hỗ trợ đội thể thao hàng tháng\n| Đội | Mức hỗ trợ |\n|-----|-----------|\n| Đội bóng đá | **6.000.000 đồng/tháng** |\n| Đội cầu lông | **4.000.000 đồng/tháng** |",
+              "nodes": []
+            },
+            {
+              "title": "10. Thưởng lễ (1/1, 30/4, 2/9)",
+              "node_id": "0037",
+              "summary": "Mức thưởng lễ cho các ngày 1/1, 30/4, 2/9 được quy định cụ thể theo từng đối tượng: HĐQT, Ban TGĐ, Trưởng phòng nhận **3.000.000 đồng/người**; Phó phòng **2.000.000 đồng/người**; CBNV còn lại **1.000.000 đồng/người**; và nhân sự thử việc, thực tập **500.000 đồng/người**.",
+              "start_index": 188,
+              "end_index": 195,
+              "text": "### 10. Thưởng lễ (1/1, 30/4, 2/9)\n| Đối tượng | Mức chi |\n|-----------|---------|\n| HĐQT, Ban TGĐ, Trưởng phòng | **3.000.000 đồng/người** |\n| Phó phòng | **2.000.000 đồng/người** |\n| CBNV còn lại | **1.000.000 đồng/người** |\n| Thử việc, thực tập | **500.000 đồng/người** |",
+              "nodes": []
+            },
+            {
+              "title": "11. Hỗ trợ tiền gửi xe",
+              "node_id": "0038",
+              "summary": "Quy định 11 hỗ trợ tiền gửi xe, bao gồm 100% tiền gửi xe máy/xe đạp đầu tiên và 50% phí gửi xe ô tô đầu tiên.",
+              "start_index": 196,
+              "end_index": 201,
+              "text": "### 11. Hỗ trợ tiền gửi xe\n| Loại xe | Mức hỗ trợ |\n|---------|-----------|\n| Xe máy/xe đạp | 100% tiền gửi xe máy đầu tiên |\n| Ô tô | 50% phí gửi xe ô tô đầu tiên |",
+              "nodes": []
+            },
+            {
+              "title": "12. Hỗ trợ chứng chỉ hành nghề",
+              "node_id": "0039",
+              "summary": "Quy định hỗ trợ chi phí chứng chỉ hành nghề: HĐQT và Ban TGĐ được hỗ trợ 100% chi phí, trong khi Trưởng/Phó phòng được hỗ trợ 50% chi phí.",
+              "start_index": 202,
+              "end_index": 207,
+              "text": "### 12. Hỗ trợ chứng chỉ hành nghề\n| Đối tượng | Mức hỗ trợ |\n|-----------|-----------|\n| HĐQT, Ban TGĐ | 100% chi phí |\n| Trưởng/Phó phòng | 50% chi phí |",
+              "nodes": []
+            },
+            {
+              "title": "13. Hỗ trợ ăn chiều",
+              "node_id": "0040",
+              "summary": "Người lao động (NLĐ) chính thức và thử việc được hỗ trợ ăn chiều 150.000 đồng/người/tháng, chi vào ngày mùng 1 hàng tháng theo danh sách CBNV tại thời điểm đó.",
+              "start_index": 208,
+              "end_index": 211,
+              "text": "### 13. Hỗ trợ ăn chiều\n**150.000 đồng/người/tháng** (cho NLĐ đã ký HĐLĐ chính thức và thử việc)\n*Chi vào ngày mùng 1 hàng tháng theo danh sách CBNV tại thời điểm đó*",
+              "nodes": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
