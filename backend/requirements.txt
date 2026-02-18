@@ -25,5 +25,8 @@ python-dotenv>=1.0.0
 # --- Google AI (Gemini) ---
 google-generativeai>=0.8.0
 
+# --- AI Memory Layer (Mem0) ---
+mem0ai>=1.0.0
+
 # --- Logging & Utilities ---
 colorama>=0.4.6

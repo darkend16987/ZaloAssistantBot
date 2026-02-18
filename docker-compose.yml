@@ -1,4 +1,14 @@
 services:
+  qdrant:
+    image: qdrant/qdrant:latest
+    restart: always
+    ports:
+      - "6333:6333"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    networks:
+      - zalo-net
+
   backend:
     build:
       # Chỉ định rõ ràng thư mục build context
@@ -9,6 +19,8 @@ services:
       - "5000:5000"
     env_file:
       - ./backend/.env
+    depends_on:
+      - qdrant
     volumes:
       # Đồng bộ code từ máy thật vào container để dev cho tiện
       - ./backend:/app
@@ -37,6 +49,10 @@ services:
     command: node index.js
     networks:
       - zalo-net
+      
+# ✅ Volume cho Qdrant (lưu trữ memory vectors)
+volumes:
+  qdrant_data:
 
 # ✅ Định nghĩa một mạng riêng cho các service giao tiếp với nhau
 networks:
