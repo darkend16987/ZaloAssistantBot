@@ -20,6 +20,7 @@ from app.mcp.providers.oneoffice_provider import OneOfficeProvider
 from app.mcp.providers.birthday_provider import BirthdayProvider
 from app.mcp.providers.enhanced_regulations_provider import EnhancedRegulationsProvider
 from app.mcp.tools import register_all_tools
+from app.services.memory import memory_service
 
 from app.core.logging import logger
 
@@ -70,7 +71,12 @@ async def bootstrap_mcp() -> None:
     logger.info("Initializing agent...")
     await agent.initialize()
 
-    # Step 6: Initialize MCP server
+    # Step 6: Initialize memory service (Mem0 + Qdrant)
+    logger.info("Initializing memory service...")
+    mem0_ok = await memory_service.initialize()
+    logger.info(f"  {'✅' if mem0_ok else '⚠️'} Memory service: {'initialized' if mem0_ok else 'unavailable (system will work without it)'}")
+
+    # Step 7: Initialize MCP server
     logger.info("Initializing MCP server...")
     await mcp_server.initialize()
 
@@ -78,6 +84,7 @@ async def bootstrap_mcp() -> None:
     logger.info(f"   - Providers: {provider_registry.count}")
     logger.info(f"   - Tools: {tool_registry.count}")
     logger.info(f"   - Prompts: {prompt_manager.count}")
+    logger.info(f"   - Memory: {'enabled' if mem0_ok else 'disabled'}")
 
 
 async def shutdown_mcp() -> None:
@@ -102,5 +109,6 @@ def get_system_status() -> dict:
         "tools_categories": tool_registry.categories,
         "prompts_count": prompt_manager.count,
         "agent_initialized": agent._initialized,
-        "mcp_server_initialized": mcp_server.is_initialized
+        "mcp_server_initialized": mcp_server.is_initialized,
+        "memory_available": memory_service.is_available,
     }

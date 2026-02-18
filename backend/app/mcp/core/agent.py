@@ -13,6 +13,7 @@ giúp việc gọi tools chính xác và đáng tin cậy hơn.
 """
 
 import json
+import asyncio
 from typing import Dict, List, Optional, Any, Tuple
 from datetime import datetime, timedelta
 from dataclasses import dataclass, field
@@ -29,6 +30,7 @@ from app.core.sessions import (
     get_session, update_session,
     add_to_conversation_history, get_conversation_history
 )
+from app.services.memory import memory_service
 from app.core.logging import logger
 
 
@@ -51,6 +53,7 @@ class AgentContext:
     tasks_context: List[Dict] = field(default_factory=list)
     last_task_ids: List[int] = field(default_factory=list)
     conversation_history: List[Dict] = field(default_factory=list)
+    memories: List[Dict] = field(default_factory=list)
     metadata: Dict[str, Any] = field(default_factory=dict)
 
 
@@ -333,6 +336,13 @@ Bạn có thể được cung cấp LỊCH SỬ HỘI THOẠI GẦN ĐÂY. Hãy 
         # Build conversation messages including history
         messages = [system_prompt]
 
+        # Add long-term memories from Mem0 (semantic search results)
+        if context.memories:
+            messages.append("\n### THÔNG TIN ĐÃ NHỚ VỀ NGƯỜI DÙNG ###")
+            for mem in context.memories:
+                messages.append(f"- {mem['memory']}")
+            messages.append("### KẾT THÚC THÔNG TIN NHỚ ###\n")
+
         # Add conversation history for context continuity
         if context.conversation_history:
             messages.append("\n### LỊCH SỬ HỘI THOẠI GẦN ĐÂY ###")
@@ -365,6 +375,15 @@ Bạn có thể được cung cấp LỊCH SỬ HỘI THOẠI GẦN ĐÂY. Hãy 
                 assistant_response=agent_response.message
             )
 
+            # Store in long-term memory (fire-and-forget, không block response)
+            asyncio.create_task(
+                memory_service.add(
+                    user_id=context.user_id,
+                    user_message=message,
+                    assistant_response=agent_response.message
+                )
+            )
+
             return agent_response
 
         except Exception as e:
@@ -379,20 +398,34 @@ Bạn có thể được cung cấp LỊCH SỬ HỘI THOẠI GẦN ĐÂY. Hãy 
         user_id: str,
         message: str
     ) -> AgentContext:
-        """Build agent context with session, tasks data, and conversation history"""
+        """Build agent context with session, tasks data, conversation history, and memories"""
         # Get session
         session_data = get_session(user_id)
 
         # Get conversation history
         conversation_history = get_conversation_history(user_id)
 
-        # Get tasks for context
+        # Get tasks for context and search memories in parallel
         tasks_context = []
-        oneoffice = self._provider_registry.get("oneoffice")
-        if oneoffice and oneoffice.is_available:
-            tasks_data = await oneoffice.get_tasks()
-            if tasks_data:
-                tasks_context = tasks_data.get("data", [])
+        memories = []
+
+        async def fetch_tasks():
+            nonlocal tasks_context
+            oneoffice = self._provider_registry.get("oneoffice")
+            if oneoffice and oneoffice.is_available:
+                tasks_data = await oneoffice.get_tasks()
+                if tasks_data:
+                    tasks_context = tasks_data.get("data", [])
+
+        async def fetch_memories():
+            nonlocal memories
+            memories = await memory_service.search(
+                user_id=user_id,
+                query=message,
+                limit=5
+            )
+
+        await asyncio.gather(fetch_tasks(), fetch_memories())
 
         return AgentContext(
             user_id=user_id,
@@ -400,7 +433,8 @@ Bạn có thể được cung cấp LỊCH SỬ HỘI THOẠI GẦN ĐÂY. Hãy 
             session_data=session_data,
             tasks_context=tasks_context,
             last_task_ids=session_data.get('last_interaction_task_ids', []),
-            conversation_history=conversation_history
+            conversation_history=conversation_history,
+            memories=memories
         )
 
     async def _process_gemini_response(

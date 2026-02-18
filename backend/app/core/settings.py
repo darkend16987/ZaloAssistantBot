@@ -35,6 +35,11 @@ class Settings(BaseSettings):
     GEMINI_MODEL: str = "gemini-2.5-flash"  # Model for agent/intent (e.g. gemini-2.5-flash, gemini-2.5-pro)
     GEMINI_KNOWLEDGE_MODEL: str = ""  # Model for knowledge synthesis (defaults to GEMINI_MODEL if empty). Use a stronger model here for better reasoning on complex questions.
 
+    # --- Mem0 Memory Settings ---
+    MEM0_ENABLED: bool = True  # Enable/disable long-term memory
+    QDRANT_HOST: str = "qdrant"  # Docker service name
+    QDRANT_PORT: int = 6333
+
     # Pydantic V2 Config
     model_config = SettingsConfigDict(
         env_file=".env",
