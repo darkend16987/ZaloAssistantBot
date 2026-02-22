@@ -243,18 +243,28 @@ class RegulationsProvider(BaseKnowledgeProvider):
         query_lower = query.lower()
         scored_chunks: List[Tuple[KnowledgeChunk, float]] = []
 
-        # Step 1: Check query mappings (highest priority)
-        mapped_docs = self._get_mapped_documents(query_lower)
+        # Step 1: Check query mappings (returns doc_id -> [section_ids])
+        mapped_sections = self._get_mapped_sections(query_lower)
 
         # Step 2: Check keyword matches
         keyword_docs = self._get_keyword_matched_documents(query_lower)
 
         # Combine and dedupe
-        relevant_doc_ids = list(set(mapped_docs + keyword_docs))
+        relevant_doc_ids = list(set(list(mapped_sections.keys()) + keyword_docs))
 
         # If no matches, search all documents
         if not relevant_doc_ids:
             relevant_doc_ids = list(self._documents.keys())
+
+        # Build section-to-articles lookup for section-aware scoring
+        section_articles: Dict[str, List] = {}
+        for doc_id in relevant_doc_ids:
+            doc = self._documents.get(doc_id)
+            if not doc:
+                continue
+            for sec in doc.sections:
+                key = f"{doc_id}#{sec['id']}"
+                section_articles[key] = [str(a) for a in sec.get("articles", [])]
 
         # Step 3: Search chunks in relevant documents
         for doc_id in relevant_doc_ids:
@@ -267,12 +277,20 @@ class RegulationsProvider(BaseKnowledgeProvider):
                 if filters.get("doc_id") and filters["doc_id"] != doc_id:
                     continue
 
+            target_sections = mapped_sections.get(doc_id, [])
+
             for chunk in doc.chunks:
+                # Check if this chunk belongs to a mapped section
+                chunk_in_target_section = self._chunk_matches_section(
+                    chunk, doc_id, target_sections, section_articles
+                )
+
                 score = self._calculate_relevance_score(
                     query_lower,
                     chunk,
-                    doc_id in mapped_docs,
-                    doc_id in keyword_docs
+                    doc_id in mapped_sections,
+                    doc_id in keyword_docs,
+                    chunk_in_target_section
                 )
 
                 if score > 0:
@@ -300,17 +318,51 @@ class RegulationsProvider(BaseKnowledgeProvider):
             total_found=len(scored_chunks)
         )
 
-    def _get_mapped_documents(self, query: str) -> List[str]:
-        """Get documents from query mappings"""
-        matched = []
+    def _get_mapped_sections(self, query: str) -> Dict[str, List[str]]:
+        """
+        Get documents AND their target sections from query mappings.
+
+        Returns:
+            Dict mapping doc_id -> list of matched section_ids.
+            Example: {"noi_quy_lao_dong": ["nghi_viec", "nghi_phep"]}
+        """
+        matched: Dict[str, List[str]] = {}
         for mapping_key, doc_refs in self._query_mappings.items():
             if mapping_key in query:
                 for ref in doc_refs:
-                    # Handle section references like "noi_quy_lao_dong#nghi_phep"
-                    doc_id = ref.split('#')[0]
+                    parts = ref.split('#', 1)
+                    doc_id = parts[0]
+                    section_id = parts[1] if len(parts) > 1 else None
                     if doc_id not in matched:
-                        matched.append(doc_id)
+                        matched[doc_id] = []
+                    if section_id and section_id not in matched[doc_id]:
+                        matched[doc_id].append(section_id)
         return matched
+
+    def _chunk_matches_section(
+        self,
+        chunk: Dict[str, Any],
+        doc_id: str,
+        target_sections: List[str],
+        section_articles: Dict[str, List]
+    ) -> bool:
+        """Check if a chunk belongs to one of the target sections."""
+        if not target_sections:
+            return False
+
+        chunk_title = chunk.get("title", "")
+        # Extract article number from chunk title (e.g. "Điều 11: ..." → "11")
+        article_match = re.search(r'Điều\s+(\d+)', chunk_title)
+        if not article_match:
+            return False
+        article_num = article_match.group(1)
+
+        for section_id in target_sections:
+            key = f"{doc_id}#{section_id}"
+            articles = section_articles.get(key, [])
+            if article_num in articles:
+                return True
+        return False
 
     def _get_keyword_matched_documents(self, query: str) -> List[str]:
         """Get documents that have matching keywords"""
@@ -324,54 +376,87 @@ class RegulationsProvider(BaseKnowledgeProvider):
 
         return list(set(matched))
 
+    @staticmethod
+    def _get_bigrams(words: List[str]) -> List[str]:
+        """Generate bigrams from word list: ['a','b','c'] → ['a b', 'b c']"""
+        return [f"{words[i]} {words[i+1]}" for i in range(len(words) - 1)]
+
     def _calculate_relevance_score(
         self,
         query: str,
         chunk: Dict[str, Any],
         is_mapped: bool,
-        has_keyword: bool
+        has_keyword: bool,
+        in_target_section: bool = False
     ) -> float:
         """
         Calculate relevance score for a chunk.
 
-        Scoring factors:
-        - Query mapping match: +0.3
-        - Keyword match: +0.2
-        - Title match: +0.2
-        - Content match (word overlap): 0-0.3
+        Scoring factors (max 1.0):
+        - Target section match: +0.35  (chunk is in the exact mapped section)
+        - Query mapping match: +0.15   (document matched via query_mappings)
+        - Keyword match: +0.10         (document matched via keywords)
+        - Title bigram/word match: 0-0.15
+        - Content bigram/word match: 0-0.20
+        - Exact phrase in content: +0.05
         """
         score = 0.0
 
-        # Bonus for mapped documents
+        # Highest priority: chunk is in the exact target section
+        if in_target_section:
+            score += 0.35
+
+        # Bonus for mapped documents (lower than before since section boost exists)
         if is_mapped:
-            score += 0.3
+            score += 0.15
 
         # Bonus for keyword matched documents
         if has_keyword:
-            score += 0.2
+            score += 0.10
 
-        query_words = set(query.lower().split())
+        query_lower = query.lower()
+        query_word_list = query_lower.split()
+        query_words = set(query_word_list)
+        query_bigrams = set(self._get_bigrams(query_word_list))
 
-        # Check title match
+        # --- Title matching (bigrams + words) ---
         title_lower = chunk["title"].lower()
-        title_words = set(title_lower.split())
-        title_overlap = len(query_words & title_words) / len(query_words) if query_words else 0
-        score += title_overlap * 0.2
+        title_word_list = title_lower.split()
+        title_words = set(title_word_list)
+        title_bigrams = set(self._get_bigrams(title_word_list))
 
-        # Check content match (simple word overlap)
+        # Bigram overlap in title (stronger signal)
+        if query_bigrams and title_bigrams:
+            bigram_overlap = len(query_bigrams & title_bigrams)
+            if bigram_overlap > 0:
+                score += min(bigram_overlap / len(query_bigrams), 1.0) * 0.10
+
+        # Word overlap in title
+        if query_words:
+            title_overlap = len(query_words & title_words) / len(query_words)
+            score += title_overlap * 0.05
+
+        # --- Content matching (bigrams + words) ---
         content_lower = chunk["content"].lower()
-        content_words = set(content_lower.split())
+        content_word_list = content_lower.split()
+        content_words = set(content_word_list)
+        content_bigrams = set(self._get_bigrams(content_word_list))
 
-        # Word overlap
-        overlap = len(query_words & content_words)
-        if overlap > 0:
-            # Normalize by query length
-            content_score = min(overlap / len(query_words), 1.0) * 0.3
-            score += content_score
+        # Bigram overlap in content (stronger than single words)
+        if query_bigrams and content_bigrams:
+            bigram_overlap = len(query_bigrams & content_bigrams)
+            if bigram_overlap > 0:
+                score += min(bigram_overlap / len(query_bigrams), 1.0) * 0.10
 
-        # Check for exact phrase match (bonus)
-        if query.lower() in content_lower:
-            score += 0.1
+        # Word overlap in content
+        if query_words:
+            word_overlap = len(query_words & content_words)
+            if word_overlap > 0:
+                score += min(word_overlap / len(query_words), 1.0) * 0.10
+
+        # Exact phrase match bonus
+        if query_lower in content_lower:
+            score += 0.05
 
         return min(score, 1.0)
 

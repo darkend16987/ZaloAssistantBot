@@ -37,6 +37,7 @@ SỬ DỤNG KHI người dùng hỏi về:
 - Thời gian làm việc, giờ làm việc, đi muộn, về sớm
 - Nghỉ phép, phép năm, nghỉ lễ, nghỉ tết
 - Nghỉ ốm, thai sản, nghỉ việc riêng
+- Nghỉ việc, chấm dứt hợp đồng, thủ tục nghỉ việc, bàn giao
 - Quy định về du lịch, hỗ trợ du lịch
 - Vay tiền, quỹ hỗ trợ cho vay
 - Công tác phí, định mức chi phí
@@ -88,8 +89,8 @@ VÍ DỤ:
             if document_type:
                 filters = {"doc_id": document_type}
 
-            # Get retrieval result - INCREASED to top 3 for better context
-            result = await provider.retrieve(query, top_k=3, filters=filters)
+            # Get retrieval result - top 5 for comprehensive context
+            result = await provider.retrieve(query, top_k=5, filters=filters)
 
             if not result.chunks:
                 return ToolResult(
