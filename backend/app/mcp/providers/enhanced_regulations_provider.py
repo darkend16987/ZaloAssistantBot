@@ -170,12 +170,15 @@ class EnhancedRegulationsProvider(BaseKnowledgeProvider):
                 logger.warning(f"Tree retrieval failed, skipping: {e}")
 
         # Strategy 3: Legacy keyword (always available)
-        legacy_result = await self._legacy.retrieve(query, top_k=2, filters=filters)
+        # Legacy chunks contain full markdown sections with headers and grouping,
+        # which provides better context than fragmented entity chunks.
+        legacy_result = await self._legacy.retrieve(query, top_k=3, filters=filters)
         for chunk in legacy_result.chunks:
-            # Lower score for legacy to prefer enhanced results
-            # But only if we actually got enhanced results
+            # Slight penalty to prefer enhanced results when available,
+            # but keep it modest so legacy chunks survive deduplication
+            # when they provide richer context.
             if all_chunks:
-                chunk.score *= 0.7
+                chunk.score *= 0.85
             all_chunks.append(chunk)
 
         # Deduplicate by content similarity
@@ -431,13 +434,14 @@ Chỉ trả về JSON array, không thêm text khác. Nếu không tìm thấy n
         """
         Remove near-duplicate chunks by content overlap.
 
-        If two chunks have >60% word overlap, keep the higher-scored one.
+        When two chunks overlap >60%, keep the LONGER one (more complete context).
+        Between equal-length chunks, keep the higher-scored one.
         """
         if len(chunks) <= 1:
             return chunks
 
-        # Sort by score descending so we keep higher-scored chunks
-        chunks.sort(key=lambda c: c.score, reverse=True)
+        # Sort by (content length DESC, score DESC) so longer chunks are preferred
+        chunks.sort(key=lambda c: (len(c.content), c.score), reverse=True)
 
         result = []
         for chunk in chunks:
@@ -449,8 +453,9 @@ Chỉ trả về JSON array, không thêm text khác. Nếu không tìm thấy n
                 if not chunk_words or not existing_words:
                     continue
                 overlap = len(chunk_words & existing_words)
-                max_len = max(len(chunk_words), len(existing_words))
-                if overlap / max_len > 0.6:
+                smaller_len = min(len(chunk_words), len(existing_words))
+                # Check if the SMALLER chunk is mostly contained in the larger one
+                if smaller_len > 0 and overlap / smaller_len > 0.6:
                     is_duplicate = True
                     break
 

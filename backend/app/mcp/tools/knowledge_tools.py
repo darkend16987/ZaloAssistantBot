@@ -135,6 +135,10 @@ VÍ DỤ:
 - Trả lời trực tiếp câu hỏi trước, sau đó giải thích
 - Nếu có ví dụ minh họa trong Context phù hợp với tình huống, hãy sử dụng
 
+### QUY TẮC QUAN TRỌNG ###
+- **ĐẦY ĐỦ**: Nếu Context có NHIỀU trường hợp/tình huống khác nhau (ví dụ: sinh thường, sinh mổ, sinh đôi...), bạn PHẢI liệt kê TẤT CẢ các trường hợp. KHÔNG được chỉ nêu 1-2 trường hợp rồi bỏ qua phần còn lại.
+- **CHÍNH XÁC**: Ghi đúng con số, thời gian, điều kiện từ Context. Không làm tròn, không ước lượng.
+
 ### YÊU CẦU ĐỊNH DẠNG ###
 1.  **Độ dài**: BẮT BUỘC dưới 1500 ký tự. Nếu nội dung quá dài, hãy tóm tắt những ý chính quan trọng nhất.
 2.  **Trả lời trực tiếp**: Đi thẳng vào vấn đề, nêu con số/kết luận ngay đầu.
