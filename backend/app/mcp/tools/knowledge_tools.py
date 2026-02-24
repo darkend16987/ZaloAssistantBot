@@ -89,8 +89,9 @@ VÍ DỤ:
             if document_type:
                 filters = {"doc_id": document_type}
 
-            # Get retrieval result - top 5 for comprehensive context
-            result = await provider.retrieve(query, top_k=5, filters=filters)
+            # Retrieve generously - let LLM intelligence filter what's relevant.
+            # This is more robust than trying to perfectly rank with keyword scoring.
+            result = await provider.retrieve(query, top_k=10, filters=filters)
 
             if not result.chunks:
                 return ToolResult(
@@ -103,7 +104,7 @@ VÍ DỤ:
             context_parts = []
             for i, chunk in enumerate(result.chunks, 1):
                 context_parts.append(f"--- ĐOẠN {i} (Nguồn: {chunk.source}) ---\n{chunk.content}")
-            
+
             full_context = "\n\n".join(context_parts)
 
             # Call Gemini to synthesize answer
@@ -114,6 +115,8 @@ VÍ DỤ:
                 prompt = f"""Bạn là trợ lý AI nội bộ của công ty. Nhiệm vụ của bạn là trả lời câu hỏi của nhân viên dựa trên các quy định được cung cấp dưới đây.
 
 ### THÔNG TIN QUY ĐỊNH (CONTEXT) ###
+Context dưới đây chứa nhiều đoạn trích từ các quy định khác nhau. Một số đoạn có thể KHÔNG liên quan đến câu hỏi - đó là bình thường. Bạn cần TỰ XÁC ĐỊNH đoạn nào liên quan và chỉ sử dụng những đoạn đó.
+
 {full_context}
 
 ### CÂU HỎI CỦA NHÂN VIÊN ###
@@ -121,23 +124,29 @@ VÍ DỤ:
 
 ### PHƯƠNG PHÁP TRẢ LỜI ###
 
-**Bước 1 - Phân tích câu hỏi:**
+**Bước 1 - Lọc thông tin:**
+- Đọc tất cả các đoạn Context trên
+- Xác định đoạn nào THỰC SỰ liên quan đến câu hỏi, BỎ QUA đoạn không liên quan
+- Nếu không có đoạn nào liên quan, trả lời rằng không tìm thấy thông tin
+
+**Bước 2 - Phân tích câu hỏi:**
 - Xác định chính xác nhân viên đang hỏi gì (hỏi về tháng cụ thể hay cả năm? hỏi số ngày khả dụng hay tổng tích lũy?)
 - Nếu hỏi "tháng X có bao nhiêu ngày phép" → trả lời số phép **khả dụng TRONG tháng X**, KHÔNG phải tổng phép từ tháng X đến hết năm
 
-**Bước 2 - Suy luận từng bước (đối với câu hỏi tính toán):**
+**Bước 3 - Suy luận từng bước (đối với câu hỏi tính toán):**
 - Liệt kê các quy định liên quan từ Context
 - Nếu có nhiều quy định liên quan, kết hợp chúng một cách logic
 - Đặc biệt chú ý: thời gian thử việc, cơ chế tích lũy theo tháng, thời điểm cộng phép
 - Tính toán từng bước và ghi rõ cách tính
 
-**Bước 3 - Đưa ra câu trả lời:**
+**Bước 4 - Đưa ra câu trả lời:**
 - Trả lời trực tiếp câu hỏi trước, sau đó giải thích
 - Nếu có ví dụ minh họa trong Context phù hợp với tình huống, hãy sử dụng
 
 ### QUY TẮC QUAN TRỌNG ###
 - **ĐẦY ĐỦ**: Nếu Context có NHIỀU trường hợp/tình huống khác nhau (ví dụ: sinh thường, sinh mổ, sinh đôi...), bạn PHẢI liệt kê TẤT CẢ các trường hợp. KHÔNG được chỉ nêu 1-2 trường hợp rồi bỏ qua phần còn lại.
 - **CHÍNH XÁC**: Ghi đúng con số, thời gian, điều kiện từ Context. Không làm tròn, không ước lượng.
+- **CHỌN LỌC**: Chỉ dùng thông tin từ các đoạn liên quan. Bỏ qua đoạn không liên quan đến câu hỏi.
 
 ### YÊU CẦU ĐỊNH DẠNG ###
 1.  **Độ dài**: BẮT BUỘC dưới 1500 ký tự. Nếu nội dung quá dài, hãy tóm tắt những ý chính quan trọng nhất.
@@ -151,7 +160,7 @@ HÃY TRẢ LỜI NGAY DƯỚI ĐÂY:
                 # Call Gemini with knowledge model (may use stronger model for reasoning)
                 response = await knowledge_model.generate_content_async(prompt)
                 final_answer = response.text.strip()
-                
+
             except Exception as llm_error:
                 logger.error(f"Error calling Gemini for synthesis: {llm_error}")
                 # Fallback to raw chunks if LLM fails

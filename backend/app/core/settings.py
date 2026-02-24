@@ -32,8 +32,8 @@ class Settings(BaseSettings):
     USE_MCP_AGENT: bool = True  # Set to True to use new MCP agent, False for legacy
 
     # --- LLM Model Settings ---
-    GEMINI_MODEL: str = "gemini-2.5-flash"  # Model for agent/intent (e.g. gemini-2.5-flash, gemini-2.5-pro)
-    GEMINI_KNOWLEDGE_MODEL: str = ""  # Model for knowledge synthesis (defaults to GEMINI_MODEL if empty). Use a stronger model here for better reasoning on complex questions.
+    GEMINI_MODEL: str = "gemini-3-flash-preview"  # Model for agent/intent (gemini-2.5-flash deprecated June 2026)
+    GEMINI_KNOWLEDGE_MODEL: str = "gemini-2.5-flash"  # Model for knowledge synthesis (stable, better for structured reasoning)
 
     # --- Mem0 Memory Settings ---
     MEM0_ENABLED: bool = True  # Enable/disable long-term memory

@@ -236,8 +236,6 @@ class EnhancedRegulationsProvider(BaseKnowledgeProvider):
         scored_entities.sort(key=lambda x: x[1], reverse=True)
         return [chunk for chunk, _ in scored_entities[:max_entities]]
 
-        return chunks
-
     def _score_entity(
         self, query: str, query_words: set, entity: dict
     ) -> float:
