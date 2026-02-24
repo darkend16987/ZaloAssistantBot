@@ -154,34 +154,33 @@ class EnhancedRegulationsProvider(BaseKnowledgeProvider):
         if not self._has_trees and not self._has_entities:
             return await self._legacy.retrieve(query, top_k, filters)
 
-        all_chunks: List[KnowledgeChunk] = []
+        # Strategy 1: Legacy keyword (section-aware, always available)
+        # Legacy chunks contain full markdown sections with headers and grouping,
+        # providing the most complete context for LLM synthesis.
+        # Run FIRST because these are highest quality for answer generation.
+        legacy_result = await self._legacy.retrieve(query, top_k=3, filters=filters)
+        legacy_chunks = list(legacy_result.chunks)
 
-        # Strategy 1: Entity lookup (instant, no LLM)
+        # Strategy 2: Entity lookup (instant, no LLM)
+        # Entities add structured details that may supplement legacy chunks.
+        entity_chunks: List[KnowledgeChunk] = []
         if self._has_entities:
-            entity_chunks = self._entity_lookup(query, filters)
-            all_chunks.extend(entity_chunks)
+            entity_chunks = self._entity_lookup(query, filters, max_entities=8)
 
-        # Strategy 2: Tree reasoning (1 LLM call)
+        # Strategy 3: Tree reasoning (1 LLM call)
+        tree_chunks: List[KnowledgeChunk] = []
         if self._has_trees:
             try:
                 tree_chunks = await self._tree_retrieve(query, filters)
-                all_chunks.extend(tree_chunks)
             except Exception as e:
                 logger.warning(f"Tree retrieval failed, skipping: {e}")
 
-        # Strategy 3: Legacy keyword (always available)
-        # Legacy chunks contain full markdown sections with headers and grouping,
-        # which provides better context than fragmented entity chunks.
-        legacy_result = await self._legacy.retrieve(query, top_k=3, filters=filters)
-        for chunk in legacy_result.chunks:
-            # Slight penalty to prefer enhanced results when available,
-            # but keep it modest so legacy chunks survive deduplication
-            # when they provide richer context.
-            if all_chunks:
-                chunk.score *= 0.85
-            all_chunks.append(chunk)
+        # Merge strategy: legacy chunks are primary, enhanced chunks supplement.
+        # Legacy chunks are never penalized - they provide the most coherent context.
+        # Entity/tree chunks that overlap with legacy are removed (legacy is more complete).
+        all_chunks = legacy_chunks + tree_chunks + entity_chunks
 
-        # Deduplicate by content similarity
+        # Deduplicate: longer chunks (legacy) survive, shorter fragments removed
         all_chunks = self._deduplicate_chunks(all_chunks)
 
         # Sort by score and limit
@@ -198,17 +197,19 @@ class EnhancedRegulationsProvider(BaseKnowledgeProvider):
     # ===================================================================
 
     def _entity_lookup(
-        self, query: str, filters: Optional[Dict] = None
+        self, query: str, filters: Optional[Dict] = None,
+        max_entities: int = 8
     ) -> List[KnowledgeChunk]:
         """
         Fast entity-based lookup.
 
         Matches query against pre-extracted structured entities.
         No LLM call needed - pure text matching on attributes.
+        Returns at most max_entities to prevent flooding results.
         """
         query_lower = query.lower()
         query_words = set(query_lower.split())
-        chunks = []
+        scored_entities = []
 
         for doc_id, entities in self._entities.items():
             if filters and filters.get("doc_id") and filters["doc_id"] != doc_id:
@@ -218,7 +219,7 @@ class EnhancedRegulationsProvider(BaseKnowledgeProvider):
                 score = self._score_entity(query_lower, query_words, entity)
                 if score > 0.3:
                     content = self._format_entity_as_context(entity)
-                    chunks.append(KnowledgeChunk(
+                    chunk = KnowledgeChunk(
                         content=content,
                         source=f"Quy định (structured) - {entity.get('class', 'Rule')}",
                         metadata={
@@ -228,7 +229,12 @@ class EnhancedRegulationsProvider(BaseKnowledgeProvider):
                             "source_type": "entity_lookup",
                         },
                         score=score
-                    ))
+                    )
+                    scored_entities.append((chunk, score))
+
+        # Only return top max_entities to avoid flooding
+        scored_entities.sort(key=lambda x: x[1], reverse=True)
+        return [chunk for chunk, _ in scored_entities[:max_entities]]
 
         return chunks
 
