@@ -330,6 +330,15 @@ Bạn có thể được cung cấp LỊCH SỬ HỘI THOẠI GẦN ĐÂY. Hãy 
         if context.session_data.get('pending_tasks_queue'):
             return await self._handle_pending_task(context)
 
+        # Handle direct shortcuts
+        if message.lower() == "/bd":
+            result = await self._tool_registry.execute("get_birthdays", week="this")
+            return AgentResponse(message=result.data, success=result.success)
+        
+        if message.lower() == "/bdn":
+            result = await self._tool_registry.execute("get_birthdays", week="next")
+            return AgentResponse(message=result.data, success=result.success)
+
         # Build system prompt
         system_prompt = self._build_system_prompt(context)
 

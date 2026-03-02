@@ -278,6 +278,14 @@ async def process_user_request(user_id: str, user_message: str, http_session: ai
         if new_ids: update_session(user_id, {'last_interaction_task_ids': new_ids})
         return response
 
+    if user_message.lower() == "/bd":
+        response, _ = await get_birthdays_flow(user_id, {"period": "this_week"}, http_session)
+        return response
+
+    if user_message.lower() == "/bdn":
+        response, _ = await get_birthdays_flow(user_id, {"period": "next_week"}, http_session)
+        return response
+
     tasks_raw_data = await oneoffice.get_tasks_data(http_session)
     tasks_list = tasks_raw_data.get("data", []) if tasks_raw_data else []
     last_task_ids = session.get('last_interaction_task_ids')

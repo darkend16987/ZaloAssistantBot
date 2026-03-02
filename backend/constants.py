@@ -21,6 +21,8 @@ HELP_TEXT = """
 *Các lệnh bạn có thể dùng:*
 `/start` - Khởi động lại bot
 `/tasks` - Xem các công việc đang làm
+`/bd` - Xem sinh nhật tuần này
+`/bdn` - Xem sinh nhật tuần sau
 `/help` - Xem tin nhắn này
 `/set_reminders HH:MM HH:MM...` - Đặt lịch nhắc nhở cá nhân
 `/clear_reminders` - Xóa lịch nhắc nhở cá nhân
