@@ -153,3 +153,110 @@ async def check_deadline_reminders(app_session=None):
         logger.info(f"Scheduler (Urgent Reminder): Sent warnings for {len(tasks_to_remind)} tasks.")
     finally:
         if is_local_session: await session.close()
+
+
+# ==========================================
+# YEARLY TASK SCHEDULER NOTIFICATIONS
+# ==========================================
+
+async def check_yearly_task_notifications():
+    """
+    Kiểm tra và gửi notification cho các yearly tasks cần nhắc hôm nay.
+    Chạy mỗi ngày lúc 8:30 sáng.
+    """
+    from app.services.yearly_scheduler import get_tasks_needing_notification
+    from app.core.sessions import add_to_conversation_history
+
+    logger.info("📅 Scheduler (Yearly): Checking for tasks needing notification...")
+
+    tasks = get_tasks_needing_notification()
+    if not tasks:
+        logger.info("📅 Scheduler (Yearly): No tasks need notification today.")
+        return
+
+    yearly_provider = provider_registry.get("yearly_schedule")
+
+    for task in tasks:
+        rd = task.get("resolved_date")
+        dl = task.get("resolved_deadline")
+
+        date_str = rd.strftime("%d/%m/%Y") if rd else "N/A"
+        dl_str = dl.strftime("%d/%m/%Y") if dl else "N/A"
+
+        from datetime import date as date_type
+        days_left = (rd - date_type.today()).days if rd else 0
+
+        msg = (
+            f"📋 *Đã đến lịch công việc theo năm:*\n\n"
+            f"📌 *{task['title']}*\n"
+            f"📝 {task.get('description', '')}\n"
+            f"📆 Ngày thực hiện: {date_str} (còn {days_left} ngày)\n"
+            f"⏰ Deadline: {dl_str}\n"
+        )
+
+        assignees = task.get("assignees", [])
+        if assignees:
+            msg += f"👤 Người thực hiện: {', '.join(assignees)}\n"
+
+        template = task.get("template", {})
+        if template.get("content"):
+            msg += f"\n📄 Nội dung: {template['content']}\n"
+        if template.get("link"):
+            msg += f"🔗 Tài liệu: {template['link']}\n"
+
+        msg += (
+            f"\n🆔 ID: `{task['id']}`\n"
+            f"\n👉 Trả lời *xác nhận tạo {task['id']}* để tạo công việc trên 1Office"
+            f"\n👉 Hoặc *bỏ qua {task['id']}* để bỏ qua"
+        )
+
+        await zalo.send_zalo_message(msg, settings.MY_ZALO_ID)
+
+        add_to_conversation_history(
+            user_id=settings.MY_ZALO_ID,
+            user_message="[Hệ thống nhắc lịch công việc năm]",
+            assistant_response=msg,
+        )
+
+        if yearly_provider:
+            yearly_provider.mark_task_notified(task["id"])
+
+        logger.info(f"📅 Scheduler (Yearly): Sent notification for {task['id']}: {task['title']}")
+
+    logger.info(f"📅 Scheduler (Yearly): Notified {len(tasks)} tasks.")
+
+
+async def check_yearly_deadline_reminders():
+    """
+    Kiểm tra yearly tasks sắp đến deadline (đã tạo trên 1Office).
+    Chạy mỗi ngày lúc 15:00.
+    """
+    from app.services.yearly_scheduler import get_tasks_near_deadline
+
+    logger.info("📅 Scheduler (Yearly Deadline): Checking for approaching deadlines...")
+
+    tasks = get_tasks_near_deadline(hours=48)
+    if not tasks:
+        logger.info("📅 Scheduler (Yearly Deadline): No yearly tasks near deadline.")
+        return
+
+    for task in tasks:
+        dl = task.get("resolved_deadline")
+        dl_str = dl.strftime("%d/%m/%Y") if dl else "N/A"
+        state = task.get("state", {})
+        oo_id = state.get("oneoffice_task_id", "N/A")
+
+        from datetime import date as date_type
+        days_left = (dl - date_type.today()).days if dl else 0
+
+        msg = (
+            f"⚠️ *Nhắc deadline công việc theo lịch năm:*\n\n"
+            f"📌 *{task['title']}*\n"
+            f"⏰ Deadline: {dl_str} (còn {days_left} ngày)\n"
+            f"🔹 1Office ID: `{oo_id}`\n"
+            f"🆔 Yearly ID: `{task['id']}`\n"
+            f"\n👉 Trả lời *hoàn thành {task['id']}* nếu đã xong"
+        )
+
+        await zalo.send_zalo_message(msg, settings.MY_ZALO_ID)
+        logger.info(f"📅 Scheduler (Yearly Deadline): Reminder for {task['id']}: {task['title']}")

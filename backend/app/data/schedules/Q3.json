@@ -1,0 +1,65 @@
+{
+  "quarter": "Q3",
+  "description": "Quý 3: Tháng 7 - Tháng 9",
+  "tasks": [
+    {
+      "id": "Q3-001",
+      "title": "Chuẩn bị Tết Trung Thu",
+      "description": "Lên kế hoạch hoạt động và quà Tết Trung Thu",
+      "time": {
+        "type": "relative",
+        "anchor": "tet_trung_thu",
+        "offset_days": -21,
+        "remind_before_days": 3
+      },
+      "deadline": {
+        "type": "relative",
+        "anchor": "tet_trung_thu",
+        "offset_days": -5
+      },
+      "assignees": [],
+      "template": {
+        "content": "Chuẩn bị Trung Thu: mua bánh, quà cho con em nhân viên, tổ chức hoạt động vui chơi.",
+        "link": null
+      }
+    },
+    {
+      "id": "Q3-002",
+      "title": "Chuẩn bị hoạt động Quốc Khánh 2/9",
+      "description": "Kế hoạch nghỉ lễ và hoạt động kỷ niệm Quốc Khánh",
+      "time": {
+        "type": "fixed",
+        "date": "25/08",
+        "remind_before_days": 3
+      },
+      "deadline": {
+        "type": "fixed",
+        "date": "31/08"
+      },
+      "assignees": [],
+      "template": {
+        "content": "Thông báo lịch nghỉ lễ Quốc Khánh 2/9. Phân công trực, hoạt động kỷ niệm nếu có.",
+        "link": null
+      }
+    },
+    {
+      "id": "Q3-003",
+      "title": "Review và điều chỉnh KPI Quý 3",
+      "description": "Đánh giá tiến độ KPI và điều chỉnh kế hoạch cuối năm",
+      "time": {
+        "type": "fixed",
+        "date": "15/09",
+        "remind_before_days": 3
+      },
+      "deadline": {
+        "type": "fixed",
+        "date": "25/09"
+      },
+      "assignees": [],
+      "template": {
+        "content": "Review KPI quý 3: đánh giá tiến độ, điều chỉnh mục tiêu, lên kế hoạch cho Q4.",
+        "link": null
+      }
+    }
+  ]
+}

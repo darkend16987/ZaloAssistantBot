@@ -1,0 +1,86 @@
+{
+  "quarter": "Q1",
+  "description": "Quý 1: Tháng 1 - Tháng 3",
+  "tasks": [
+    {
+      "id": "Q1-001",
+      "title": "Lên kế hoạch công việc đầu năm",
+      "description": "Xây dựng kế hoạch công việc và mục tiêu cho năm mới",
+      "time": {
+        "type": "fixed",
+        "date": "02/01",
+        "remind_before_days": 1
+      },
+      "deadline": {
+        "type": "fixed",
+        "date": "10/01"
+      },
+      "assignees": [],
+      "template": {
+        "content": "Lên danh sách các mục tiêu và kế hoạch công việc cho năm mới. Bao gồm: KPI, dự án trọng điểm, đào tạo, phát triển cá nhân.",
+        "link": null
+      }
+    },
+    {
+      "id": "Q1-002",
+      "title": "Chuẩn bị truyền thông Tết Nguyên Đán",
+      "description": "Lên nội dung chúc Tết, thiết kế ảnh, lên lịch đăng bài",
+      "time": {
+        "type": "relative",
+        "anchor": "tet_nguyen_dan",
+        "offset_days": -30,
+        "remind_before_days": 3
+      },
+      "deadline": {
+        "type": "relative",
+        "anchor": "tet_nguyen_dan",
+        "offset_days": -7
+      },
+      "assignees": [],
+      "template": {
+        "content": "Chuẩn bị nội dung truyền thông Tết: banner, bài viết chúc mừng, thiệp điện tử, lịch nghỉ Tết.",
+        "link": null
+      }
+    },
+    {
+      "id": "Q1-003",
+      "title": "Tổng kết và báo cáo trước Tết",
+      "description": "Báo cáo tổng kết công việc trước khi nghỉ Tết",
+      "time": {
+        "type": "relative",
+        "anchor": "tet_nguyen_dan",
+        "offset_days": -5,
+        "remind_before_days": 2
+      },
+      "deadline": {
+        "type": "relative",
+        "anchor": "tet_nguyen_dan",
+        "offset_days": -2
+      },
+      "assignees": [],
+      "template": {
+        "content": "Hoàn thành báo cáo tổng kết trước Tết. Đảm bảo bàn giao công việc cần thiết.",
+        "link": null
+      }
+    },
+    {
+      "id": "Q1-004",
+      "title": "Quà tặng và chúc mừng 8/3",
+      "description": "Chuẩn bị quà và hoạt động chúc mừng Ngày Quốc tế Phụ nữ",
+      "time": {
+        "type": "fixed",
+        "date": "01/03",
+        "remind_before_days": 5
+      },
+      "deadline": {
+        "type": "fixed",
+        "date": "07/03"
+      },
+      "assignees": [],
+      "template": {
+        "content": "Lên kế hoạch quà tặng và hoạt động cho ngày 8/3: mua quà, chuẩn bị thiệp, tổ chức hoạt động.",
+        "link": null
+      }
+    }
+  ]
+}

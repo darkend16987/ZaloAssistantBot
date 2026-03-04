@@ -20,6 +20,13 @@ from app.mcp.tools.task_tools import (
 )
 from app.mcp.tools.birthday_tools import GetBirthdaysTool
 from app.mcp.tools.knowledge_tools import SearchRegulationsTool, ListRegulationsTool
+from app.mcp.tools.yearly_schedule_tools import (
+    GetYearlyScheduleTool,
+    GetYearlyTaskDetailTool,
+    ConfirmYearlyTaskTool,
+    SkipYearlyTaskTool,
+    CompleteYearlyTaskTool,
+)
 
 
 def register_all_tools():
@@ -46,6 +53,13 @@ def register_all_tools():
     tool_registry.register(SearchRegulationsTool())
     tool_registry.register(ListRegulationsTool())
 
+    # Yearly schedule tools
+    tool_registry.register(GetYearlyScheduleTool())
+    tool_registry.register(GetYearlyTaskDetailTool())
+    tool_registry.register(ConfirmYearlyTaskTool())
+    tool_registry.register(SkipYearlyTaskTool())
+    tool_registry.register(CompleteYearlyTaskTool())
+
 
 __all__ = [
     'GetTasksTool',
@@ -62,5 +76,10 @@ __all__ = [
     'GetBirthdaysTool',
     'SearchRegulationsTool',
     'ListRegulationsTool',
+    'GetYearlyScheduleTool',
+    'GetYearlyTaskDetailTool',
+    'ConfirmYearlyTaskTool',
+    'SkipYearlyTaskTool',
+    'CompleteYearlyTaskTool',
     'register_all_tools',
 ]
