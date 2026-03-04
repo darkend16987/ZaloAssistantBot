@@ -7,6 +7,9 @@ config.py
 # Session and state files (runtime data, not code)
 sessions.json
 data/
+!app/data/
+!app/data/schedules/
+app/data/schedules/state.json
 *.db
 
 # Logs

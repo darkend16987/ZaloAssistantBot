@@ -1,0 +1,65 @@
+{
+  "quarter": "Q2",
+  "description": "Quý 2: Tháng 4 - Tháng 6",
+  "tasks": [
+    {
+      "id": "Q2-001",
+      "title": "Chuẩn bị hoạt động Giỗ Tổ Hùng Vương",
+      "description": "Lên kế hoạch hoạt động nhân ngày Giỗ Tổ Hùng Vương 10/3 Âm lịch",
+      "time": {
+        "type": "relative",
+        "anchor": "gio_to_hung_vuong",
+        "offset_days": -10,
+        "remind_before_days": 3
+      },
+      "deadline": {
+        "type": "relative",
+        "anchor": "gio_to_hung_vuong",
+        "offset_days": -2
+      },
+      "assignees": [],
+      "template": {
+        "content": "Lên kế hoạch hoạt động kỷ niệm Giỗ Tổ Hùng Vương: thông báo lịch nghỉ, hoạt động nội bộ.",
+        "link": null
+      }
+    },
+    {
+      "id": "Q2-002",
+      "title": "Chuẩn bị hoạt động 30/4 - 1/5",
+      "description": "Kế hoạch nghỉ lễ và hoạt động kỷ niệm 30/4 - 1/5",
+      "time": {
+        "type": "fixed",
+        "date": "20/04",
+        "remind_before_days": 3
+      },
+      "deadline": {
+        "type": "fixed",
+        "date": "28/04"
+      },
+      "assignees": [],
+      "template": {
+        "content": "Thông báo lịch nghỉ lễ 30/4 - 1/5. Lên kế hoạch hoạt động, phân công trực nếu cần.",
+        "link": null
+      }
+    },
+    {
+      "id": "Q2-003",
+      "title": "Báo cáo giữa năm (Sơ kết 6 tháng)",
+      "description": "Chuẩn bị báo cáo sơ kết 6 tháng đầu năm",
+      "time": {
+        "type": "fixed",
+        "date": "15/06",
+        "remind_before_days": 5
+      },
+      "deadline": {
+        "type": "fixed",
+        "date": "25/06"
+      },
+      "assignees": [],
+      "template": {
+        "content": "Tổng hợp kết quả 6 tháng đầu năm: KPI, dự án hoàn thành, vấn đề tồn đọng, kế hoạch 6 tháng cuối năm.",
+        "link": null
+      }
+    }
+  ]
+}

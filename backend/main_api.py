@@ -59,6 +59,11 @@ async def startup():
     # Friday 14:00
     scheduler.add_job(scheduler_tasks.send_birthday_notifications, 'cron', day_of_week='fri', hour=14, minute=0, misfire_grace_time=300)
 
+    # 5. Yearly Task Scheduler
+    from app.services.yearly_scheduler import register_yearly_jobs
+    yearly_jobs = await register_yearly_jobs(scheduler)
+    logger.info(f"📅 Yearly scheduler: {yearly_jobs} jobs registered")
+
     scheduler.start()
     app.scheduler = scheduler
     logger.info(f"✅ Scheduler started with {len(scheduler.get_jobs())} jobs.")

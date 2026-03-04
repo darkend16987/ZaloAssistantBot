@@ -19,6 +19,7 @@ from app.mcp.prompts.prompt_manager import prompt_manager
 from app.mcp.providers.oneoffice_provider import OneOfficeProvider
 from app.mcp.providers.birthday_provider import BirthdayProvider
 from app.mcp.providers.enhanced_regulations_provider import EnhancedRegulationsProvider
+from app.mcp.providers.yearly_schedule_provider import YearlyScheduleProvider
 from app.mcp.tools import register_all_tools
 from app.services.memory import memory_service
 
@@ -49,6 +50,7 @@ async def bootstrap_mcp() -> None:
     provider_registry.register(OneOfficeProvider())
     provider_registry.register(BirthdayProvider())
     provider_registry.register(EnhancedRegulationsProvider())
+    provider_registry.register(YearlyScheduleProvider())
 
     # Step 2: Initialize providers
     logger.info("Initializing providers...")

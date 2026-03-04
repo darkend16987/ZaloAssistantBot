@@ -1,0 +1,82 @@
+{
+  "quarter": "Q4",
+  "description": "Quý 4: Tháng 10 - Tháng 12",
+  "tasks": [
+    {
+      "id": "Q4-001",
+      "title": "Quà tặng và hoạt động 20/10",
+      "description": "Chuẩn bị quà và hoạt động Ngày Phụ nữ Việt Nam 20/10",
+      "time": {
+        "type": "fixed",
+        "date": "10/10",
+        "remind_before_days": 5
+      },
+      "deadline": {
+        "type": "fixed",
+        "date": "19/10"
+      },
+      "assignees": [],
+      "template": {
+        "content": "Lên kế hoạch cho ngày 20/10: mua quà, thiệp, tổ chức hoạt động kỷ niệm Ngày Phụ nữ Việt Nam.",
+        "link": null
+      }
+    },
+    {
+      "id": "Q4-002",
+      "title": "Hoạt động Ngày Nhà giáo 20/11",
+      "description": "Tri ân, chúc mừng nhân ngày 20/11 (nếu áp dụng)",
+      "time": {
+        "type": "fixed",
+        "date": "10/11",
+        "remind_before_days": 5
+      },
+      "deadline": {
+        "type": "fixed",
+        "date": "19/11"
+      },
+      "assignees": [],
+      "template": {
+        "content": "Lên kế hoạch tri ân, chúc mừng ngày 20/11: thiệp, quà tặng, bài viết truyền thông.",
+        "link": null
+      }
+    },
+    {
+      "id": "Q4-003",
+      "title": "Tổng kết và báo cáo cuối năm",
+      "description": "Chuẩn bị báo cáo tổng kết năm, đánh giá KPI cả năm",
+      "time": {
+        "type": "fixed",
+        "date": "10/12",
+        "remind_before_days": 5
+      },
+      "deadline": {
+        "type": "fixed",
+        "date": "25/12"
+      },
+      "assignees": [],
+      "template": {
+        "content": "Tổng kết năm: báo cáo KPI, tổng hợp dự án, đánh giá nhân sự, lên kế hoạch năm sau.",
+        "link": null
+      }
+    },
+    {
+      "id": "Q4-004",
+      "title": "Chuẩn bị tiệc tất niên",
+      "description": "Lên kế hoạch và tổ chức tiệc tất niên công ty",
+      "time": {
+        "type": "fixed",
+        "date": "01/12",
+        "remind_before_days": 7
+      },
+      "deadline": {
+        "type": "fixed",
+        "date": "20/12"
+      },
+      "assignees": [],
+      "template": {
+        "content": "Lên kế hoạch tiệc tất niên: chọn địa điểm, menu, chương trình, ngân sách, gửi thư mời.",
+        "link": null
+      }
+    }
+  ]
+}
